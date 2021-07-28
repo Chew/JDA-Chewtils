@@ -50,6 +50,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -659,7 +660,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
         if(parts!=null) //starts with valid prefix
         {
-            String[] prefixAndArgs = rawContent.split(parts[0]);
+            String[] prefixAndArgs = rawContent.split(Pattern.quote(parts[0]));
             String prefix = "";
             if (prefixAndArgs.length > 0)
                 prefix = prefixAndArgs[0];
