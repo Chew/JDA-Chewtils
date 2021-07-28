@@ -31,8 +31,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <p>The EventWaiter is capable of handling specialized forms of
@@ -238,12 +236,10 @@ public class EventWaiter implements EventListener
             if(waitingEvents.containsKey(c))
             {
                 Set<WaitingEvent> set = waitingEvents.get(c);
-                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[set.size()]);
 
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
-                // and executed the action. We filter the ones that return false out of the toRemove and
-                // remove them all from the set.
-                set.removeAll(Stream.of(toRemove).filter(i -> i.attempt(event)).collect(Collectors.toSet()));
+                // and executed the action. We remove the ones that have successfully ran (those that returns true)
+                set.removeIf(wEvent -> wEvent.attempt(event));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
             {
