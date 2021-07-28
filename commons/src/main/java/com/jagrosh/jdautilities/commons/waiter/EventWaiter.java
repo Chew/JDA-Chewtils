@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.internal.utils.Checks;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -208,7 +209,7 @@ public class EventWaiter implements EventListener
         Checks.notNull(action, "The provided action consumer");
 
         WaitingEvent we = new WaitingEvent<>(condition, action);
-        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
+        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> Collections.synchronizedSet(new HashSet<>()));
         set.add(we);
 
         if(timeout > 0 && unit != null)
