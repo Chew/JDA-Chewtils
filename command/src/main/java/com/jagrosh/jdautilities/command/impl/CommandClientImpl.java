@@ -36,6 +36,8 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
@@ -604,68 +606,13 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(event.getAuthor().isBot())
             return;
 
-        String[] parts = null;
-        String rawContent = event.getMessage().getContentRaw();
-
-        GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()) : null;
-
-        // Check for prefix or alternate prefix (@mention cases)
-        if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX)))
-        {
-            if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">") ||
-                    rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
-            {
-                parts = splitOnPrefixLength(rawContent, rawContent.indexOf(">") + 1);
-            }
-        }
-        // Check for prefix
-        // Run Function check if there is one, then fallback to normal prefixes
-        if (prefixFunction != null)
-        {
-            String prefix = prefixFunction.apply(event);
-            // Don't lowercase, up to Function to handle this
-            if (prefix != null && rawContent.startsWith(prefix))
-                parts = splitOnPrefixLength(rawContent, prefixFunction.apply(event).length());
-        }
-        if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
-            parts = splitOnPrefixLength(rawContent, prefix.length());
-        // Check for alternate prefix
-        if(parts == null && altprefix != null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
-            parts = splitOnPrefixLength(rawContent, altprefix.length());
-        // Check for prefixes
-        if (prefixes != null)
-        {
-            for (String pre : prefixes)
-            {
-                if (parts == null && rawContent.toLowerCase().startsWith(pre.toLowerCase()))
-                {
-                    parts = splitOnPrefixLength(rawContent, pre.length());
-                }
-            }
-        }
-        // Check for guild specific prefixes
-        if(parts == null && settings != null)
-        {
-            Collection<String> prefixes = settings.getPrefixes();
-            if(prefixes != null)
-            {
-                for(String prefix : prefixes)
-                {
-                    if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
-                        parts = splitOnPrefixLength(rawContent, prefix.length());
-                }
-            }
-        }
+        final MessageParts parts = getParts(event);
 
         if(parts!=null) //starts with valid prefix
         {
-            String[] prefixAndArgs = rawContent.split(parts[0]);
-            String prefix = "";
-            if (prefixAndArgs.length > 0)
-                prefix = prefixAndArgs[0];
-            if(useHelp && parts[0].equalsIgnoreCase(helpWord))
+            if(useHelp && parts.command.equalsIgnoreCase(helpWord))
             {
-                CommandEvent cevent = new CommandEvent(event, prefix, parts[1]==null ? "" : parts[1], this);
+                CommandEvent cevent = new CommandEvent(event, parts.prefixUsed, parts.args, this);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
                 helpConsumer.accept(cevent); // Fire help consumer
@@ -675,8 +622,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
             else if(event.isFromType(ChannelType.PRIVATE) || event.getTextChannel().canTalk())
             {
-                String name = parts[0];
-                String args = parts[1]==null ? "" : parts[1];
+                String name = parts.command;
+                String args = parts.args;
                 final Command command; // this will be null if it's not a command
                 synchronized(commandIndex)
                 {
@@ -686,7 +633,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
                 if(command != null)
                 {
-                    CommandEvent cevent = new CommandEvent(event, prefix, args, this);
+                    CommandEvent cevent = new CommandEvent(event, parts.prefixUsed, args, this);
 
                     if(listener != null)
                         listener.onCommand(cevent, command);
@@ -702,6 +649,108 @@ public class CommandClientImpl implements CommandClient, EventListener
 
         if(listener != null)
             listener.onNonCommandMessage(event);
+    }
+
+    @Nullable
+    private MessageParts getParts(MessageReceivedEvent event) {
+        String rawContent = event.getMessage().getContentRaw();
+
+        GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()) : null;
+
+        // Check for prefix or alternate prefix (@mention cases)
+        if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX))) {
+            if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
+                    rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
+                final int prefixLength = rawContent.indexOf('>') + 1;
+                return makeMessageParts(rawContent, prefixLength);
+            }
+        }
+
+        // Check for prefix
+        // Run Function check if there is one, then fallback to normal prefixes
+        if (prefixFunction != null) {
+            String prefix = prefixFunction.apply(event);
+            // Don't lowercase, up to Function to handle this
+            if (prefix != null && rawContent.startsWith(prefix)) {
+                final int prefixLength = prefix.length();
+                return makeMessageParts(rawContent, prefixLength);
+            }
+        }
+
+        final String lowerCaseContent = rawContent.toLowerCase();
+        // Check for default prefix
+        if (lowerCaseContent.startsWith(prefix.toLowerCase())) {
+            final int prefixLength = prefix.length();
+            return makeMessageParts(rawContent, prefixLength);
+        }
+
+        // Check for alternate prefix
+        if(altprefix != null && lowerCaseContent.startsWith(altprefix.toLowerCase())) {
+            final int prefixLength = altprefix.length();
+            return makeMessageParts(rawContent, prefixLength);
+        }
+
+        // Check for prefixes
+        if (prefixes != null) {
+            for (String pre : prefixes) {
+                if (lowerCaseContent.startsWith(pre.toLowerCase())) {
+                    final int prefixLength = pre.length();
+                    return makeMessageParts(rawContent, prefixLength);
+                }
+            }
+        }
+
+        // Check for guild specific prefixes
+        if(settings != null) {
+            Collection<String> prefixes = settings.getPrefixes();
+            if(prefixes != null) {
+                for(String prefix : prefixes) {
+                    if(lowerCaseContent.startsWith(prefix.toLowerCase())) {
+                        final int prefixLength = prefix.length();
+                        return makeMessageParts(rawContent, prefixLength);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @NotNull
+    private CommandClientImpl.MessageParts makeMessageParts(String rawContent, int prefixLength) {
+        //Replacement method below
+//        final String[] split = rawContent.substring(prefixLength).trim().split("\\s+", 2);
+
+        //What we do is search for the first whitespace after the prefix, this gets us the command name
+        // To then get the arguments, we find the first occurrence of a character other than a whitespace, after the command index, and take the string from that index
+        String cmd = null;
+        for (int i = prefixLength; i < rawContent.length(); i++) {
+            if (Character.isWhitespace(rawContent.charAt(i))) { //If a whitespace assume we found the end of the command name
+                cmd = rawContent.substring(prefixLength, i + 1); //+1 because index is exclusive
+                break;
+            }
+        }
+
+        String args = "";
+        if (cmd == null) { //Assume there are no args since there were absolutely no whitespace
+            cmd = rawContent.substring(prefixLength);
+        } else {
+            for (int i = prefixLength + cmd.length(); i < rawContent.length(); i++) {
+                if (!Character.isWhitespace(rawContent.charAt(i))) { //If not a whitespace assume we found the start of the arguments
+                    args = rawContent.substring(i);
+                    break;
+                }
+            }
+        }
+
+        //Just in case something fucked up
+        LOG.trace("Received command named '{}' with args '{}'", cmd, args);
+
+        return new MessageParts(
+            rawContent.substring(0, prefixLength),
+            cmd,
+            args
+        );
     }
 
     private void onSlashCommand(SlashCommandEvent event)
@@ -835,15 +884,10 @@ public class CommandClientImpl implements CommandClient, EventListener
     private GuildSettingsProvider provideSettings(Guild guild)
     {
         Object settings = getSettingsFor(guild);
-        if(settings != null && settings instanceof GuildSettingsProvider)
+        if(settings instanceof GuildSettingsProvider) //implicit null check
             return (GuildSettingsProvider)settings;
         else
             return null;
-    }
-
-    private static String[] splitOnPrefixLength(String rawContent, int length)
-    {
-        return Arrays.copyOf(rawContent.substring(length).trim().split("\\s+", 2), 2);
     }
 
     /**
@@ -875,6 +919,18 @@ public class CommandClientImpl implements CommandClient, EventListener
                 stored.add(message);
                 linkMap.add(callId, stored);
             }
+        }
+    }
+
+    private static class MessageParts {
+        private final String prefixUsed;
+        private final String command;
+        private final String args;
+
+        private MessageParts(String prefixUsed, String command, String args) {
+            this.prefixUsed = prefixUsed;
+            this.command = command;
+            this.args = args;
         }
     }
 }
