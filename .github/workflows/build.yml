@@ -27,4 +27,5 @@ jobs:
           restore-keys: ${{ runner.os }}-paper-2
       - name: Patch and build
         run: |
+          chmod u+x ./gradlew
           ./gradlew build --stacktrace
