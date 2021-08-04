@@ -233,10 +233,9 @@ public class EventWaiter implements EventListener
         // is primitive, void, or (in this case) Object.
         while(c != null)
         {
-            if(waitingEvents.containsKey(c))
+            final Set<WaitingEvent> set = waitingEvents.get(c);
+            if(set != null)
             {
-                Set<WaitingEvent> set = waitingEvents.get(c);
-
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
                 // and executed the action. We remove the ones that have successfully ran (those that returns true)
                 set.removeIf(wEvent -> wEvent.attempt(event));
