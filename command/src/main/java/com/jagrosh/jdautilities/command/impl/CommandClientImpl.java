@@ -731,7 +731,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         String cmd = null;
         for (int i = prefixLength; i < rawContent.length(); i++) {
             if (Character.isWhitespace(rawContent.charAt(i))) { //If a whitespace assume we found the end of the command name
-                cmd = rawContent.substring(prefixLength, i + 1); //+1 because index is exclusive
+                cmd = rawContent.substring(prefixLength, i);
                 break;
             }
         }
