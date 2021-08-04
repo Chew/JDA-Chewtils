@@ -721,6 +721,21 @@ public class CommandClientImpl implements CommandClient, EventListener
         return null;
     }
 
+    /**
+     * Processes the message raw content and returns the "parts" of the message
+     * <br>These parts include:
+     * <ul>
+     *     <li>Used prefix</li>
+     *     <li>Command name</li>
+     *     <li>Arguments</li>
+     * </ul>
+     *
+     * @param rawContent
+     *        The raw content of the incoming message
+     * @param prefixLength
+     *        The length of the prefix that has been successfully detected before calling this method
+     * @return A MessageParts objects with all the parts cited above
+     */
     @NotNull
     private CommandClientImpl.MessageParts makeMessageParts(String rawContent, int prefixLength) {
         //Replacement method below
