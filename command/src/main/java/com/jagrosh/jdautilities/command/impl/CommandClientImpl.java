@@ -133,7 +133,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.coOwnerIds = coOwnerIds;
         this.prefix = prefix==null || prefix.isEmpty() ? DEFAULT_PREFIX : prefix;
         this.altprefix = altprefix==null || altprefix.isEmpty() ? null : altprefix;
+
         this.prefixes = prefixes==null || prefixes.length == 0 ? null : prefixes;
+        if (this.prefixes != null) {
+            Arrays.sort(this.prefixes, Comparator.reverseOrder());
+        }
+
         this.prefixFunction = prefixFunction;
         this.commandPreProcessFunction = commandPreProcessFunction==null ? event -> true : commandPreProcessFunction;
         this.textPrefix = prefix;
