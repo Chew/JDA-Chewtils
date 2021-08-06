@@ -17,6 +17,7 @@ package com.jagrosh.jdautilities.command;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.AnnotatedModuleCompilerImpl;
@@ -46,7 +47,7 @@ public class CommandClientBuilder
     private String altprefix;
     private String[] prefixes;
     private Function<MessageReceivedEvent, String> prefixFunction;
-    private Function<MessageReceivedEvent, Boolean> commandPreProcessFunction;
+    private BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessFunction;
     private String serverInvite;
     private String success;
     private String warning;
@@ -186,7 +187,7 @@ public class CommandClientBuilder
      *
      * @return This builder
      */
-    public CommandClientBuilder setCommandPreProcessFunction(Function<MessageReceivedEvent, Boolean> commandPreProcessFunction)
+    public CommandClientBuilder setCommandPreProcessFunction(BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessFunction)
     {
         this.commandPreProcessFunction = commandPreProcessFunction;
         return this;
