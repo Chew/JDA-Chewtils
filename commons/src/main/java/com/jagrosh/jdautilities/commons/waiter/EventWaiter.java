@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -207,7 +208,7 @@ public class EventWaiter implements EventListener
         Checks.notNull(action, "The provided action consumer");
 
         WaitingEvent we = new WaitingEvent<>(condition, action);
-        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> Collections.synchronizedSet(new HashSet<>()));
+        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> ConcurrentHashMap.newKeySet());
         set.add(we);
 
         if(timeout > 0 && unit != null)
