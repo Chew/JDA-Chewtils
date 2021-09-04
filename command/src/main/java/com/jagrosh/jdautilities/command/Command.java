@@ -99,7 +99,15 @@ public abstract class Command
      * <br>Default {@code true}.
      */
     protected boolean guildOnly = true;
-    
+
+    /**
+     * {@code true} if the command may only be used in an NSFW
+     * {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} or DMs.
+     * {@code false} if it may be used anywhere
+     * <br>Default: {@code false}
+     */
+    protected boolean nsfwOnly = false;
+
     /**
      * A String name of a role required to use this command.
      */
@@ -315,6 +323,13 @@ public abstract class Command
                         return;
                     }
                 }
+            }
+
+            // nsfw check
+            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            {
+                terminate(event, "This command may only be used in NSFW text channels!");
+                return;
             }
         }
         else if(guildOnly)

@@ -308,6 +308,13 @@ public abstract class SlashCommand extends Command
                     }
                 }
             }
+
+            // nsfw check
+            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            {
+                terminate(event, "This command may only be used in NSFW text channels!", client);
+                return;
+            }
         }
         else if(guildOnly)
         {
