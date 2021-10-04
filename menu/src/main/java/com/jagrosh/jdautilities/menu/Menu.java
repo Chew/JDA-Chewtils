@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.entities.*;
@@ -88,7 +89,9 @@ public abstract class Menu
      *         The Message to display this Menu as
      */
     public abstract void display(Message message);
-
+    
+    public abstract Message getMessage(int page);
+    
     /**
      * Checks to see if the provided {@link net.dv8tion.jda.api.entities.User User}
      * is valid to interact with this Menu.<p>
@@ -125,6 +128,9 @@ public abstract class Menu
      *
      *     <li>If the Guild is {@code null}, or if the User is not a member on the Guild, this
      *         will return {@code false}.</li>
+     *     
+     *     <li>If the Member was null, this will return {@code false}. A member will always be null
+     *         if Caching and the GUILD_MEMBERS intent aren't enabled.</li>
      *
      *     <li>Finally, the determination will be if the User on the provided Guild has any
      *         of the builder-specified Roles.</li>
@@ -152,8 +158,12 @@ public abstract class Menu
             return true;
         if(guild == null || !guild.isMember(user))
             return false;
+        
+        Member member = guild.getMember(user);
+        if(member == null)
+            return false;
 
-        return guild.getMember(user).getRoles().stream().anyMatch(roles::contains);
+        return member.getRoles().stream().anyMatch(roles::contains);
     }
 
     /**

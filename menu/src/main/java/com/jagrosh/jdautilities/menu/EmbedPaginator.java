@@ -101,7 +101,12 @@ public class EmbedPaginator extends Menu{
     {
         paginate(message, 1);
     }
-
+    
+    @Override
+    public Message getMessage(int page){
+        return renderPage(page);
+    }
+    
     /**
      * Begins pagination as a new {@link net.dv8tion.jda.api.entities.Message Message}
      * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting
