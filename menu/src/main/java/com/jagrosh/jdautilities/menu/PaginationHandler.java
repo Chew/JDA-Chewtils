@@ -37,6 +37,12 @@ public class PaginationHandler
     private final TimeUnit unit;
     private final Consumer<Message> finalAction;
     
+    private final String bulkSkipLeftEmoji;
+    private final String leftEmoji;
+    private final String stopEmoji;
+    private final String rightEmoji;
+    private final String bulkSkipRightEmoji;
+    
     
     public PaginationHandler(Menu menu, int totalPages, int bulkSkip, boolean allowSinglePage,
                              boolean allowPageWrap, int time, TimeUnit unit, Consumer<Message> finalAction)
@@ -49,6 +55,33 @@ public class PaginationHandler
         this.time = time;
         this.unit = unit;
         this.finalAction = finalAction;
+        
+        this.bulkSkipLeftEmoji = EMOJI_BULK_SKIP_LEFT;
+        this.leftEmoji = EMOJI_LEFT;
+        this.stopEmoji = EMOJI_STOP;
+        this.rightEmoji = EMOJI_RIGHT;
+        this.bulkSkipRightEmoji = EMOJI_BULK_SKIP_RIGHT;
+    }
+    
+    public PaginationHandler(Menu menu, int totalPages, int bulkSkip, boolean allowSinglePage,
+                             boolean allowPageWrap, int time, TimeUnit unit, Consumer<Message> finalAction,
+                             String bulkSkipLeftEmoji, String leftEmoji, String stopEmoji, String rightEmoji,
+                             String bulkSkipRightEmoji)
+    {
+        this.menu = menu;
+        this.totalPages = totalPages;
+        this.bulkSkip = bulkSkip;
+        this.allowSinglePage = allowSinglePage;
+        this.allowPageWrap = allowPageWrap;
+        this.time = time;
+        this.unit = unit;
+        this.finalAction = finalAction;
+    
+        this.bulkSkipLeftEmoji = bulkSkipLeftEmoji;
+        this.leftEmoji = leftEmoji;
+        this.stopEmoji = stopEmoji;
+        this.rightEmoji = rightEmoji;
+        this.bulkSkipRightEmoji = bulkSkipRightEmoji;
     }
     
     public void displayWithButtons(MessageChannel channel, int pageNumber)
@@ -75,20 +108,20 @@ public class PaginationHandler
         {
             Set<Button> buttons = new HashSet<>();
             if(bulkSkip > 1)
-                buttons.add(getButton(BUTTON_ID_BULK_SKIP_LEFT, EMOJI_BULK_SKIP_LEFT, pageNumber));
+                buttons.add(getButton(BUTTON_ID_BULK_SKIP_LEFT, bulkSkipLeftEmoji, pageNumber));
             
-            buttons.add(getButton(BUTTON_ID_LEFT, EMOJI_LEFT, pageNumber));
-            buttons.add(getButton(BUTTON_ID_STOP, EMOJI_STOP, pageNumber));
-            buttons.add(getButton(BUTTON_ID_RIGHT, EMOJI_RIGHT, pageNumber));
+            buttons.add(getButton(BUTTON_ID_LEFT, leftEmoji, pageNumber));
+            buttons.add(getButton(BUTTON_ID_STOP, stopEmoji, pageNumber));
+            buttons.add(getButton(BUTTON_ID_RIGHT, rightEmoji, pageNumber));
             
             if(bulkSkip > 1)
-                buttons.add(getButton(BUTTON_ID_BULK_SKIP_RIGHT, EMOJI_BULK_SKIP_RIGHT, pageNumber));
+                buttons.add(getButton(BUTTON_ID_BULK_SKIP_RIGHT, bulkSkipRightEmoji, pageNumber));
             
             builder.setActionRows(ActionRow.of(buttons));
         }
         else if(allowSinglePage)
         {
-            builder.setActionRows(ActionRow.of(getButton(BUTTON_ID_STOP, EMOJI_STOP, pageNumber)));
+            builder.setActionRows(ActionRow.of(getButton(BUTTON_ID_STOP, stopEmoji, pageNumber)));
         }else{
             finalAction.accept(builder.build());
             return;
@@ -133,13 +166,13 @@ public class PaginationHandler
         
         switch(event.getComponentId())
         {
-            case "bulk_skip_left":
-            case "bulk_skip_right":
+            case BUTTON_ID_BULK_SKIP_LEFT:
+            case BUTTON_ID_BULK_SKIP_RIGHT:
                 return bulkSkip > 1 && menu.isValidUser(event.getUser(), event.getGuild() != null ? event.getGuild() : null);
             
-            case "skip_left":
-            case "stop":
-            case "skip_right":
+            case BUTTON_ID_LEFT:
+            case BUTTON_ID_STOP:
+            case BUTTON_ID_RIGHT:
                 return menu.isValidUser(event.getUser(), event.getGuild() != null ? event.getGuild() : null);
             
             default:
@@ -152,10 +185,10 @@ public class PaginationHandler
         int newPageNumber = pageNumber;
         switch(event.getComponentId())
         {
-            case "bulk_skip_left":
+            case BUTTON_ID_BULK_SKIP_LEFT:
                 if(newPageNumber > 1)
                 {
-                    for(int i = 1; i < bulkSkip; i++)
+                    for(int i = 1; newPageNumber > 1 && i < bulkSkip; i++)
                     {
                         newPageNumber--;
                     }
@@ -166,28 +199,28 @@ public class PaginationHandler
                 }
                 break;
             
-            case "skip_left":
+            case BUTTON_ID_LEFT:
                 if(newPageNumber == 1 && allowPageWrap)
                     newPageNumber = totalPages + 1;
                 if(newPageNumber > 1)
                     newPageNumber--;
                 break;
             
-            case "stop":
+            case BUTTON_ID_STOP:
                 finalAction.accept(message);
                 return;
             
-            case "skip_right":
+            case BUTTON_ID_RIGHT:
                 if(newPageNumber == totalPages && allowPageWrap)
                     newPageNumber = 0;
                 if(newPageNumber < totalPages)
                     newPageNumber++;
                 break;
             
-            case "bulk_skip_right":
+            case BUTTON_ID_BULK_SKIP_RIGHT:
                 if(newPageNumber < totalPages)
                 {
-                    for(int i = 1; i < bulkSkip; i++)
+                    for(int i = 1; newPageNumber < totalPages && i < bulkSkip; i++)
                     {
                         newPageNumber++;
                     }
