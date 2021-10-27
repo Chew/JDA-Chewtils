@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -414,13 +415,13 @@ public abstract class Command
         String topic = channel.getTopic();
         if(topic==null || topic.isEmpty())
             return true;
-        topic = topic.toLowerCase();
-        String lowerName = name.toLowerCase();
+        topic = topic.toLowerCase(Locale.ENGLISH);
+        String lowerName = name.toLowerCase(Locale.ENGLISH);
         if(topic.contains("{"+lowerName+"}"))
             return true;
         if(topic.contains("{-"+lowerName+"}"))
             return false;
-        String lowerCat = category==null ? null : category.getName().toLowerCase();
+        String lowerCat = category==null ? null : category.getName().toLowerCase(Locale.ENGLISH);
         if(lowerCat!=null)
         {
             if(topic.contains("{"+lowerCat+"}"))

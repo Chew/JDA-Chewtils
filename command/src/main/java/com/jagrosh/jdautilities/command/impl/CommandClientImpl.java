@@ -313,13 +313,13 @@ public class CommandClientImpl implements CommandClient, EventListener
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
         synchronized(commandIndex)
         {
-            String name = command.getName().toLowerCase();
+            String name = command.getName().toLowerCase(Locale.ENGLISH);
             //check for collision
             if(commandIndex.containsKey(name))
                 throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
             for(String alias : command.getAliases())
             {
-                if(commandIndex.containsKey(alias.toLowerCase()))
+                if(commandIndex.containsKey(alias.toLowerCase(Locale.ENGLISH)))
                     throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
             }
             //shift if not append
@@ -331,7 +331,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             //add
             commandIndex.put(name, index);
             for(String alias : command.getAliases())
-                commandIndex.put(alias.toLowerCase(), index);
+                commandIndex.put(alias.toLowerCase(Locale.ENGLISH), index);
         }
         commands.add(index,command);
     }
@@ -349,7 +349,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+slashCommands.size()+"]");
         synchronized(slashCommandIndex)
         {
-            String name = command.getName().toLowerCase();
+            String name = command.getName().toLowerCase(Locale.ENGLISH);
             //check for collision
             if(slashCommandIndex.containsKey(name))
                 throw new IllegalArgumentException("Command added has a name that has already been indexed: \""+name+"\"!");
@@ -370,13 +370,13 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         synchronized(commandIndex)
         {
-            if(!commandIndex.containsKey(name.toLowerCase()))
+            if(!commandIndex.containsKey(name.toLowerCase(Locale.ENGLISH)))
                 throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
-            int targetIndex = commandIndex.remove(name.toLowerCase());
+            int targetIndex = commandIndex.remove(name.toLowerCase(Locale.ENGLISH));
             Command removedCommand = commands.remove(targetIndex);
             for(String alias : removedCommand.getAliases())
             {
-                commandIndex.remove(alias.toLowerCase());
+                commandIndex.remove(alias.toLowerCase(Locale.ENGLISH));
             }
             commandIndex.entrySet().stream().filter(entry -> entry.getValue()>targetIndex).collect(Collectors.toList())
                 .forEach(entry -> commandIndex.put(entry.getKey(), entry.getValue()-1));
@@ -632,7 +632,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 final Command command; // this will be null if it's not a command
                 synchronized(commandIndex)
                 {
-                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
+                    int i = commandIndex.getOrDefault(name.toLowerCase(Locale.ENGLISH), -1);
                     command = i != -1? commands.get(i) : null;
                 }
 
@@ -682,15 +682,15 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
         }
 
-        final String lowerCaseContent = rawContent.toLowerCase();
+        final String lowerCaseContent = rawContent.toLowerCase(Locale.ENGLISH);
         // Check for default prefix
-        if (lowerCaseContent.startsWith(prefix.toLowerCase())) {
+        if (lowerCaseContent.startsWith(prefix.toLowerCase(Locale.ENGLISH))) {
             final int prefixLength = prefix.length();
             return makeMessageParts(rawContent, prefixLength);
         }
 
         // Check for alternate prefix
-        if(altprefix != null && lowerCaseContent.startsWith(altprefix.toLowerCase())) {
+        if(altprefix != null && lowerCaseContent.startsWith(altprefix.toLowerCase(Locale.ENGLISH))) {
             final int prefixLength = altprefix.length();
             return makeMessageParts(rawContent, prefixLength);
         }
@@ -698,7 +698,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Check for prefixes
         if (prefixes != null) {
             for (String pre : prefixes) {
-                if (lowerCaseContent.startsWith(pre.toLowerCase())) {
+                if (lowerCaseContent.startsWith(pre.toLowerCase(Locale.ENGLISH))) {
                     final int prefixLength = pre.length();
                     return makeMessageParts(rawContent, prefixLength);
                 }
@@ -710,7 +710,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             Collection<String> prefixes = settings.getPrefixes();
             if(prefixes != null) {
                 for(String prefix : prefixes) {
-                    if(lowerCaseContent.startsWith(prefix.toLowerCase())) {
+                    if(lowerCaseContent.startsWith(prefix.toLowerCase(Locale.ENGLISH))) {
                         final int prefixLength = prefix.length();
                         return makeMessageParts(rawContent, prefixLength);
                     }
@@ -778,7 +778,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         final SlashCommand command; // this will be null if it's not a command
         synchronized(slashCommandIndex)
         {
-            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(), -1);
+            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(Locale.ENGLISH), -1);
             command = i != -1? slashCommands.get(i) : null;
         }
 

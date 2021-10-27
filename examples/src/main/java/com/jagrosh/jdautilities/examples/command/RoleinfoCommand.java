@@ -21,6 +21,8 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import java.awt.Color;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -83,7 +85,7 @@ public class RoleinfoCommand extends Command
         StringBuilder desr = new StringBuilder(LINESTART + "ID: **" + role.getId() + "**\n"
                 + LINESTART + "Creation: **" + role.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME)+"**\n"
                 + LINESTART + "Position: **" + role.getPosition()+"**\n"
-                + LINESTART + "Color: **#" + (color==null ? "000000" : Integer.toHexString(color.getRGB()).toUpperCase().substring(2)) + "**\n"
+                + LINESTART + "Color: **#" + (color==null ? "000000" : Integer.toHexString(color.getRGB()).toUpperCase(Locale.ENGLISH).substring(2)) + "**\n"
                 + LINESTART + "Mentionable: **" + role.isMentionable() + "**\n"
                 + LINESTART + "Hoisted: **" + role.isHoisted() + "**\n"
                 + LINESTART + "Managed: **" + role.isManaged() + "**\n"
