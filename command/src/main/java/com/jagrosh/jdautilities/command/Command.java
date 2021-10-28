@@ -415,13 +415,13 @@ public abstract class Command
         String topic = channel.getTopic();
         if(topic==null || topic.isEmpty())
             return true;
-        topic = topic.toLowerCase(Locale.ENGLISH);
-        String lowerName = name.toLowerCase(Locale.ENGLISH);
+        topic = topic.toLowerCase(Locale.ROOT);
+        String lowerName = name.toLowerCase(Locale.ROOT);
         if(topic.contains("{"+lowerName+"}"))
             return true;
         if(topic.contains("{-"+lowerName+"}"))
             return false;
-        String lowerCat = category==null ? null : category.getName().toLowerCase(Locale.ENGLISH);
+        String lowerCat = category==null ? null : category.getName().toLowerCase(Locale.ROOT);
         if(lowerCat!=null)
         {
             if(topic.contains("{"+lowerCat+"}"))

@@ -325,7 +325,7 @@ public class OrderedMenu extends Menu
             // is 10 (the maximum number of choices in general even).
             // If you look carefully, you'll see that a corresponds to the
             // index 1, b to the index 2, and so on.
-            return message.length()==1 ? " abcdefghij".indexOf(message.toLowerCase(Locale.ENGLISH)) : -1;
+            return message.length()==1 ? " abcdefghij".indexOf(message.toLowerCase(Locale.ROOT)) : -1;
         else
         {
             // The same as above applies here, albeit in a different way.
