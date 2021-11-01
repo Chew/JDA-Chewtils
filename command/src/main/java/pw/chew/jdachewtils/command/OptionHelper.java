@@ -15,7 +15,9 @@ import java.util.List;
 /**
  * A collection of useful methods for working with Options.
  */
-public class OptionHelper {
+public final class OptionHelper {
+    private OptionHelper() {}
+
     /**
      * Guarantees a String option value by providing a default value.
      *
