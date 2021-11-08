@@ -42,7 +42,9 @@ import java.util.function.Consumer;
  * @author Andre_601
  */
 public class EmbedPaginator extends Menu{
-
+    
+    private final PaginationHandler paginationHandler;
+    
     private final BiFunction<Integer, Integer, String> text;
     private final Consumer<Message> finalAction;
     private final boolean waitOnSinglePage;
@@ -74,37 +76,71 @@ public class EmbedPaginator extends Menu{
         this.leftText = leftText;
         this.rightText = rightText;
         this.allowTextInput = allowTextInput;
+        
+        this.paginationHandler = new PaginationHandler.Builder(this)
+            .allowPageWrap(wrapPageEnds)
+            .allowSinglePage(waitOnSinglePage)
+            .setBulkSkipLeft(bulkSkipNumber > 1 ? PaginationHandler.EMOJI_BULK_SKIP_LEFT : null)
+            .setBulkSkipRight(bulkSkipNumber > 1 ? PaginationHandler.EMOJI_BULK_SKIP_RIGHT : null)
+            .setEmbeds(embeds)
+            .setFinalAction(finalAction)
+            .build();
     }
 
     /**
-     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * {@inheritDoc}
      *
      * @param  channel
      *         The MessageChannel to send the new Message to
+     *
+     * @deprecated Deprecated in favour of {@link #displayWithButtons(MessageChannel)} and
+     *             {@link #displayWithReactions(MessageChannel)}.
      */
     @Override
+    @Deprecated
     public void display(MessageChannel channel)
     {
-        paginate(channel, 1);
+        paginationHandler.displayWithReactions(channel, 1);
     }
 
     /**
-     * Begins pagination on page 1 displaying this by editing the provided
-     * {@link net.dv8tion.jda.api.entities.Message Message}.
+     * {@inheritDoc}
      *
      * @param  message
      *         The Message to display the Menu in
+     *
+     * @deprecated Deprecated in favour of {@link #displayWithButtons(MessageChannel)} and
+     *             {@link #displayWithReactions(MessageChannel)}.
      */
     @Override
+    @Deprecated
     public void display(Message message)
     {
-        paginate(message, 1);
+        paginationHandler.displayWithReactions(message, 1);
     }
     
+    /**
+     * {@inheritDoc}
+     * 
+     * @param channel
+     *        The {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} to display the menu in.
+     */
     @Override
-    public Message getMessage(int page){
-        return renderPage(page);
+    public void displayWithButtons(MessageChannel channel)
+    {
+        paginationHandler.displayWithButtons(channel, 1);
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @param channel
+     *        The {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} to display the menu in.
+     */
+    @Override
+    public void displayWithReactions(MessageChannel channel)
+    {
+        paginationHandler.displayWithReactions(channel, 1);
     }
     
     /**
@@ -119,12 +155,7 @@ public class EmbedPaginator extends Menu{
      */
     public void paginate(MessageChannel channel, int pageNum)
     {
-        if(pageNum < 1)
-            pageNum = 1;
-        else if(pageNum > embeds.size())
-            pageNum = embeds.size();
-        Message msg = renderPage(pageNum);
-        initialize(channel.sendMessage(msg), pageNum);
+        paginationHandler.displayWithReactions(channel, pageNum);
     }
 
     /**
@@ -139,188 +170,7 @@ public class EmbedPaginator extends Menu{
      */
     public void paginate(Message message, int pageNum)
     {
-        if(pageNum < 1)
-            pageNum = 1;
-        else if(pageNum > embeds.size())
-            pageNum = embeds.size();
-        Message msg = renderPage(pageNum);
-        initialize(message.editMessage(msg), pageNum);
-    }
-
-    private void initialize(RestAction<Message> action, int pageNum)
-    {
-        action.queue(m -> {
-            if(embeds.size()>1)
-            {
-                if(bulkSkipNumber > 1)
-                    m.addReaction(BIG_LEFT).queue();
-                m.addReaction(LEFT).queue();
-                m.addReaction(STOP).queue();
-                if(bulkSkipNumber > 1)
-                    m.addReaction(RIGHT).queue();
-                m.addReaction(bulkSkipNumber > 1 ? BIG_RIGHT : RIGHT)
-                    .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
-            }
-            else if(waitOnSinglePage)
-            {
-                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
-            }
-            else
-            {
-                finalAction.accept(m);
-            }
-        });
-    }
-
-    private void pagination(Message message, int pageNum)
-    {
-        if(allowTextInput || (leftText != null && rightText != null))
-            paginationWithTextInput(message, pageNum);
-        else
-            paginationWithoutTextInput(message, pageNum);
-    }
-
-    private void paginationWithTextInput(Message message, int pageNum)
-    {
-        waiter.waitForEvent(GenericMessageEvent.class, event -> {
-            if(event instanceof MessageReactionAddEvent)
-                return checkReaction((MessageReactionAddEvent) event, message.getIdLong());
-            else if(event instanceof MessageReceivedEvent)
-            {
-                MessageReceivedEvent mre = (MessageReceivedEvent) event;
-                if(!mre.getChannel().equals(message.getChannel()))
-                    return false;
-                String rawContent = mre.getMessage().getContentRaw().trim();
-                if(leftText != null && rightText != null)
-                {
-                    if(rawContent.equalsIgnoreCase(leftText) || rawContent.equalsIgnoreCase(rightText))
-                        return isValidUser(mre.getAuthor(), mre.isFromGuild() ? mre.getGuild() : null);
-                }
-
-                if(allowTextInput)
-                {
-                    try {
-                        int i = Integer.parseInt(rawContent);
-
-                        if(1 <= i && i <= embeds.size() && i != pageNum)
-                            return isValidUser(mre.getAuthor(), mre.isFromGuild() ? mre.getGuild() : null);
-                    } catch(NumberFormatException ignored) {}
-                }
-            }
-            return false;
-        }, event -> {
-            if(event instanceof MessageReactionAddEvent)
-            {
-                handleMessageReactionAddAction((MessageReactionAddEvent)event, message, pageNum);
-            }
-            else
-            {
-                MessageReceivedEvent mre = (MessageReceivedEvent) event;
-                String rawContent = mre.getMessage().getContentRaw().trim();
-
-                int pages = embeds.size();
-                final int targetPage;
-
-                if(leftText != null && rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
-                    targetPage = pageNum - 1 < 1 && wrapPageEnds ? pages : pageNum - 1;
-                else if(rightText != null && rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
-                    targetPage = pageNum + 1 > pages && wrapPageEnds ? 1 : pageNum + 1;
-                else
-                    targetPage = Integer.parseInt(rawContent);
-
-                message.editMessage(renderPage(targetPage)).queue(m -> pagination(m, targetPage));
-                mre.getMessage().delete().queue(v -> {}, t -> {});
-            }
-        }, timeout, unit, () -> finalAction.accept(message));
-    }
-
-    private void paginationWithoutTextInput(Message message, int pageNum)
-    {
-        waiter.waitForEvent(MessageReactionAddEvent.class,
-            event -> checkReaction(event, message.getIdLong()),
-            event -> handleMessageReactionAddAction(event, message, pageNum),
-            timeout, unit, () -> finalAction.accept(message));
-    }
-
-    private boolean checkReaction(MessageReactionAddEvent event, long messageId)
-    {
-        if(event.getMessageIdLong() != messageId)
-            return false;
-        switch(event.getReactionEmote().getName())
-        {
-            case LEFT:
-            case STOP:
-            case RIGHT:
-                return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
-            case BIG_LEFT:
-            case BIG_RIGHT:
-                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
-            default:
-                return false;
-        }
-    }
-
-    private void handleMessageReactionAddAction(MessageReactionAddEvent event, Message message, int pageNum)
-    {
-        int newPageNum = pageNum;
-        int pages = embeds.size();
-        switch(event.getReaction().getReactionEmote().getName())
-        {
-            case LEFT:
-                if(newPageNum == 1 && wrapPageEnds)
-                    newPageNum = pages + 1;
-                if(newPageNum > 1)
-                    newPageNum--;
-                break;
-            case RIGHT:
-                if(newPageNum == pages && wrapPageEnds)
-                    newPageNum = 0;
-                if(newPageNum < pages)
-                    newPageNum++;
-                break;
-            case BIG_LEFT:
-                if(newPageNum > 1 || wrapPageEnds)
-                {
-                    for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
-                    {
-                        if(newPageNum == 1 && wrapPageEnds)
-                            newPageNum = pages + 1;
-                        newPageNum--;
-                    }
-                }
-                break;
-            case BIG_RIGHT:
-                if(newPageNum < pages || wrapPageEnds)
-                {
-                    for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
-                    {
-                        if(newPageNum == pages && wrapPageEnds)
-                            newPageNum = 0;
-                        newPageNum++;
-                    }
-                }
-                break;
-            case STOP:
-                finalAction.accept(message);
-                return;
-        }
-
-        try {
-            event.getReaction().removeReaction(event.getUser()).queue();
-        } catch(PermissionException ignored) {}
-
-        int n = newPageNum;
-        message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
-    }
-
-    private Message renderPage(int pageNum)
-    {
-        MessageBuilder mbuilder = new MessageBuilder();
-        MessageEmbed membed = this.embeds.get(pageNum-1);
-        mbuilder.setEmbed(membed);
-        if(text != null)
-            mbuilder.append(text.apply(pageNum, embeds.size()));
-        return mbuilder.build();
+        paginationHandler.displayWithReactions(message, pageNum);
     }
 
     /**

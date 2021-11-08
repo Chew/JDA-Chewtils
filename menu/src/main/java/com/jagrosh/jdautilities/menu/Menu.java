@@ -76,7 +76,11 @@ public abstract class Menu
      * 
      * @param  channel
      *         The MessageChannel to display this Menu in
+     *
+     * @deprecated Deprecated in favour of {@link #displayWithButtons(MessageChannel)} and
+     *             {@link #displayWithReactions(MessageChannel)}.
      */
+    @Deprecated
     public abstract void display(MessageChannel channel);
     
     /**
@@ -87,16 +91,36 @@ public abstract class Menu
      * 
      * @param  message
      *         The Message to display this Menu as
+     * 
+     * @deprecated Deprecated in favour of {@link #displayWithButtons(MessageChannel)} and
+     *             {@link #displayWithReactions(MessageChannel)}.
      */
+    @Deprecated
     public abstract void display(Message message);
     
-    public abstract Message getMessage(int page);
+    /**
+     * Displays this menu in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * <br>The menu will use Discord's Buttons to navigate through the different pages.
+     * 
+     * @param channel
+     *        The MessageChannel to display this menu in.
+     */
+    public abstract void displayWithButtons(MessageChannel channel);
+    
+    /**
+     * Displays this menu in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * <br>The menu will use Reactions to navigate through the different pages.
+     *
+     * @param channel
+     *        The MessageChannel to display this menu in.
+     */
+    public abstract void displayWithReactions(MessageChannel channel);
     
     /**
      * Checks to see if the provided {@link net.dv8tion.jda.api.entities.User User}
-     * is valid to interact with this Menu.<p>
+     * is valid to interact with this Menu.
      *
-     * This is a shortcut for {@link Menu#isValidUser(User, Guild)} where the Guild
+     * <p>This is a shortcut for {@link Menu#isValidUser(User, Guild)} where the Guild
      * is {@code null}.
      *
      * @param  user
@@ -148,8 +172,10 @@ public abstract class Menu
      *
      * @return {@code true} if the User is valid, {@code false} otherwise.
      */
-    protected boolean isValidUser(User user, @Nullable Guild guild)
+    protected boolean isValidUser(@Nullable User user, @Nullable Guild guild)
     {
+        if(user == null) 
+            return false;
         if(user.isBot())
             return false;
         if(users.isEmpty() && roles.isEmpty())

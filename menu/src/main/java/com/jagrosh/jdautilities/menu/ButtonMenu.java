@@ -87,7 +87,17 @@ public class ButtonMenu extends Menu
     {
         initialize(message.editMessage(getMessage()));
     }
-
+    
+    @Override
+    public void displayWithButtons(MessageChannel channel){
+        
+    }
+    
+    @Override
+    public void displayWithReactions(MessageChannel channel){
+        
+    }
+    
     // Initializes the ButtonMenu using a Message RestAction
     // This is either through editing a previously existing Message
     // OR through sending a new one to a TextChannel.
@@ -154,7 +164,7 @@ public class ButtonMenu extends Menu
         if(text!=null)
             mbuilder.append(text);
         if(description!=null)
-            mbuilder.setEmbed(new EmbedBuilder().setColor(color).setDescription(description).build());
+            mbuilder.setEmbeds(new EmbedBuilder().setColor(color).setDescription(description).build());
         return mbuilder.build();
     }
 
