@@ -146,6 +146,16 @@ public class OrderedMenu extends Menu
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }
+    
+    @Override
+    public void displayWithButtons(MessageChannel channel){
+        
+    }
+    
+    @Override
+    public void displayWithReactions(MessageChannel channel){
+        
+    }
 
     // Initializes the OrderedMenu using a Message RestAction
     // This is either through editing a previously existing Message

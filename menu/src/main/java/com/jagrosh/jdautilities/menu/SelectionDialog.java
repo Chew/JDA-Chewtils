@@ -120,6 +120,16 @@ public class SelectionDialog extends Menu
         showDialog(message, 1);
     }
     
+    @Override
+    public void displayWithButtons(MessageChannel channel){
+        
+    }
+    
+    @Override
+    public void displayWithReactions(MessageChannel channel){
+        
+    }
+    
     /**
      * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
      * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
