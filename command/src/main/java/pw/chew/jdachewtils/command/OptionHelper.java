@@ -8,7 +8,9 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -21,12 +23,14 @@ public final class OptionHelper {
     /**
      * Guarantees a String option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static String optString(@NotNull SlashCommandEvent event, String option, String defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static String optString(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable String defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsString();
@@ -49,12 +53,12 @@ public final class OptionHelper {
     /**
      * Guarantees a long option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static long optLong(@NotNull SlashCommandEvent event, String option, long defaultValue) {
+    public static long optLong(@NotNull SlashCommandEvent event, @NotNull String option, long defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsLong();
@@ -63,12 +67,12 @@ public final class OptionHelper {
     /**
      * Guarantees a double option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static double optDouble(@NotNull SlashCommandEvent event, String option, double defaultValue) {
+    public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String option, double defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsDouble();
@@ -77,12 +81,14 @@ public final class OptionHelper {
     /**
      * Guarantees a Guild Channel option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, String option, GuildChannel defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable GuildChannel defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsGuildChannel();
@@ -91,12 +97,14 @@ public final class OptionHelper {
     /**
      * Guarantees a Member option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static Member optMember(@NotNull SlashCommandEvent event, String option, Member defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable Member defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsMember();
@@ -105,12 +113,14 @@ public final class OptionHelper {
     /**
      * Guarantees a IMentionable option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static IMentionable optMentionable(@NotNull SlashCommandEvent event, String option, IMentionable defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable IMentionable defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsMentionable();
@@ -119,12 +129,14 @@ public final class OptionHelper {
     /**
      * Guarantees a Role option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static Role optRole(@NotNull SlashCommandEvent event, String option, Role defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable Role defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsRole();
@@ -133,12 +145,14 @@ public final class OptionHelper {
     /**
      * Guarantees a User option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static User optUser(@NotNull SlashCommandEvent event, String option, User defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static User optUser(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable User defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsUser();
@@ -147,12 +161,14 @@ public final class OptionHelper {
     /**
      * Guarantees a MessageChannel option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
-    public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, String option, MessageChannel defaultValue) {
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable MessageChannel defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsMessageChannel();
@@ -165,7 +181,7 @@ public final class OptionHelper {
      * @param option the option we want
      * @return true if the option exists, false otherwise
      */
-    public static boolean hasOption(@NotNull SlashCommandEvent event, String option) {
+    public static boolean hasOption(@NotNull SlashCommandEvent event, @NotNull String option) {
         return !event.getOptionsByName(option).isEmpty();
     }
 }
