@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2021 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard) & Olivia (Chew)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pw.chew.jdachewtils.command;
 
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -44,7 +59,7 @@ public final class OptionHelper {
      * @param defaultValue if the option doesn't exist, what should we use instead?
      * @return the never-null option
      */
-    public static boolean optBoolean(@NotNull SlashCommandEvent event, String option, boolean defaultValue) {
+    public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String option, boolean defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
 
         return options.isEmpty() ? defaultValue : options.get(0).getAsBoolean();
