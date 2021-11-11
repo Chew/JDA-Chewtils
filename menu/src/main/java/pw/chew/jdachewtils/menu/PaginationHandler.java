@@ -1071,22 +1071,65 @@ public class PaginationHandler
             this.id = id;
             this.animated = animated;
         }
-        
+    
+        /**
+         * Creates a new instance of this class with the provided String being treated as unicode.
+         * <br>Supported are the common/default unicode format (\u1234) and Codepoint (U+1234).
+         * 
+         * <p>This will set the id to {@code 0L} and the animated boolean to {@code false}.
+         * 
+         * @param  unicode
+         *         The unicode to use.
+         * 
+         * @return New instance of the PaginationIcon class with the provided String.
+         */
         public static PaginationIcon fromUnicode(String unicode)
         {
             return new PaginationIcon(unicode);
         }
-        
+    
+        /**
+         * Creates a new instance of this class with the provided String, long and boolean.
+         * <br>The values will be seen as part of a {@link Emote Discord custom Emote} with the String being
+         * the name, the long being the id and the boolean determining if it is animated.
+         * 
+         * <p>For your convenience is there also a {@link #fromEmote(Emote) fromEmote(Emote)} variant available.
+         * 
+         * @param  name
+         *         The name of the Emote.
+         * @param  id
+         *         The id of the Emote.
+         * @param  animated
+         *         Whether the Emote is animated.
+         * 
+         * @return New instance of the PaginationIcon class with the provided values set.
+         */
         public static PaginationIcon fromEmote(String name, long id, boolean animated)
         {
             return new PaginationIcon(name, id, animated);
         }
-        
+    
+        /**
+         * Creates a new instance of this class with the provided {@link Emote Emote}.
+         * <br>This is equal to using
+         * {@link #fromEmote(String, long, boolean) fromEmote(emote.getName(), emote.getId(), emote.isAnimated())}.
+         * 
+         * @param  emote
+         *         The Emote to use values of.
+         * 
+         * @return New instance of the PaginationIcon class with the provided Emote values set.
+         */
         public static PaginationIcon fromEmote(Emote emote)
         {
             return new PaginationIcon(emote.getName(), emote.getIdLong(), emote.isAnimated());
         }
-        
+    
+        /**
+         * Returns an {@link Emoji Emoji instance} which can be used in Buttons.
+         * <br><b>Emojis can NOT be used for Reactions! Use {@link #toString()} instead.</b>
+         * 
+         * @return new {@link Emoji Emoji instance} that can be used for Buttons.
+         */
         public Emoji getAsEmoji()
         {
             if(id == 0L)
@@ -1099,7 +1142,13 @@ public class PaginationHandler
         {
             return name;
         }
-        
+    
+        /**
+         * Returns either the Unicode of the Emoji, if id is 0, or the custom Emote in the format "a?:name:id".
+         * <br>This String can be used for Reactions, but not for Buttons.
+         * 
+         * @return String representing either the unicode emoji or a custom one.
+         */
         @Override
         public String toString()
         {
