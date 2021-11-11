@@ -518,35 +518,111 @@ public class PaginationHandler
      */
     public interface Builder
     {
-        
+        /**
+         * Returns the currently set {@link EventWaiter EventWaiter} to use.
+         * 
+         * @return Currently set EventWaiter instance.
+         */
         EventWaiter getEventWaiter();
         
+        /**
+         * Returns the number used to determine how many pages should be skipped when moving in bulk.
+         * 
+         * @return Integer returning the bulk skip number.
+         */
         int getBulkSkipNumber();
         
+        /**
+         * Returns whether the Paginator should still handle a single page.
+         * 
+         * @return {@code true} if the Paginator should wait on a single page, otherwise {@code false}.
+         */
         boolean allowSinglePage();
         
+        /**
+         * Returns whether the Paginator should "wrap around" (Go from last page to first or vice-versa).
+         * 
+         * @return {@code true} if the Paginator should go back to the start when reaching the end or vice-versa.
+         */
         boolean allowPageWrap();
         
+        /**
+         * The amount of {@link #getTimeUnit() time units} of inactivity after which the Paginator should call the
+         * {@link #getFinalAction() final action} to execute.
+         * 
+         * @return Long representing the time to wait before executing the final action.
+         */
         long getTime();
         
+        /**
+         * The time unit to wait X of before executing the {@link #getFinalAction() final action}.
+         * 
+         * @return Type of TimeUnit to wait.
+         */
         TimeUnit getTimeUnit();
         
+        /**
+         * Consumer of type {@link Message Message} that should be executed once the Paginator times out.
+         * 
+         * @return Currently set Consumer&lt;{@link Message Message}&gt; containing what the Paginator should do after
+         *         a timeout.
+         */
         Consumer<Message> getFinalAction();
         
+        /**
+         * Set of longs containing all User ids that should be allowed to interact with the current Menu.
+         * 
+         * @return Possibly-empty Set of User id longs.
+         */
         Set<Long> getAllowedUserIds();
         
+        /**
+         * Set of longs containing all Role ids that should be allowed to interact with the current Menu.
+         *
+         * @return Possibly-empty Set of Role id longs.
+         */
         Set<Long> getAllowedRoleIds();
         
+        /**
+         * Gives the currently set {@link PaginationIcon PaginationIcon} used for the "Bulk Skip Left" Button/Reaction.
+         * 
+         * @return {@link PaginationIcon PaginationIcon} of the "Bulk Skip Left" Button/Reaction.
+         */
         PaginationIcon getBulkSkipLeftIcon();
-        
+    
+        /**
+         * Gives the currently set {@link PaginationIcon PaginationIcon} used for the "Left" Button/Reaction.
+         *
+         * @return {@link PaginationIcon PaginationIcon} of the "Left" Button/Reaction.
+         */
         PaginationIcon getLeftIcon();
-        
+    
+        /**
+         * Gives the currently set {@link PaginationIcon PaginationIcon} used for the "Stop" Button/Reaction.
+         *
+         * @return {@link PaginationIcon PaginationIcon} of the "Stop" Button/Reaction.
+         */
         PaginationIcon getStopIcon();
-        
+    
+        /**
+         * Gives the currently set {@link PaginationIcon PaginationIcon} used for the "Right" Button/Reaction.
+         *
+         * @return {@link PaginationIcon PaginationIcon} of the "Right" Button/Reaction.
+         */
         PaginationIcon getRightIcon();
-        
+    
+        /**
+         * Gives the currently set {@link PaginationIcon PaginationIcon} used for the "Bulk Skip Right" Button/Reaction.
+         *
+         * @return {@link PaginationIcon PaginationIcon} of the "Bulk Skip Right" Button/Reaction.
+         */
         PaginationIcon getBulkSkipRightIcon();
-        
+    
+        /**
+         * Gives a List of all currently set {@link MessageEmbed MessageEmbeds} to use in the Paginator.
+         * 
+         * @return List containing all currently set MessageEmbeds.
+         */
         List<MessageEmbed> getEmbeds();
     
         /**
