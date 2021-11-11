@@ -54,10 +54,10 @@ public final class OptionHelper {
     /**
      * Guarantees a boolean option value by providing a default value.
      *
-     * @param event        the slash command event to get options from
-     * @param option       the option we want
-     * @param defaultValue if the option doesn't exist, what should we use instead?
-     * @return the never-null option
+     * @param event        The slash command event to get options from
+     * @param option       The option we want
+     * @param defaultValue The fallback option in case of the absence of the option value
+     * @return The provided option, or the default value if the option is not present
      */
     public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String option, boolean defaultValue) {
         List<OptionMapping> options = event.getOptionsByName(option);
