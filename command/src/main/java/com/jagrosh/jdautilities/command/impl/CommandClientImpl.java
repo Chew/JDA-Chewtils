@@ -579,30 +579,54 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Upsert slash commands, if not manual
         if (!manualUpsert)
         {
-            for (SlashCommand command : slashCommands)
-            {
-                CommandData data = command.buildCommandData();
-
-                if (forcedGuildId != null || (command.isGuildOnly() && command.getGuildId() != null)) {
-                    String guildId = forcedGuildId != null ? forcedGuildId : command.getGuildId();
-                    Guild guild = event.getJDA().getGuildById(guildId);
-                    if (guild == null) {
-                        LOG.error("Could not find guild with specified ID: " + forcedGuildId + ". Not going to upsert.");
-                        continue;
-                    }
-                    List<CommandPrivilege> privileges = command.buildPrivileges(this);
-                    guild.upsertCommand(data).queue(command1 -> {
-                        slashCommandIds.add(command1.getId());
-                        if (!privileges.isEmpty())
-                            command1.updatePrivileges(guild, privileges).queue();
-                    });
-                } else {
-                    event.getJDA().upsertCommand(data).queue(command1 -> slashCommandIds.add(command1.getId()));
-                }
-            }
+            upsertSlashCommands(event.getJDA());
         }
 
         sendStats(event.getJDA());
+    }
+
+    private void upsertSlashCommands(JDA jda)
+    {
+        // Get all commands
+        List<CommandData> data = new ArrayList<>();
+        List<SlashCommand> slashCommands = getSlashCommands();
+        Map<String, SlashCommand> slashCommandMap = new HashMap<>();
+
+        // Build the command and privilege data
+        for (SlashCommand command : slashCommands)
+        {
+            data.add(command.buildCommandData());
+            slashCommandMap.put(command.getName(), command);
+        }
+
+        // Upsert the commands
+        if (forcedGuildId != null)
+        {
+            // Attempt to retrieve the provided guild
+            Guild server = jda.getGuildById(forcedGuildId);
+            if (server == null)
+            {
+                LOG.error("Server used for slash command testing is null! Slash Commands will NOT be added!");
+                return;
+            }
+            // Upsert the commands + their privileges
+            server.updateCommands().addCommands(data)
+                .queue(commands -> {
+                    Map<String, Collection<? extends CommandPrivilege>> privileges = new HashMap<>();
+                    for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
+                    {
+                        SlashCommand slashCommand = slashCommandMap.get(command.getName());
+                        privileges.put(command.getId(), slashCommand.buildPrivileges(this));
+                    }
+                    server.updateCommandPrivileges(privileges)
+                        .queue(priv -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+                });
+        }
+        else
+        {
+            jda.updateCommands().addCommands(data)
+                .queue(commands -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+        }
     }
 
     private void onMessageReceived(MessageReceivedEvent event)
