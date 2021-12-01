@@ -71,7 +71,6 @@ public class ServerinfoCommand extends Command
         }
         String str = LINESTART + "ID: **" + guild.getId() + "**\n"
                 + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n"
-                + LINESTART + "Location: " + (guild.getVoiceChannels().get(0).getRegion().getEmoji().isEmpty() ? NO_REGION : guild.getVoiceChannels().get(0).getRegion().getEmoji()) + " **" + guild.getVoiceChannels().get(0).getRegion().getName() + "**\n"
                 + LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
                 + LINESTART + "Users: **" + guild.getMemberCache().size() + "** (" + onlineCount + " online, " + botCount + " bots)\n"
                 + LINESTART + "Channels: **" + guild.getTextChannelCache().size() + "** Text, **" + guild.getVoiceChannelCache().size() + "** Voice, **" + guild.getCategoryCache().size() + "** Categories\n"
