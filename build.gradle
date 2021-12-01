@@ -22,7 +22,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
-def versionInfo = [major: '2', minor: System.getenv("BUILD_NUMBER") ?: "0"]
+def versionInfo = [major: '2', minor: System.getenv("BUILD_NUMBER") ?: "0-SNAPSHOT"]
 
 task build {
     group = 'build'
