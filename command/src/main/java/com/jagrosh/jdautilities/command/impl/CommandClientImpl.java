@@ -29,8 +29,8 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
@@ -537,8 +537,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         else if(event instanceof SlashCommandEvent)
             onSlashCommand((SlashCommandEvent)event);
 
-        else if(event instanceof GuildMessageDeleteEvent && usesLinkedDeletion())
-            onMessageDelete((GuildMessageDeleteEvent) event);
+        else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
+            onMessageDelete((MessageDeleteEvent) event);
 
         else if(event instanceof GuildJoinEvent)
         {
@@ -883,8 +883,11 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
     }
 
-    private void onMessageDelete(GuildMessageDeleteEvent event)
+    private void onMessageDelete(MessageDeleteEvent event)
     {
+        // Check we are in a guild since there is no guild specific event now
+        if (!event.isFromGuild()) return;
+
         // We don't need to cover whether or not this client usesLinkedDeletion() because
         // that is checked in onEvent(Event) before this is even called.
         synchronized(linkMap)
@@ -893,8 +896,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             {
                 Set<Message> messages = linkMap.get(event.getMessageIdLong());
                 if(messages.size()>1 && event.getGuild().getSelfMember()
-                        .hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE))
-                    event.getChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
+                        .hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE))
+                    event.getTextChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
                 else if(messages.size()>0)
                     messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
             }

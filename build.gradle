@@ -22,7 +22,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
-def versionInfo = [major: '1', minor: System.getenv("BUILD_NUMBER").toString()]
+def versionInfo = [major: '2', minor: System.getenv("BUILD_NUMBER") ?: "0"]
 
 task build {
     group = 'build'
@@ -36,7 +36,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.3.0_313'
+        jdaVersion = '5.0.0-alpha.1'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'

@@ -345,7 +345,7 @@ public class Slideshow extends Menu
         ebuilder.setDescription(description.apply(pageNum, urls.size()));
         if(showPageNumbers)
             ebuilder.setFooter("Image "+pageNum+"/"+urls.size(), null);
-        mbuilder.setEmbed(ebuilder.build());
+        mbuilder.setEmbeds(ebuilder.build());
         if(text!=null)
             mbuilder.append(text.apply(pageNum, urls.size()));
         return mbuilder.build();
