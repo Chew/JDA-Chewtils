@@ -48,7 +48,8 @@ import java.util.List;
  *    {@literal @Override}
  *     protected void execute(SlashCommandEvent event) {
  *         String arg1 = OptionHelper.optString(event, "string", null);
- *         User optionalUser = OptionHelper.optUser(event, "user", null);
+ *         // Get the provided user, or use the executor if they did not provide one
+ *         User optionalUser = OptionHelper.optUser(event, "user", event.getUser());
  *     }
  * }
  * </code></pre>
