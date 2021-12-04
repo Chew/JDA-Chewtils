@@ -30,173 +30,198 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * A collection of useful methods for working with Options.
+ * Utility class containing useful methods for getting values of Slash command arguments.
+ * 
+ * <h2>Example</h2>
+ * <pre><code>
+ * public class MyCommand extends SlashCommand {
+ *     public MyCommand() {
+ *         this.name = "example";
+ *         this.help = "Example command";
+ *         
+ *         this.options = Arrays.asList(
+ *             new OptionData(OptionType.STRING, "string", "A String option").setRequired(true),
+ *             new OptionData(OptionType.USER, "user", "A optional User")
+ *         );
+ *     }
+ *     
+ *    {@literal @Override}
+ *     protected void execute(SlashCommandEvent event) {
+ *         String arg1 = OptionHelper.optString(event, "string", null);
+ *         User optionalUser = OptionHelper.optUser(event, "user", null);
+ *     }
+ * }
+ * </code></pre>
  */
 public final class OptionHelper {
     private OptionHelper() {}
 
     /**
-     * Guarantees a String option value by providing a default value.
+     * Gets the provided Option Key as a String value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static String optString(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable String defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static String optString(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable String defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsString();
+        return option == null ? defaultValue : option.getAsString();
     }
 
     /**
-     * Guarantees a boolean option value by providing a default value.
+     * Gets the provided Option Key as a boolean value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
+     * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
-    public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String option, boolean defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String key, boolean defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsBoolean();
+        return option == null ? defaultValue : option.getAsBoolean();
     }
 
     /**
-     * Guarantees a long option value by providing a default value.
+     * Gets the provided Option Key as a long value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
+     * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
-    public static long optLong(@NotNull SlashCommandEvent event, @NotNull String option, long defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static long optLong(@NotNull SlashCommandEvent event, @NotNull String key, long defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsLong();
+        return option == null ? defaultValue : option.getAsLong();
     }
 
     /**
-     * Guarantees a double option value by providing a default value.
+     * Gets the provided Option Key as a double value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
+     * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
-    public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String option, double defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String key, double defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsDouble();
+        return option == null ? defaultValue : option.getAsDouble();
     }
 
     /**
-     * Guarantees a Guild Channel option value by providing a default value.
+     * Gets the provided Option Key as a GuildChannel value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
-     * @return The provided option, or the default value if the option is not present
-     */
-    @Nullable
-    @Contract("_, _, !null -> !null")
-    public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable GuildChannel defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
-
-        return options.isEmpty() ? defaultValue : options.get(0).getAsGuildChannel();
-    }
-
-    /**
-     * Guarantees a Member option value by providing a default value.
-     *
-     * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable Member defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable GuildChannel defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsMember();
+        return option == null ? defaultValue : option.getAsGuildChannel();
     }
 
     /**
-     * Guarantees a IMentionable option value by providing a default value.
+     * Gets the provided Option Key as a Member value, or returns the default one if the option cannot be found.
+     * <br>This will <b>always</b> return the default value when the SlashCommandEvent was not executed in a Guild.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable IMentionable defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable Member defaultValue) {
+        if (!event.isFromGuild())
+            return defaultValue; // Non-guild commands do not have a member.
+        
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsMentionable();
+        return option == null ? defaultValue : option.getAsMember();
     }
 
     /**
-     * Guarantees a Role option value by providing a default value.
+     * Gets the provided Option Key as a IMentionable value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable Role defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable IMentionable defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsRole();
+        return option == null ? defaultValue : option.getAsMentionable();
     }
 
     /**
-     * Guarantees a User option value by providing a default value.
+     * Gets the provided Option Key as a Role value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static User optUser(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable User defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable Role defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsUser();
+        return option == null ? defaultValue : option.getAsRole();
     }
 
     /**
-     * Guarantees a MessageChannel option value by providing a default value.
+     * Gets the provided Option Key as a User value, or returns the default one if the option cannot be found.
      *
      * @param event        The slash command event to get options from
-     * @param option       The option we want
-     * @param defaultValue The fallback option in case of the absence of the option value
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
     @Nullable
     @Contract("_, _, !null -> !null")
-    public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String option, @Nullable MessageChannel defaultValue) {
-        List<OptionMapping> options = event.getOptionsByName(option);
+    public static User optUser(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable User defaultValue) {
+        OptionMapping option = event.getOption(key);
 
-        return options.isEmpty() ? defaultValue : options.get(0).getAsMessageChannel();
+        return option == null ? defaultValue : option.getAsUser();
     }
 
     /**
-     * Checks to see if the event has an option.
+     * Gets the provided Option Key as a MessageChannel value, or returns the default one if the option cannot be found.
+     *
+     * @param event        The slash command event to get options from
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
+     * @return The provided option, or the default value if the option is not present
+     */
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable MessageChannel defaultValue) {
+        OptionMapping option = event.getOption(key);
+
+        return option == null ? defaultValue : option.getAsMessageChannel();
+    }
+
+    /**
+     * Will return if the provided key resolves into an available Option for the SlashCommand.
      *
      * @param event  the slash command event to get options from
-     * @param option the option we want
+     * @param key    the option we want
      * @return true if the option exists, false otherwise
      */
-    public static boolean hasOption(@NotNull SlashCommandEvent event, @NotNull String option) {
-        return !event.getOptionsByName(option).isEmpty();
+    public static boolean hasOption(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return event.getOption(key) != null;
     }
 }
