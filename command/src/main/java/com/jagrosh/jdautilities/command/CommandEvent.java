@@ -222,7 +222,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
         });
@@ -244,7 +244,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success)
     {
-    	event.getChannel().sendMessage(embed).queue(m -> {
+    	event.getChannel().sendMessageEmbeds(embed).queue(m -> {
     	    if(event.isFromType(ChannelType.TEXT))
     	        linkId(m);
     	    success.accept(m);
@@ -269,7 +269,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
@@ -425,7 +425,7 @@ public class CommandEvent
     public void replyOrAlternate(MessageEmbed embed, String alternateMessage)
     {
         try {
-            event.getChannel().sendMessage(embed).queue();
+            event.getChannel().sendMessageEmbeds(embed).queue();
         } catch(PermissionException e) {
             reply(alternateMessage);
         }
@@ -577,7 +577,7 @@ public class CommandEvent
             reply(embed);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue());
         }
     }
 
@@ -601,10 +601,10 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success));
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success));
         }
     }
 
@@ -630,10 +630,10 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success, failure);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success, failure);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success, failure), failure);
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success, failure), failure);
         }
     }
 

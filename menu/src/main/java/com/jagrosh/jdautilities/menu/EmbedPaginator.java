@@ -312,7 +312,7 @@ public class EmbedPaginator extends Menu{
     {
         MessageBuilder mbuilder = new MessageBuilder();
         MessageEmbed membed = this.embeds.get(pageNum-1);
-        mbuilder.setEmbed(membed);
+        mbuilder.setEmbeds(membed);
         if(text != null)
             mbuilder.append(text.apply(pageNum, embeds.size()));
         return mbuilder.build();
