@@ -620,7 +620,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                     }
                     server.updateCommandPrivileges(privileges)
                         .queue(priv -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
-                });
+                }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
         }
         else
         {
