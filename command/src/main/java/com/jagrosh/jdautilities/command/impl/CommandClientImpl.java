@@ -666,7 +666,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX))) {
             if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
                     rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
-                final int prefixLength = rawContent.indexOf('>') + 1;
+                final int prefixLength = rawContent.indexOf('>') + 2;
                 return makeMessageParts(rawContent, prefixLength);
             }
         }
