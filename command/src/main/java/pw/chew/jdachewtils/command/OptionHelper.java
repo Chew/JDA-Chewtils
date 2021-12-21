@@ -117,6 +117,7 @@ public final class OptionHelper {
 
     /**
      * Gets the provided Option Key as a GuildChannel value, or returns the default one if the option cannot be found.
+     * <br>This will <b>always</b> return the default value when the SlashCommandEvent was not executed in a Guild.
      *
      * @param event        The slash command event to get options from
      * @param key          The option we want
@@ -126,6 +127,9 @@ public final class OptionHelper {
     @Nullable
     @Contract("_, _, !null -> !null")
     public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable GuildChannel defaultValue) {
+        if (!event.isFromGuild())
+            return defaultValue;
+        
         OptionMapping option = event.getOption(key);
 
         return option == null ? defaultValue : option.getAsGuildChannel();
@@ -169,6 +173,7 @@ public final class OptionHelper {
 
     /**
      * Gets the provided Option Key as a Role value, or returns the default one if the option cannot be found.
+     * <br>This will <b>always</b> return the default value when the SlashCommandEvent was not executed in a Guild.
      *
      * @param event        The slash command event to get options from
      * @param key          The option we want
@@ -178,6 +183,9 @@ public final class OptionHelper {
     @Nullable
     @Contract("_, _, !null -> !null")
     public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable Role defaultValue) {
+        if (!event.isFromGuild())
+            return defaultValue;
+        
         OptionMapping option = event.getOption(key);
 
         return option == null ? defaultValue : option.getAsRole();
