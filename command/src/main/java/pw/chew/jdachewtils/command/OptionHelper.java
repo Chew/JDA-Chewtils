@@ -345,7 +345,7 @@ public final class OptionHelper {
     }
 
     /**
-     * Will return if the provided key resolves into an available Option for the SlashCommand.
+     * Will return if the provided key resolves into a provided Option for the SlashCommand.
      *
      * @param event  the slash command event to get options from
      * @param key    the option we want
