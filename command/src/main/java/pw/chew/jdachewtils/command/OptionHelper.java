@@ -47,7 +47,8 @@ import java.util.List;
  *     
  *    {@literal @Override}
  *     protected void execute(SlashCommandEvent event) {
- *         String arg1 = OptionHelper.optString(event, "string", null);
+ *         // get "string" option as String. Defaults to null if not found
+ *         String arg1 = OptionHelper.optString(event, "string");
  *         // Get the provided user, or use the executor if they did not provide one
  *         User optionalUser = OptionHelper.optUser(event, "user", event.getUser());
  *     }
@@ -56,7 +57,19 @@ import java.util.List;
  */
 public final class OptionHelper {
     private OptionHelper() {}
-
+    
+    /**
+     * Gets the provided Option Key as a String value, or returns {@code null} if the option cannot be found.
+     * 
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static String optString(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optString(event, key, null);
+    }
+    
     /**
      * Gets the provided Option Key as a String value, or returns the default one if the option cannot be found.
      *
@@ -72,7 +85,18 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsString();
     }
-
+    
+    /**
+     * Gets the provided Option Key as a boolean value, or returns {@code false} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or false if the option is not present
+     */
+    public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optBoolean(event, key, false);
+    }
+    
     /**
      * Gets the provided Option Key as a boolean value, or returns the default one if the option cannot be found.
      *
@@ -86,7 +110,18 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsBoolean();
     }
-
+    
+    /**
+     * Gets the provided Option Key as a long value, or returns {@code 0} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or 0 if the option is not present
+     */
+    public static long optLong(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optLong(event, key, 0);
+    }
+    
     /**
      * Gets the provided Option Key as a long value, or returns the default one if the option cannot be found.
      *
@@ -100,7 +135,18 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsLong();
     }
-
+    
+    /**
+     * Gets the provided Option Key as a double value, or returns {@code 0.0} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or 0.0 if the option is not present
+     */
+    public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optDouble(event, key, 0.0);
+    }
+    
     /**
      * Gets the provided Option Key as a double value, or returns the default one if the option cannot be found.
      *
@@ -113,6 +159,19 @@ public final class OptionHelper {
         OptionMapping option = event.getOption(key);
 
         return option == null ? defaultValue : option.getAsDouble();
+    }
+    
+    /**
+     * Gets the provided Option Key as a GuildChannel value, or returns {@code null} if the option cannot be found.
+     * <br>This will <b>always</b> return null when the SlashCommandEvent was not executed in a Guild.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optGuildChannel(event, key, null);
     }
 
     /**
@@ -134,6 +193,19 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsGuildChannel();
     }
+    
+    /**
+     * Gets the provided Option Key as a Member value, or returns {@code null} if the option cannot be found.
+     * <br>This will <b>always</b> return null when the SlashCommandEvent was not executed in a Guild.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optMember(event, key, null);
+    }
 
     /**
      * Gets the provided Option Key as a Member value, or returns the default one if the option cannot be found.
@@ -154,7 +226,19 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsMember();
     }
-
+    
+    /**
+     * Gets the provided Option Key as a IMentionable value, or returns {@code null} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optMentionable(event, key, null);
+    }
+    
     /**
      * Gets the provided Option Key as a IMentionable value, or returns the default one if the option cannot be found.
      *
@@ -169,6 +253,19 @@ public final class OptionHelper {
         OptionMapping option = event.getOption(key);
 
         return option == null ? defaultValue : option.getAsMentionable();
+    }
+    
+    /**
+     * Gets the provided Option Key as a Role value, or returns {@code null} if the option cannot be found.
+     * <br>This will <b>always</b> return null when the SlashCommandEvent was not executed in a Guild.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optRole(event, key, null);
     }
 
     /**
@@ -190,6 +287,18 @@ public final class OptionHelper {
 
         return option == null ? defaultValue : option.getAsRole();
     }
+    
+    /**
+     * Gets the provided Option Key as a User value, or returns {@code null} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static User optUser(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optUser(event, key, null);
+    }
 
     /**
      * Gets the provided Option Key as a User value, or returns the default one if the option cannot be found.
@@ -205,6 +314,18 @@ public final class OptionHelper {
         OptionMapping option = event.getOption(key);
 
         return option == null ? defaultValue : option.getAsUser();
+    }
+    
+    /**
+     * Gets the provided Option Key as a MessageChannel value, or returns {@code null} if the option cannot be found.
+     *
+     * @param event The slash command event to get options from
+     * @param key   The option we want
+     * @return The provided option, or null if the option is not present
+     */
+    @Nullable
+    public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String key) {
+        return optMessageChannel(event, key, null);
     }
 
     /**
