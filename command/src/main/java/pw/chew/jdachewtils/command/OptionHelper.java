@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * Utility class containing useful methods for getting values of Slash command arguments.
  * 
