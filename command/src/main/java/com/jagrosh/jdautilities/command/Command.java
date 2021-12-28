@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -99,7 +100,15 @@ public abstract class Command
      * <br>Default {@code true}.
      */
     protected boolean guildOnly = true;
-    
+
+    /**
+     * {@code true} if the command may only be used in an NSFW
+     * {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} or DMs.
+     * {@code false} if it may be used anywhere
+     * <br>Default: {@code false}
+     */
+    protected boolean nsfwOnly = false;
+
     /**
      * A String name of a role required to use this command.
      */
@@ -316,6 +325,13 @@ public abstract class Command
                     }
                 }
             }
+
+            // nsfw check
+            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            {
+                terminate(event, "This command may only be used in NSFW text channels!");
+                return;
+            }
         }
         else if(guildOnly)
         {
@@ -399,13 +415,13 @@ public abstract class Command
         String topic = channel.getTopic();
         if(topic==null || topic.isEmpty())
             return true;
-        topic = topic.toLowerCase();
-        String lowerName = name.toLowerCase();
+        topic = topic.toLowerCase(Locale.ROOT);
+        String lowerName = name.toLowerCase(Locale.ROOT);
         if(topic.contains("{"+lowerName+"}"))
             return true;
         if(topic.contains("{-"+lowerName+"}"))
             return false;
-        String lowerCat = category==null ? null : category.getName().toLowerCase();
+        String lowerCat = category==null ? null : category.getName().toLowerCase(Locale.ROOT);
         if(lowerCat!=null)
         {
             if(topic.contains("{"+lowerCat+"}"))

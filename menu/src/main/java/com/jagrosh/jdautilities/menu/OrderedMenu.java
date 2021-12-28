@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.menu;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -268,7 +269,7 @@ public class OrderedMenu extends Menu
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
-        mbuilder.setEmbed(new EmbedBuilder().setColor(color)
+        mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
                 .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
         return mbuilder.build();
     }
@@ -324,7 +325,7 @@ public class OrderedMenu extends Menu
             // is 10 (the maximum number of choices in general even).
             // If you look carefully, you'll see that a corresponds to the
             // index 1, b to the index 2, and so on.
-            return message.length()==1 ? " abcdefghij".indexOf(message.toLowerCase()) : -1;
+            return message.length()==1 ? " abcdefghij".indexOf(message.toLowerCase(Locale.ROOT)) : -1;
         else
         {
             // The same as above applies here, albeit in a different way.

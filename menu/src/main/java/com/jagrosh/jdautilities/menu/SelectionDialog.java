@@ -235,7 +235,7 @@ public class SelectionDialog extends Menu
         String content = text.apply(selection);
         if(content!=null)
             mbuilder.append(content);
-        return mbuilder.setEmbed(new EmbedBuilder()
+        return mbuilder.setEmbeds(new EmbedBuilder()
                 .setColor(color.apply(selection))
                 .setDescription(sbuilder.toString())
                 .build()).build();

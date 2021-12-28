@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Mock Pom for GitHub to parse -->
+    <!-- Please do not use this file for compiling -->
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pw.chew</groupId>
+    <artifactId>jda-chewtils</artifactId>
+    <version>1.21.0</version>
+    <packaging>pom</packaging>
+    <repositories>
+        <repository>
+            <name>m2-chew</name>
+            <id>m2-chew</id>
+            <url>https://m2.chew.pro</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-command</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-commons</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-doc</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-examples</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-menu</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils-oauth2</artifactId>
+            <version>1.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

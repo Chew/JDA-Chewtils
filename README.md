@@ -40,9 +40,17 @@ With maven:
   </dependency>
 ```
 ```xml
+  <!-- Chew's Maven Repo for JDA-Chewtils -->
   <repository>
-    <id>chew-m2</id>
+    <id>chew</id>
+    <name>m2-chew</name>
     <url>https://m2.chew.pro/releases</url>
+  </repository>
+  <!-- JDA repo to get JDA -->
+  <repository>
+    <id>dv8tion</id>
+    <name>m2-dv8tion</name>
+    <url>https://m2.dv8tion.net/releases</url>
   </repository>
 ```
 
@@ -54,7 +62,13 @@ dependencies {
 }
 
 repositories {
-    jcenter()
+    mavenCentral() // for transitive dependencies
+    // for JDA
+    maven {
+      name 'm2-dv8tion'
+      url 'https://m2.dv8tion.net/releases'
+    }
+    // For JDA-Chewtils
     maven { url "https://m2.chew.pro/releases" }
 }
 ```

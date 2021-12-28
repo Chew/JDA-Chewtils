@@ -314,13 +314,13 @@ public class CommandClientImpl implements CommandClient, EventListener
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
         synchronized(commandIndex)
         {
-            String name = command.getName().toLowerCase();
+            String name = command.getName().toLowerCase(Locale.ROOT);
             //check for collision
             if(commandIndex.containsKey(name))
                 throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
             for(String alias : command.getAliases())
             {
-                if(commandIndex.containsKey(alias.toLowerCase()))
+                if(commandIndex.containsKey(alias.toLowerCase(Locale.ROOT)))
                     throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
             }
             //shift if not append
@@ -332,7 +332,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             //add
             commandIndex.put(name, index);
             for(String alias : command.getAliases())
-                commandIndex.put(alias.toLowerCase(), index);
+                commandIndex.put(alias.toLowerCase(Locale.ROOT), index);
         }
         commands.add(index,command);
     }
@@ -350,7 +350,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+slashCommands.size()+"]");
         synchronized(slashCommandIndex)
         {
-            String name = command.getName().toLowerCase();
+            String name = command.getName().toLowerCase(Locale.ROOT);
             //check for collision
             if(slashCommandIndex.containsKey(name))
                 throw new IllegalArgumentException("Command added has a name that has already been indexed: \""+name+"\"!");
@@ -371,13 +371,13 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         synchronized(commandIndex)
         {
-            if(!commandIndex.containsKey(name.toLowerCase()))
+            if(!commandIndex.containsKey(name.toLowerCase(Locale.ROOT)))
                 throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
-            int targetIndex = commandIndex.remove(name.toLowerCase());
+            int targetIndex = commandIndex.remove(name.toLowerCase(Locale.ROOT));
             Command removedCommand = commands.remove(targetIndex);
             for(String alias : removedCommand.getAliases())
             {
-                commandIndex.remove(alias.toLowerCase());
+                commandIndex.remove(alias.toLowerCase(Locale.ROOT));
             }
             commandIndex.entrySet().stream().filter(entry -> entry.getValue()>targetIndex).collect(Collectors.toList())
                 .forEach(entry -> commandIndex.put(entry.getKey(), entry.getValue()-1));
@@ -580,30 +580,54 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Upsert slash commands, if not manual
         if (!manualUpsert)
         {
-            for (SlashCommand command : slashCommands)
-            {
-                CommandData data = command.buildCommandData();
-
-                if (forcedGuildId != null || (command.isGuildOnly() && command.getGuildId() != null)) {
-                    String guildId = forcedGuildId != null ? forcedGuildId : command.getGuildId();
-                    Guild guild = event.getJDA().getGuildById(guildId);
-                    if (guild == null) {
-                        LOG.error("Could not find guild with specified ID: " + forcedGuildId + ". Not going to upsert.");
-                        continue;
-                    }
-                    List<CommandPrivilege> privileges = command.buildPrivileges(this);
-                    guild.upsertCommand(data).queue(command1 -> {
-                        slashCommandIds.add(command1.getId());
-                        if (!privileges.isEmpty())
-                            command1.updatePrivileges(guild, privileges).queue();
-                    });
-                } else {
-                    event.getJDA().upsertCommand(data).queue(command1 -> slashCommandIds.add(command1.getId()));
-                }
-            }
+            upsertSlashCommands(event.getJDA());
         }
 
         sendStats(event.getJDA());
+    }
+
+    private void upsertSlashCommands(JDA jda)
+    {
+        // Get all commands
+        List<CommandData> data = new ArrayList<>();
+        List<SlashCommand> slashCommands = getSlashCommands();
+        Map<String, SlashCommand> slashCommandMap = new HashMap<>();
+
+        // Build the command and privilege data
+        for (SlashCommand command : slashCommands)
+        {
+            data.add(command.buildCommandData());
+            slashCommandMap.put(command.getName(), command);
+        }
+
+        // Upsert the commands
+        if (forcedGuildId != null)
+        {
+            // Attempt to retrieve the provided guild
+            Guild server = jda.getGuildById(forcedGuildId);
+            if (server == null)
+            {
+                LOG.error("Server used for slash command testing is null! Slash Commands will NOT be added!");
+                return;
+            }
+            // Upsert the commands + their privileges
+            server.updateCommands().addCommands(data)
+                .queue(commands -> {
+                    Map<String, Collection<? extends CommandPrivilege>> privileges = new HashMap<>();
+                    for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
+                    {
+                        SlashCommand slashCommand = slashCommandMap.get(command.getName());
+                        privileges.put(command.getId(), slashCommand.buildPrivileges(this));
+                    }
+                    server.updateCommandPrivileges(privileges)
+                        .queue(priv -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+                }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
+        }
+        else
+        {
+            jda.updateCommands().addCommands(data)
+                .queue(commands -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+        }
     }
 
     private void onMessageReceived(MessageReceivedEvent event)
@@ -633,7 +657,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 final Command command; // this will be null if it's not a command
                 synchronized(commandIndex)
                 {
-                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
+                    int i = commandIndex.getOrDefault(name.toLowerCase(Locale.ROOT), -1);
                     command = i != -1? commands.get(i) : null;
                 }
 
@@ -667,7 +691,10 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX))) {
             if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
                     rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
-                final int prefixLength = rawContent.indexOf('>') + 1;
+                // Since we now use substring into makeMessageParts function and a indexOf here, we need to do a +1 to get the good substring
+                // On top of that we need to do another +1 because the default @mention prefix will always be followed by a space
+                // So we need to add 2 characters to get the correct substring
+                final int prefixLength = rawContent.indexOf('>') + 2;
                 return makeMessageParts(rawContent, prefixLength);
             }
         }
@@ -683,15 +710,15 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
         }
 
-        final String lowerCaseContent = rawContent.toLowerCase();
+        final String lowerCaseContent = rawContent.toLowerCase(Locale.ROOT);
         // Check for default prefix
-        if (lowerCaseContent.startsWith(prefix.toLowerCase())) {
+        if (lowerCaseContent.startsWith(prefix.toLowerCase(Locale.ROOT))) {
             final int prefixLength = prefix.length();
             return makeMessageParts(rawContent, prefixLength);
         }
 
         // Check for alternate prefix
-        if(altprefix != null && lowerCaseContent.startsWith(altprefix.toLowerCase())) {
+        if(altprefix != null && lowerCaseContent.startsWith(altprefix.toLowerCase(Locale.ROOT))) {
             final int prefixLength = altprefix.length();
             return makeMessageParts(rawContent, prefixLength);
         }
@@ -699,7 +726,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Check for prefixes
         if (prefixes != null) {
             for (String pre : prefixes) {
-                if (lowerCaseContent.startsWith(pre.toLowerCase())) {
+                if (lowerCaseContent.startsWith(pre.toLowerCase(Locale.ROOT))) {
                     final int prefixLength = pre.length();
                     return makeMessageParts(rawContent, prefixLength);
                 }
@@ -711,7 +738,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             Collection<String> prefixes = settings.getPrefixes();
             if(prefixes != null) {
                 for(String prefix : prefixes) {
-                    if(lowerCaseContent.startsWith(prefix.toLowerCase())) {
+                    if(lowerCaseContent.startsWith(prefix.toLowerCase(Locale.ROOT))) {
                         final int prefixLength = prefix.length();
                         return makeMessageParts(rawContent, prefixLength);
                     }
@@ -779,7 +806,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         final SlashCommand command; // this will be null if it's not a command
         synchronized(slashCommandIndex)
         {
-            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(), -1);
+            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
             command = i != -1? slashCommands.get(i) : null;
         }
 

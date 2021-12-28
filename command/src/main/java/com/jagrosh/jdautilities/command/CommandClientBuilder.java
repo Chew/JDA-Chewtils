@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -101,7 +102,23 @@ public class CommandClientBuilder
         this.ownerId = ownerId;
         return this;
     }
-    
+
+    /**
+     * Sets the owner for the bot.
+     * <br>Make sure to verify that the ID provided is ISnowflake compatible when setting this.
+     * If it is not, this will warn the developer.
+     *
+     * @param  ownerId
+     *         The ID of the owner.
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setOwnerId(long ownerId)
+    {
+        this.ownerId = String.valueOf(ownerId);
+        return this;
+    }
+
     /**
      * Sets the one or more CoOwners of the bot.
      * <br>Make sure to verify that all of the IDs provided are ISnowflake compatible when setting this.
@@ -117,7 +134,23 @@ public class CommandClientBuilder
     	this.coOwnerIds = coOwnerIds;
     	return this;
     }
-    
+
+    /**
+     * Sets the one or more CoOwners of the bot.
+     * <br>Make sure to verify that all of the IDs provided are ISnowflake compatible when setting this.
+     * If it is not, this will warn the developer which ones are not.
+     *
+     * @param  coOwnerIds
+     *         The ID(s) of the CoOwners
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setCoOwnerIds(long... coOwnerIds)
+    {
+        this.coOwnerIds = Arrays.stream(coOwnerIds).mapToObj(String::valueOf).toArray(String[]::new);
+        return this;
+    }
+
     /**
      * Sets the bot's prefix.
      * <br>If set null, empty, or not set at all, the bot will use a mention {@literal @Botname} as a prefix.
@@ -393,6 +426,20 @@ public class CommandClientBuilder
     public CommandClientBuilder forceGuildOnly(String guildId)
     {
         this.forcedGuildId = guildId;
+        return this;
+    }
+
+    /**
+     * Forces Guild Only for SlashCommands.
+     * This is the same as setting this.guildOnly = true and this.guildId = your value for every command.
+     * Setting this to null disables the feature, but it is off by default.
+     *
+     * @param guildId the guild ID.
+     * @return This Builder
+     */
+    public CommandClientBuilder forceGuildOnly(long guildId)
+    {
+        this.forcedGuildId = String.valueOf(guildId);
         return this;
     }
 

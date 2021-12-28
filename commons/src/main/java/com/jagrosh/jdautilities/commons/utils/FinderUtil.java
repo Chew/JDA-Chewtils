@@ -140,10 +140,10 @@ public final class FinderUtil
         }
         else if(fullRefMatch.matches())
         {
-            String lowerName = fullRefMatch.group(1).toLowerCase();
+            String lowerName = fullRefMatch.group(1).toLowerCase(Locale.ROOT);
             String discrim = fullRefMatch.group(2);
             List<User> users = (manager != null ? manager.getUserCache() : jda.getUserCache())
-                .stream().filter(user -> user.getName().toLowerCase().equals(lowerName)
+                .stream().filter(user -> user.getName().toLowerCase(Locale.ROOT).equals(lowerName)
                                          && user.getDiscriminator().equals(discrim))
                 .collect(Collectors.toList());
             if(!users.isEmpty())
@@ -160,16 +160,16 @@ public final class FinderUtil
         ArrayList<User> wrongcase = new ArrayList<>();
         ArrayList<User> startswith = new ArrayList<>();
         ArrayList<User> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         (manager != null? manager.getUserCache() : jda.getUserCache()).forEach(user -> {
             String name = user.getName();
             if(name.equals(query))
                 exact.add(user);
             else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(user);
-            else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if (name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(user);
-            else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if (name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(user);
         });
         if(!exact.isEmpty())
@@ -256,7 +256,7 @@ public final class FinderUtil
         ArrayList<User> wrongcase = new ArrayList<>();
         ArrayList<User> startswith = new ArrayList<>();
         ArrayList<User> contains = new ArrayList<>();
-        String lowerQuery = query.toLowerCase();
+        String lowerQuery = query.toLowerCase(Locale.ROOT);
         for(User u: bans)
         {
             // If a discrim is specified then we skip all users without it.
@@ -267,9 +267,9 @@ public final class FinderUtil
                 exact.add(u);
             else if(exact.isEmpty() && u.getName().equalsIgnoreCase(query))
                 wrongcase.add(u);
-            else if(wrongcase.isEmpty() && u.getName().toLowerCase().startsWith(lowerQuery))
+            else if(wrongcase.isEmpty() && u.getName().toLowerCase(Locale.ROOT).startsWith(lowerQuery))
                 startswith.add(u);
-            else if(startswith.isEmpty() && u.getName().toLowerCase().contains(lowerQuery))
+            else if(startswith.isEmpty() && u.getName().toLowerCase(Locale.ROOT).contains(lowerQuery))
                 contains.add(u);
         }
         if(!exact.isEmpty())
@@ -320,10 +320,10 @@ public final class FinderUtil
         }
         else if(fullRefMatch.matches())
         {
-            String lowerName = fullRefMatch.group(1).toLowerCase();
+            String lowerName = fullRefMatch.group(1).toLowerCase(Locale.ROOT);
             String discrim = fullRefMatch.group(2);
             List<Member> members = guild.getMemberCache().stream()
-                    .filter(member -> member.getUser().getName().toLowerCase().equals(lowerName)
+                    .filter(member -> member.getUser().getName().toLowerCase(Locale.ROOT).equals(lowerName)
                             && member.getUser().getDiscriminator().equals(discrim))
                     .collect(Collectors.toList());
             if(!members.isEmpty())
@@ -339,7 +339,7 @@ public final class FinderUtil
         ArrayList<Member> wrongcase = new ArrayList<>();
         ArrayList<Member> startswith = new ArrayList<>();
         ArrayList<Member> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         guild.getMemberCache().forEach(member -> {
             String name = member.getUser().getName();
             String effName = member.getEffectiveName();
@@ -347,9 +347,9 @@ public final class FinderUtil
                 exact.add(member);
             else if((name.equalsIgnoreCase(query) || effName.equalsIgnoreCase(query)) && exact.isEmpty())
                 wrongcase.add(member);
-            else if((name.toLowerCase().startsWith(lowerquery) || effName.toLowerCase().startsWith(lowerquery)) && wrongcase.isEmpty())
+            else if((name.toLowerCase(Locale.ROOT).startsWith(lowerquery) || effName.toLowerCase(Locale.ROOT).startsWith(lowerquery)) && wrongcase.isEmpty())
                 startswith.add(member);
-            else if((name.toLowerCase().contains(lowerquery) || effName.toLowerCase().contains(lowerquery)) && startswith.isEmpty())
+            else if((name.toLowerCase(Locale.ROOT).contains(lowerquery) || effName.toLowerCase(Locale.ROOT).contains(lowerquery)) && startswith.isEmpty())
                 contains.add(member);
         });
         if(!exact.isEmpty())
@@ -473,16 +473,16 @@ public final class FinderUtil
         ArrayList<TextChannel> wrongcase = new ArrayList<>();
         ArrayList<TextChannel> startswith = new ArrayList<>();
         ArrayList<TextChannel> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         cache.forEach((tc) -> {
             String name = tc.getName();
             if(name.equals(query))
                 exact.add(tc);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(tc);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(tc);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(tc);
         });
         if(!exact.isEmpty())
@@ -580,16 +580,16 @@ public final class FinderUtil
         ArrayList<VoiceChannel> wrongcase = new ArrayList<>();
         ArrayList<VoiceChannel> startswith = new ArrayList<>();
         ArrayList<VoiceChannel> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         cache.forEach((vc) -> {
             String name = vc.getName();
             if(name.equals(query))
                 exact.add(vc);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(vc);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(vc);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(vc);
         });
         if(!exact.isEmpty())
@@ -688,16 +688,16 @@ public final class FinderUtil
         ArrayList<Category> wrongcase = new ArrayList<>();
         ArrayList<Category> startswith = new ArrayList<>();
         ArrayList<Category> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         cache.forEach(cat -> {
             String name = cat.getName();
             if(name.equals(query))
                 exact.add(cat);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(cat);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(cat);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(cat);
         });
         if(!exact.isEmpty())
@@ -743,16 +743,16 @@ public final class FinderUtil
         ArrayList<Role> wrongcase = new ArrayList<>();
         ArrayList<Role> startswith = new ArrayList<>();
         ArrayList<Role> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         guild.getRoleCache().forEach((role) -> {
             String name = role.getName();
             if(name.equals(query))
                 exact.add(role);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(role);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(role);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(role);
         });
         if(!exact.isEmpty())
@@ -888,16 +888,16 @@ public final class FinderUtil
         ArrayList<Emote> wrongcase = new ArrayList<>();
         ArrayList<Emote> startswith = new ArrayList<>();
         ArrayList<Emote> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        String lowerquery = query.toLowerCase(Locale.ROOT);
         cache.forEach(emote -> {
             String name = emote.getName();
             if(name.equals(query))
                 exact.add(emote);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(emote);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(emote);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if(name.toLowerCase(Locale.ROOT).contains(lowerquery) && startswith.isEmpty())
                 contains.add(emote);
         });
         if(!exact.isEmpty())

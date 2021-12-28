@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
+ * Copyright 2016-2021 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.github.ben-manes.versions' version '0.17.0'
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'maven-publish'
+    id "com.github.ben-manes.versions" version "0.39.0"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 def versionInfo = [major: '1', minor: System.getenv("BUILD_NUMBER").toString()]
@@ -35,7 +36,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.2.1_267'
+        jdaVersion = '4.4.0_350'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
@@ -50,8 +51,8 @@ allprojects {
             json = { [group: 'org.json', name: 'json', version: jsonVersion] }
             junit = { [group: 'junit', name: 'junit', version: junitVersion] }
 
-            artifactId = (rootProject == project? project.name : "$rootProject.name-$project.name").toLowerCase()
-            moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase()}"}"
+            artifactId = (rootProject == project? project.name : "$rootProject.name-$project.name").toLowerCase(Locale.ROOT)
+            moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase(Locale.ROOT)}"}"
         }
 
         // Helper task that allows us to do a one-line method call to fully
@@ -204,14 +205,14 @@ subprojects {
 
     afterEvaluate {
         if(project.includeInParent) {
-            rootProject.dependencies.compile project
+            rootProject.dependencies.implementation project
         }
     }
 }
 
 configurations {
-    compile {
-        description = 'compile'
+    implementation {
+        description = 'implementation'
         transitive = true
     }
 }
@@ -288,7 +289,7 @@ publishing {
                 repositoryNode.appendNode('url', 'https://m2.chew.pro')
 
                 def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.compile.allDependencies.each {
+                configurations.implementation.allDependencies.each {
                     def dependencyNode = dependenciesNode.appendNode('dependency')
                     dependencyNode.appendNode('groupId', it.group)
                     dependencyNode.appendNode('artifactId', it instanceof ProjectDependency ? it.dependencyProject.artifactId : it.name)

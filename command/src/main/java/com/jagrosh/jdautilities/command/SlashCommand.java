@@ -125,13 +125,6 @@ public abstract class SlashCommand extends Command
     protected SlashCommand[] children = new SlashCommand[0];
 
     /**
-     * The ID of the server you want guildOnly tied to.
-     * This means the slash command will only work and show up in the specified Guild.
-     * If this is null, guildOnly will still be processed, however an ephemeral message will be sent telling them to move.
-     */
-    protected String guildId = null;
-
-    /**
      * The subcommand/child group this is associated with.
      * Will be in format {@code /<parent name> <subcommandGroup name> <subcommand name>}.
      *
@@ -249,6 +242,10 @@ public abstract class SlashCommand extends Command
             //user perms
             for(Permission p: userPermissions)
             {
+                // Member will never be null because this is only ran in a server (text channel)
+                if(event.getMember() == null)
+                    continue;
+
                 if(p.isChannel())
                 {
                     if(!event.getMember().hasPermission(event.getTextChannel(), p))
@@ -270,6 +267,12 @@ public abstract class SlashCommand extends Command
             // bot perms
             for(Permission p: botPermissions)
             {
+                // We can ignore this permission because bots can reply with embeds even without either of these perms.
+                // The only thing stopping them is the user's ability to use Application Commands.
+                // It's extremely dumb, but what more can you do.
+                if (p == Permission.VIEW_CHANNEL || p == Permission.MESSAGE_EMBED_LINKS)
+                    continue;
+
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
@@ -305,6 +308,13 @@ public abstract class SlashCommand extends Command
                         return;
                     }
                 }
+            }
+
+            // nsfw check
+            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            {
+                terminate(event, "This command may only be used in NSFW text channels!", client);
+                return;
             }
         }
         else if(guildOnly)
@@ -371,16 +381,6 @@ public abstract class SlashCommand extends Command
     public CommandClient getClient()
     {
         return client;
-    }
-
-    /**
-     * Gets the associated Guild ID for Guild Only command.
-     *
-     * @return the ID for the specific Guild
-     */
-    public String getGuildId()
-    {
-        return guildId;
     }
 
     /**
@@ -549,10 +549,12 @@ public abstract class SlashCommand extends Command
             // Add owner
             privileges.add(CommandPrivilege.enableUser(client.getOwnerId()));
             // Add co-owners
-            for (String user : client.getCoOwnerIds())
-                privileges.add(CommandPrivilege.enableUser(user));
+            if (client.getCoOwnerIds() != null)
+                for (String user : client.getCoOwnerIds())
+                    privileges.add(CommandPrivilege.enableUser(user));
         }
 
+        // can only have up to 10 privileges
         if (privileges.size() > 10)
             privileges = privileges.subList(0, 10);
 
