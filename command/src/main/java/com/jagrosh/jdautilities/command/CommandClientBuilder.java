@@ -26,6 +26,8 @@ import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
+import net.dv8tion.jda.annotations.DeprecatedSince;
+import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -48,7 +50,8 @@ public class CommandClientBuilder
     private String altprefix;
     private String[] prefixes;
     private Function<MessageReceivedEvent, String> prefixFunction;
-    private BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessFunction;
+    private Function<MessageReceivedEvent, Boolean> commandPreProcessFunction;
+    private BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction;
     private String serverInvite;
     private String success;
     private String warning;
@@ -79,7 +82,7 @@ public class CommandClientBuilder
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, prefixes, prefixFunction, commandPreProcessFunction, activity, status, serverInvite,
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, prefixes, prefixFunction, commandPreProcessFunction, commandPreProcessBiFunction, activity, status, serverInvite,
                                                      success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), new ArrayList<>(slashCommands), forcedGuildId, manualUpsert, useHelp,
                                                      shutdownAutomatically, helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
         if(listener!=null)
@@ -218,11 +221,34 @@ public class CommandClientBuilder
      * @param commandPreProcessFunction
      *        The function to execute
      *
+     * @deprecated Please use {@link #setCommandPreProcessBiFunction(BiFunction)} instead.
+     *             You can simply add a new parameter for the command, it doesn't have to be used.
+     *             This cannot be used in conjunction with {@link #setCommandPreProcessBiFunction(BiFunction)}.
      * @return This builder
      */
-    public CommandClientBuilder setCommandPreProcessFunction(BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessFunction)
+    @Deprecated
+    @DeprecatedSince("1.24.0")
+    @ForRemoval(deadline = "2.0")
+    public CommandClientBuilder setCommandPreProcessFunction(Function<MessageReceivedEvent, Boolean> commandPreProcessFunction)
     {
         this.commandPreProcessFunction = commandPreProcessFunction;
+        return this;
+    }
+
+    /**
+     * Sets the pre-process function. This code is executed before every command.<br>
+     * Returning "true" will allow processing to proceed.<br>
+     * Returning "false" or "null" will prevent the Command from executing.<br>
+     * You can use Command to see which command will run.<br>
+     * <b>This cannot be used in conjunction with {@link #setCommandPreProcessFunction(Function)}.</b>
+     *
+     * @param commandPreProcessBiFunction
+     *        The function to execute
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setCommandPreProcessBiFunction(BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction) {
+        this.commandPreProcessBiFunction = commandPreProcessBiFunction;
         return this;
     }
 
