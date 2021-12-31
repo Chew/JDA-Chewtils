@@ -50,20 +50,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * An implementation of {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} to be used by a bot.
- * 
+ *
  * <p>This is a listener usable with {@link net.dv8tion.jda.api.JDA JDA}, as it implements
  * {@link net.dv8tion.jda.api.hooks.EventListener EventListener} in order to catch and use different kinds of
  * {@link net.dv8tion.jda.api.events.Event Event}s. The primary usage of this is where the CommandClient implementation
  * takes {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}s, and automatically
  * processes arguments, and provide them to a {@link com.jagrosh.jdautilities.command.Command Command} for
  * running and execution.
- * 
+ *
  * @author John Grosh (jagrosh)
  */
 public class CommandClientImpl implements CommandClient, EventListener
@@ -81,6 +82,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final String[] prefixes;
     private final Function<MessageReceivedEvent, String> prefixFunction;
     private final Function<MessageReceivedEvent, Boolean> commandPreProcessFunction;
+    private final BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction;
     private final String serverInvite;
     private final HashMap<String, Integer> commandIndex;
     private final HashMap<String, Integer> slashCommandIndex;
@@ -108,7 +110,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private CommandListener listener = null;
     private int totalGuilds;
 
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, String[] prefixes, Function<MessageReceivedEvent, String> prefixFunction, Function<MessageReceivedEvent, Boolean> commandPreProcessFunction, Activity activity, OnlineStatus status, String serverInvite,
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, String[] prefixes, Function<MessageReceivedEvent, String> prefixFunction, Function<MessageReceivedEvent, Boolean> commandPreProcessFunction, BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction, Activity activity, OnlineStatus status, String serverInvite,
                              String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, ArrayList<SlashCommand> slashCommands, String forcedGuildId, boolean manualUpsert,
                              boolean useHelp, boolean shutdownAutomatically, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor,
                              int linkedCacheSize, AnnotatedModuleCompiler compiler, GuildSettingsManager manager)
@@ -140,7 +142,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
 
         this.prefixFunction = prefixFunction;
-        this.commandPreProcessFunction = commandPreProcessFunction==null ? event -> true : commandPreProcessFunction;
+        this.commandPreProcessFunction = commandPreProcessFunction;
+        this.commandPreProcessBiFunction = commandPreProcessBiFunction;
         this.textPrefix = prefix;
         this.activity = activity;
         this.status = status;
@@ -450,7 +453,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         return executor;
     }
-    
+
     @Override
     public String getServerInvite()
     {
@@ -566,9 +569,9 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
         }
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
-        
-        if(activity != null) 
-            event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
+
+        if(activity != null)
+            event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status,
                 "default".equals(activity.getName()) ? Activity.playing("Type "+textPrefix+helpWord) : activity);
 
         // Start SettingsManager if necessary
@@ -579,30 +582,54 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Upsert slash commands, if not manual
         if (!manualUpsert)
         {
-            for (SlashCommand command : slashCommands)
-            {
-                CommandData data = command.buildCommandData();
-
-                if (forcedGuildId != null || (command.isGuildOnly() && command.getGuildId() != null)) {
-                    String guildId = forcedGuildId != null ? forcedGuildId : command.getGuildId();
-                    Guild guild = event.getJDA().getGuildById(guildId);
-                    if (guild == null) {
-                        LOG.error("Could not find guild with specified ID: " + forcedGuildId + ". Not going to upsert.");
-                        continue;
-                    }
-                    List<CommandPrivilege> privileges = command.buildPrivileges(this);
-                    guild.upsertCommand(data).queue(command1 -> {
-                        slashCommandIds.add(command1.getId());
-                        if (!privileges.isEmpty())
-                            command1.updatePrivileges(guild, privileges).queue();
-                    });
-                } else {
-                    event.getJDA().upsertCommand(data).queue(command1 -> slashCommandIds.add(command1.getId()));
-                }
-            }
+            upsertSlashCommands(event.getJDA());
         }
 
         sendStats(event.getJDA());
+    }
+
+    private void upsertSlashCommands(JDA jda)
+    {
+        // Get all commands
+        List<CommandData> data = new ArrayList<>();
+        List<SlashCommand> slashCommands = getSlashCommands();
+        Map<String, SlashCommand> slashCommandMap = new HashMap<>();
+
+        // Build the command and privilege data
+        for (SlashCommand command : slashCommands)
+        {
+            data.add(command.buildCommandData());
+            slashCommandMap.put(command.getName(), command);
+        }
+
+        // Upsert the commands
+        if (forcedGuildId != null)
+        {
+            // Attempt to retrieve the provided guild
+            Guild server = jda.getGuildById(forcedGuildId);
+            if (server == null)
+            {
+                LOG.error("Server used for slash command testing is null! Slash Commands will NOT be added!");
+                return;
+            }
+            // Upsert the commands + their privileges
+            server.updateCommands().addCommands(data)
+                .queue(commands -> {
+                    Map<String, Collection<? extends CommandPrivilege>> privileges = new HashMap<>();
+                    for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
+                    {
+                        SlashCommand slashCommand = slashCommandMap.get(command.getName());
+                        privileges.put(command.getId(), slashCommand.buildPrivileges(this));
+                    }
+                    server.updateCommandPrivileges(privileges)
+                        .queue(priv -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+                }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
+        }
+        else
+        {
+            jda.updateCommands().addCommands(data)
+                .queue(commands -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+        }
     }
 
     private void onMessageReceived(MessageReceivedEvent event)
@@ -643,7 +670,25 @@ public class CommandClientImpl implements CommandClient, EventListener
                     if(listener != null)
                         listener.onCommand(cevent, command);
                     uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
-                    if(commandPreProcessFunction.apply(event))
+                    if (commandPreProcessFunction != null || commandPreProcessBiFunction != null)
+                    {
+                        // Apply both pre-process functions
+                        if (commandPreProcessFunction != null && commandPreProcessFunction.apply(event))
+                        {
+                            command.run(cevent);
+                            return;
+                        }
+
+                        if (commandPreProcessBiFunction != null && commandPreProcessBiFunction.apply(event, command))
+                        {
+                            command.run(cevent);
+                            return;
+                        }
+
+                        // If we are here, neither function returned true, so we can just return
+                        return;
+                    }
+                    else
                     {
                         command.run(cevent);
                     }
@@ -666,7 +711,10 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX))) {
             if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
                     rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
-                final int prefixLength = rawContent.indexOf('>') + 1;
+                // Since we now use substring into makeMessageParts function and a indexOf here, we need to do a +1 to get the good substring
+                // On top of that we need to do another +1 because the default @mention prefix will always be followed by a space
+                // So we need to add 2 characters to get the correct substring
+                final int prefixLength = rawContent.indexOf('>') + 2;
                 return makeMessageParts(rawContent, prefixLength);
             }
         }
@@ -801,7 +849,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             FormBody.Builder bodyBuilder = new FormBody.Builder()
                     .add("key", carbonKey)
                     .add("servercount", Integer.toString(jda.getGuilds().size()));
-            
+
             if(jda.getShardInfo() != null)
             {
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
@@ -828,7 +876,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }
             });
         }
-        
+
         if(botsKey != null)
         {
             JSONObject body = new JSONObject().put("guildCount", jda.getGuilds().size());
@@ -837,7 +885,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 body.put("shardId", jda.getShardInfo().getShardId())
                     .put("shardCount", jda.getShardInfo().getShardTotal());
             }
-            
+
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(MediaType.parse("application/json"), body.toString()))
                     .url("https://discord.bots.gg/api/v1/bots/" + jda.getSelfUser().getId() + "/stats")

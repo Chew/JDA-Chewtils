@@ -125,15 +125,6 @@ public abstract class SlashCommand extends Command
     protected SlashCommand[] children = new SlashCommand[0];
 
     /**
-     * The ID of the server you want guildOnly tied to.
-     * This means the slash command will only work and show up in the specified Guild.
-     * If this is null, guildOnly will still be processed, however an ephemeral message will be sent telling them to move.
-     * @deprecated This will be removed in favor of {@link CommandClientBuilder#forceGuildOnly(String)}. Please use that instead.
-     * @see CommandClientBuilder#forceGuildOnly(String)
-     */
-    protected String guildId = null;
-
-    /**
      * The subcommand/child group this is associated with.
      * Will be in format {@code /<parent name> <subcommandGroup name> <subcommand name>}.
      *
@@ -390,18 +381,6 @@ public abstract class SlashCommand extends Command
     public CommandClient getClient()
     {
         return client;
-    }
-
-    /**
-     * Gets the associated Guild ID for Guild Only command.
-     *
-     * @deprecated This will be removed in favor of {@link CommandClientBuilder#forceGuildOnly(String)}. Please use that instead.
-     * @see CommandClientBuilder#forceGuildOnly(String)
-     * @return the ID for the specific Guild
-     */
-    public String getGuildId()
-    {
-        return guildId;
     }
 
     /**
