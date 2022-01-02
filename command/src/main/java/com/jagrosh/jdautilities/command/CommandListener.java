@@ -15,13 +15,12 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * An implementable "Listener" that can be added to a {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
  * and used to handle events relating to {@link com.jagrosh.jdautilities.command.Command Command}s.
- * 
+ *
  * @author John Grosh (jagrosh)
  */
 public interface CommandListener
@@ -29,7 +28,7 @@ public interface CommandListener
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}.
-     * 
+     *
      * @param  event
      *         The CommandEvent that triggered the Command
      * @param  command
@@ -39,7 +38,7 @@ public interface CommandListener
 
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.SlashCommand SlashCommand} is triggered
-     * by a {@link net.dv8tion.jda.api.events.interaction.SlashCommandEvent SlashCommandEvent}.
+     * by a {@link SlashCommandEvent SlashCommandEvent}.
      *
      * @param  event
      *         The SlashCommandEvent that triggered the Command
@@ -47,7 +46,7 @@ public interface CommandListener
      *         The SlashCommand that was triggered
      */
     default void onSlashCommand(SlashCommandEvent event, SlashCommand command) {}
-    
+
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} after it's
@@ -56,7 +55,7 @@ public interface CommandListener
      * <p>Note that a <i>successfully</i> completed command is one that has not encountered
      * an error or exception. Calls that do face errors should be handled by
      * {@link CommandListener#onCommandException(CommandEvent, Command, Throwable) CommandListener#onCommandException}
-     * 
+     *
      * @param  event
      *         The CommandEvent that triggered the Command
      * @param  command
@@ -66,7 +65,7 @@ public interface CommandListener
 
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.SlashCommand SlashCommand} is triggered
-     * by a {@link net.dv8tion.jda.api.events.interaction.SlashCommandEvent SlashCommandEvent} after it's
+     * by a {@link SlashCommandEvent SlashCommandEvent} after it's
      * completed successfully.
      *
      * <p>Note that a <i>successfully</i> completed slash command is one that has not encountered
@@ -79,12 +78,12 @@ public interface CommandListener
      *         The SlashCommand that was triggered
      */
     default void onCompletedSlashCommand(SlashCommandEvent event, SlashCommand command) {}
-    
+
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} but is
      * terminated before completion.
-     * 
+     *
      * @param  event
      *         The CommandEvent that triggered the Command
      * @param  command
@@ -94,7 +93,7 @@ public interface CommandListener
 
     /**
      * Called when a {@link com.jagrosh.jdautilities.command.SlashCommand Command} is triggered
-     * by a {@link net.dv8tion.jda.api.events.interaction.SlashCommandEvent SlashCommandEvent} but is
+     * by a {@link SlashCommandEvent SlashCommandEvent} but is
      * terminated before completion.
      *
      * @param  event
@@ -103,15 +102,15 @@ public interface CommandListener
      *         The SlashCommand that was triggered
      */
     default void onTerminatedSlashCommand(SlashCommandEvent event, SlashCommand command) {}
-    
+
     /**
      * Called when a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}
      * is caught by the Client Listener's but doesn't correspond to a
      * {@link com.jagrosh.jdautilities.command.Command Command}.
-     * 
+     *
      * <p>In other words, this catches all <b>non-command</b> MessageReceivedEvents allowing
      * you to handle them without implementation of another listener.
-     * 
+     *
      * @param  event
      *         A MessageReceivedEvent that wasn't used to call a Command
      */

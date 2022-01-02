@@ -15,14 +15,16 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
@@ -58,7 +60,7 @@ import java.util.Map;
  *
  * Execution is with the provision of the SlashCommandEvent is performed in two steps:
  * <ul>
- *     <li>{@link SlashCommand#run(SlashCommandEvent, CommandClient) run} - The command runs
+ *     <li>{@link SlashCommand#run(SlashCommandEvent) run} - The command runs
  *     through a series of conditionals, automatically terminating the command instance if one is not met,
  *     and possibly providing an error response.</li>
  *
@@ -155,13 +157,14 @@ public abstract class SlashCommand extends Command
 
     /**
      * The command client to be retrieved if needed.
+     * @deprecated This is now retrieved from {@link SlashCommandEvent#getClient()}.
      */
     protected CommandClient client;
 
     /**
      * The main body method of a {@link SlashCommand SlashCommand}.
      * <br>This is the "response" for a successful
-     * {@link SlashCommand#run(SlashCommandEvent, CommandClient) #run(CommandEvent)}.
+     * {@link SlashCommand#run(SlashCommandEvent) #run(CommandEvent)}.
      *
      * @param  event
      *         The {@link SlashCommandEvent SlashCommandEvent} that
@@ -193,13 +196,11 @@ public abstract class SlashCommand extends Command
      *
      * @param  event
      *         The SlashCommandEvent that triggered this Command
-     * @param  client
-     *         The CommandClient for checks and stuff
      */
-    public final void run(SlashCommandEvent event, CommandClient client)
+    public final void run(SlashCommandEvent event)
     {
         // set the client
-        this.client = client;
+        this.client = event.getClient();
 
         // child check
         if(event.getSubcommandName() != null)
@@ -208,7 +209,7 @@ public abstract class SlashCommand extends Command
             {
                 if(cmd.isCommandFor(event.getSubcommandName()))
                 {
-                    cmd.run(event, client);
+                    cmd.run(event);
                     return;
                 }
             }
@@ -377,7 +378,10 @@ public abstract class SlashCommand extends Command
      * Gets the CommandClient.
      *
      * @return the CommandClient.
+     * @deprecated This is now retrieved from {@link SlashCommandEvent#getClient()}.
      */
+    @Deprecated
+    @ForRemoval(deadline = "2.0.0")
     public CommandClient getClient()
     {
         return client;
@@ -471,7 +475,7 @@ public abstract class SlashCommand extends Command
     public CommandData buildCommandData()
     {
         // Make the command data
-        CommandData data = new CommandData(getName(), getHelp());
+        SlashCommandData data = Commands.slash(getName(), getHelp());
         if (!getOptions().isEmpty())
         {
             data.addOptions(getOptions());

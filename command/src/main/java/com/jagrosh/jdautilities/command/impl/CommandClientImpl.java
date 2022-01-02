@@ -15,27 +15,46 @@
  */
 package com.jagrosh.jdautilities.command.impl;
 
-import com.jagrosh.jdautilities.command.*;
+import com.jagrosh.jdautilities.command.AnnotatedModuleCompiler;
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.Command.Category;
+import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.CommandListener;
+import com.jagrosh.jdautilities.command.GuildSettingsManager;
+import com.jagrosh.jdautilities.command.GuildSettingsProvider;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.internal.utils.Checks;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -47,7 +66,17 @@ import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiFunction;
@@ -537,8 +566,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(event instanceof MessageReceivedEvent)
             onMessageReceived((MessageReceivedEvent)event);
 
-        else if(event instanceof SlashCommandEvent)
-            onSlashCommand((SlashCommandEvent)event);
+        else if(event instanceof SlashCommandInteractionEvent)
+            onSlashCommand((SlashCommandInteractionEvent)event);
 
         else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
             onMessageDelete((MessageDeleteEvent) event);
@@ -821,7 +850,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         );
     }
 
-    private void onSlashCommand(SlashCommandEvent event)
+    private void onSlashCommand(SlashCommandInteractionEvent event)
     {
         final SlashCommand command; // this will be null if it's not a command
         synchronized(slashCommandIndex)
@@ -830,12 +859,15 @@ public class CommandClientImpl implements CommandClient, EventListener
             command = i != -1? slashCommands.get(i) : null;
         }
 
+        // Wrap the event in a SlashCommandEvent
+        final SlashCommandEvent commandEvent = new SlashCommandEvent(event, this);
+
         if(command != null)
         {
             if(listener != null)
-                listener.onSlashCommand(event, command);
+                listener.onSlashCommand(commandEvent, command);
             uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
-            command.run(event, this);
+            command.run(commandEvent);
             // Command is done
         }
     }
