@@ -1,11 +1,7 @@
 package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.AudioChannel;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -23,13 +19,6 @@ public abstract class ContextMenu extends Interaction
      * @see net.dv8tion.jda.api.interactions.commands.build.Commands#context(Command.Type, String) Commands#context string argument.
      */
     protected String name = "null";
-
-    /**
-     * The type of context menu you want.
-     * Can be of type User or Message.
-     * @see Command.Type
-     */
-    protected Command.Type type = null;
 
     /**
      * Whether this command is disabled by default.
@@ -67,139 +56,6 @@ public abstract class ContextMenu extends Interaction
     protected String[] disabledUsers = new String[]{};
 
     /**
-     * Runs checks for the {@link SlashCommand SlashCommand} with the
-     * given {@link SlashCommandEvent SlashCommandEvent} that called it.
-     * <br>Will terminate, and possibly respond with a failure message, if any checks fail.
-     *
-     * @param  event
-     *         The SlashCommandEvent that triggered this Command
-     */
-    public final void run(ContextMenuEvent event)
-    {
-        // owner check
-        if(ownerCommand && !(event.isOwner()))
-        {
-            terminate(event,null);
-            return;
-        }
-
-        // cooldown check, ignoring owner
-        if(cooldown>0 && !(event.isOwner()))
-        {
-            String key = getCooldownKey(event);
-            int remaining = event.getClient().getRemainingCooldown(key);
-            if(remaining>0)
-            {
-                terminate(event, getCooldownError(event, remaining));
-                return;
-            }
-            else event.getClient().applyCooldown(key, cooldown);
-        }
-
-        // availability check
-        if(event.getChannelType()==ChannelType.TEXT)
-        {
-            //user perms
-            for(Permission p: userPermissions)
-            {
-                // Member will never be null because this is only ran in a server (text channel)
-                if(event.getMember() == null)
-                    continue;
-
-                if(p.isChannel())
-                {
-                    if(!event.getMember().hasPermission(event.getEvent().getGuildChannel(), p))
-                    {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
-                        return;
-                    }
-                }
-                else
-                {
-                    if(!event.getMember().hasPermission(p))
-                    {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
-                        return;
-                    }
-                }
-            }
-
-            // bot perms
-            for(Permission p: botPermissions)
-            {
-                // We can ignore this permission because bots can reply with embeds even without either of these perms.
-                // The only thing stopping them is the user's ability to use Application Commands.
-                // It's extremely dumb, but what more can you do.
-                if (p == Permission.VIEW_CHANNEL || p == Permission.MESSAGE_EMBED_LINKS)
-                    continue;
-
-                Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
-                if(p.isChannel())
-                {
-                    if(p.name().startsWith("VOICE"))
-                    {
-                        GuildVoiceState gvc = event.getMember().getVoiceState();
-                        AudioChannel vc = gvc == null ? null : gvc.getChannel();
-                        if(vc==null)
-                        {
-                            terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");
-                            return;
-                        }
-                        else if(!selfMember.hasPermission(vc, p))
-                        {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "voice channel"));
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if(!selfMember.hasPermission(event.getEvent().getGuildChannel(), p))
-                        {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    if(!selfMember.hasPermission(p))
-                    {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
-                        return;
-                    }
-                }
-            }
-        }
-
-        // run
-        try {
-            execute(event);
-        } catch(Throwable t) {
-            if(event.getClient().getListener() != null)
-            {
-                event.getClient().getListener().onContextMenuException(event, this, t);
-                return;
-            }
-            // otherwise we rethrow
-            throw t;
-        }
-
-        if(event.getClient().getListener() != null)
-            event.getClient().getListener().onCompletedContextMenu(event, this);
-    }
-
-    /**
-     * The main body method of a {@link com.jagrosh.jdautilities.command.Command Command}.
-     * <br>This is the "response" for a successful
-     * {@link com.jagrosh.jdautilities.command.Command#run(CommandEvent) #run(CommandEvent)}.
-     *
-     * @param  event
-     *         The {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} that
-     *         triggered this Command
-     */
-    protected abstract void execute(ContextMenuEvent event);
-
-    /**
      * Gets the {@link ContextMenu ContextMenu.name} for the Context Menu.
      *
      * @return The name for the Context Menu.
@@ -207,6 +63,21 @@ public abstract class ContextMenu extends Interaction
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Gets the type of context menu.
+     *
+     * @return the type
+     */
+    public Command.Type getType()
+    {
+        if (this instanceof MessageContextMenu)
+            return Command.Type.MESSAGE;
+        else if (this instanceof UserContextMenu)
+            return Command.Type.USER;
+        else
+            return Command.Type.UNKNOWN;
     }
 
     /**
@@ -263,22 +134,14 @@ public abstract class ContextMenu extends Interaction
         return disabledUsers;
     }
 
-    private void terminate(ContextMenuEvent event, String message)
-    {
-        if(message!=null)
-            event.reply(message).setEphemeral(true).queue();
-        if(event.getClient().getListener()!=null)
-            event.getClient().getListener().onTerminatedContextMenu(event, this);
-    }
-
     /**
-     * Gets the proper cooldown key for this Command under the provided {@link ContextMenuEvent}.
+     * Gets the proper cooldown key for this Command under the provided {@link GenericCommandInteractionEvent}.
      *
      * @param event The ContextMenuEvent to generate the cooldown for.
      *
      * @return A String key to use when applying a cooldown.
      */
-    public String getCooldownKey(ContextMenuEvent event)
+    public String getCooldownKey(GenericCommandInteractionEvent event)
     {
         switch (cooldownScope)
         {
@@ -299,21 +162,22 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Gets an error message for this Context Menu under the provided {@link ContextMenuEvent}.
+     * Gets an error message for this Context Menu under the provided {@link GenericCommandInteractionEvent}.
      *
      * @param  event
      *         The CommandEvent to generate the error message for.
      * @param  remaining
      *         The remaining number of seconds a command is on cooldown for.
+     * @param client the client
      *
      * @return A String error message for this command if {@code remaining > 0},
      *         else {@code null}.
      */
-    public String getCooldownError(ContextMenuEvent event, int remaining)
+    public String getCooldownError(GenericCommandInteractionEvent event, int remaining, CommandClient client)
     {
         if(remaining<=0)
             return null;
-        String front = event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds";
+        String front = client.getWarning()+" That command is on cooldown for "+remaining+" more seconds";
         if(cooldownScope.equals(CooldownScope.USER))
             return front+"!";
         else if(cooldownScope.equals(CooldownScope.USER_GUILD) && event.getGuild()==null)
@@ -335,7 +199,7 @@ public abstract class ContextMenu extends Interaction
     public CommandData buildCommandData()
     {
         // Make the command data
-        CommandData data = Commands.context(type, name);
+        CommandData data = Commands.context(getType(), name);
 
         // Default enabled is synonymous with hidden now.
         data.setDefaultEnabled(isDefaultEnabled());

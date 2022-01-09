@@ -22,11 +22,14 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.CommandListener;
 import com.jagrosh.jdautilities.command.ContextMenu;
-import com.jagrosh.jdautilities.command.ContextMenuEvent;
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import com.jagrosh.jdautilities.command.GuildSettingsProvider;
+import com.jagrosh.jdautilities.command.MessageContextMenu;
+import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.UserContextMenu;
+import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import net.dv8tion.jda.api.JDA;
@@ -42,7 +45,6 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
@@ -940,29 +942,52 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void onUserContextMenu(UserContextInteractionEvent event)
     {
-        final ContextMenuEvent menuEvent = new ContextMenuEvent(event, this);
-        onContextMenu(event, menuEvent);
-    }
-
-    private void onMessageContextMenu(MessageContextInteractionEvent event)
-    {
-        final ContextMenuEvent menuEvent = new ContextMenuEvent(event, this);
-        onContextMenu(event, menuEvent);
-    }
-
-    private void onContextMenu(GenericCommandInteractionEvent event, ContextMenuEvent menuEvent)
-    {
-        final ContextMenu menu; // this will be null if it's not a command
+        final UserContextMenu menu; // this will be null if it's not a command
         synchronized(contextMenuIndex)
         {
+            ContextMenu c;
             int i = contextMenuIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
-            menu = i != -1? contextMenus.get(i) : null;
+            c = i != -1 ? contextMenus.get(i) : null;
+
+            if (c instanceof UserContextMenu)
+                menu = (UserContextMenu) c;
+            else
+                menu = null;
         }
+
+        final UserContextMenuEvent menuEvent = new UserContextMenuEvent(event.getJDA(), event.getResponseNumber(), event,this);
 
         if(menu != null)
         {
             if(listener != null)
-                listener.onContextMenu(menuEvent, menu);
+                listener.onUserContextMenu(menuEvent, menu);
+            uses.put(menu.getName(), uses.getOrDefault(menu.getName(), 0) + 1);
+            menu.run(menuEvent);
+            // Command is done
+        }
+    }
+
+    private void onMessageContextMenu(MessageContextInteractionEvent event)
+    {
+        final MessageContextMenu menu; // this will be null if it's not a command
+        synchronized(contextMenuIndex)
+        {
+            ContextMenu c;
+            int i = contextMenuIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
+            c = i != -1 ? contextMenus.get(i) : null;
+
+            if (c instanceof MessageContextMenu)
+                menu = (MessageContextMenu) c;
+            else
+                menu = null;
+        }
+
+        final MessageContextMenuEvent menuEvent = new MessageContextMenuEvent(event.getJDA(), event.getResponseNumber(), event,this);
+
+        if(menu != null)
+        {
+            if(listener != null)
+                listener.onMessageContextMenu(menuEvent, menu);
             uses.put(menu.getName(), uses.getOrDefault(menu.getName(), 0) + 1);
             menu.run(menuEvent);
             // Command is done
