@@ -154,17 +154,17 @@ public abstract class ContextMenu extends Interaction
         try {
             execute(event);
         } catch(Throwable t) {
-//            if(client.getListener() != null)
-//            {
-//                client.getListener().onSlashCommandException(event, this, t);
-//                return;
-//            }
+            if(event.getClient().getListener() != null)
+            {
+                event.getClient().getListener().onContextMenuException(event, this, t);
+                return;
+            }
             // otherwise we rethrow
             throw t;
         }
 
-//        if(client.getListener() != null)
-//            client.getListener().onCompletedSlashCommand(event, this);
+        if(event.getClient().getListener() != null)
+            event.getClient().getListener().onCompletedContextMenu(event, this);
     }
 
     /**
@@ -246,8 +246,8 @@ public abstract class ContextMenu extends Interaction
     {
         if(message!=null)
             event.getEvent().reply(message).setEphemeral(true).queue();
-//        if(event.getClient().getListener()!=null)
-            //event.getClient().getListener().onTerminatedCommand(event, this);
+        if(event.getClient().getListener()!=null)
+            event.getClient().getListener().onTerminatedContextMenu(event, this);
     }
 
     /**

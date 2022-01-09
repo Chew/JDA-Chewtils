@@ -48,6 +48,16 @@ public interface CommandListener
     default void onSlashCommand(SlashCommandEvent event, SlashCommand command) {}
 
     /**
+     * Called when a {@link ContextMenu} is triggered by a {@link ContextMenuEvent}.
+     *
+     * @param  event
+     *         The ContextMenuEvent that triggered the ContextMenu
+     * @param  menu
+     *         The ContextMenu that was triggered
+     */
+    default void onContextMenu(ContextMenuEvent event, ContextMenu menu) {}
+
+    /**
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} after it's
      * completed successfully.
@@ -80,6 +90,20 @@ public interface CommandListener
     default void onCompletedSlashCommand(SlashCommandEvent event, SlashCommand command) {}
 
     /**
+     * Called when a {@link ContextMenu} is triggered by a {@link ContextMenuEvent} after it's completed successfully.
+     *
+     * <p>Note that a <i>successfully</i> completed context menu interaction is one that has not encountered
+     * an error or exception. Calls that do face errors should be handled by
+     * {@link CommandListener#onTerminatedContextMenu(ContextMenuEvent, ContextMenu)}
+     *
+     * @param  event
+     *         The ContextMenuEvent that triggered the Menu
+     * @param  menu
+     *         The ContextMenu that was triggered
+     */
+    default void onCompletedContextMenu(ContextMenuEvent event, ContextMenu menu) {}
+
+    /**
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} but is
      * terminated before completion.
@@ -102,6 +126,16 @@ public interface CommandListener
      *         The SlashCommand that was triggered
      */
     default void onTerminatedSlashCommand(SlashCommandEvent event, SlashCommand command) {}
+
+    /**
+     * Called when a {@link ContextMenu} is triggered by a {@link ContextMenuEvent} but is terminated before completion.
+     *
+     * @param  event
+     *         The ContextMenuEvent that triggered the Context Menu
+     * @param  menu
+     *         The ContextMenu that was triggered
+     */
+    default void onTerminatedContextMenu(ContextMenuEvent event, ContextMenu menu) {}
 
     /**
      * Called when a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}
@@ -174,6 +208,26 @@ public interface CommandListener
      *         The Throwable thrown during Command execution
      */
     default void onSlashCommandException(SlashCommandEvent event, SlashCommand command, Throwable throwable) {
+        // Default rethrow as a runtime exception.
+        throw throwable instanceof RuntimeException? (RuntimeException)throwable : new RuntimeException(throwable);
+    }
+
+    /**
+     * Called when a {@link ContextMenu} catches a {@link java.lang.Throwable Throwable} <b>during execution</b>.
+     *
+     * <p>This doesn't account for exceptions thrown during other pre-checks,
+     * and should not be treated as such!
+     *
+     * The {@link NullPointerException} thrown will not be caught by this method!
+     *
+     * @param  event
+     *         The Context Menu Event that triggered the ContextMenu
+     * @param  menu
+     *         The Context Menu that was triggered
+     * @param  throwable
+     *         The Throwable thrown during Command execution
+     */
+    default void onContextMenuException(ContextMenuEvent event, ContextMenu menu, Throwable throwable) {
         // Default rethrow as a runtime exception.
         throw throwable instanceof RuntimeException? (RuntimeException)throwable : new RuntimeException(throwable);
     }
