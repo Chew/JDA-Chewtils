@@ -1,5 +1,6 @@
 package com.jagrosh.jdautilities.command;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -75,6 +76,26 @@ public abstract class ContextMenu extends Interaction
      */
     public final void run(ContextMenuEvent event)
     {
+        // owner check
+        if(ownerCommand && !(event.isOwner()))
+        {
+            terminate(event,null);
+            return;
+        }
+
+        // cooldown check, ignoring owner
+        if(cooldown>0 && !(event.isOwner()))
+        {
+            String key = getCooldownKey(event);
+            int remaining = event.getClient().getRemainingCooldown(key);
+            if(remaining>0)
+            {
+                terminate(event, getCooldownError(event, remaining));
+                return;
+            }
+            else event.getClient().applyCooldown(key, cooldown);
+        }
+
         // availability check
         if(event.getChannelType()==ChannelType.TEXT)
         {
@@ -245,9 +266,62 @@ public abstract class ContextMenu extends Interaction
     private void terminate(ContextMenuEvent event, String message)
     {
         if(message!=null)
-            event.getEvent().reply(message).setEphemeral(true).queue();
+            event.reply(message).setEphemeral(true).queue();
         if(event.getClient().getListener()!=null)
             event.getClient().getListener().onTerminatedContextMenu(event, this);
+    }
+
+    /**
+     * Gets the proper cooldown key for this Command under the provided {@link ContextMenuEvent}.
+     *
+     * @param event The ContextMenuEvent to generate the cooldown for.
+     *
+     * @return A String key to use when applying a cooldown.
+     */
+    public String getCooldownKey(ContextMenuEvent event)
+    {
+        switch (cooldownScope)
+        {
+            case USER:         return cooldownScope.genKey(name,event.getUser().getIdLong());
+            case USER_GUILD:   return event.getGuild()!=null ? cooldownScope.genKey(name,event.getUser().getIdLong(),event.getGuild().getIdLong()) :
+                CooldownScope.USER_CHANNEL.genKey(name,event.getUser().getIdLong(), event.getChannel().getIdLong());
+            case USER_CHANNEL: return cooldownScope.genKey(name,event.getUser().getIdLong(),event.getChannel().getIdLong());
+            case GUILD:        return event.getGuild()!=null ? cooldownScope.genKey(name,event.getGuild().getIdLong()) :
+                CooldownScope.CHANNEL.genKey(name,event.getChannel().getIdLong());
+            case CHANNEL:      return cooldownScope.genKey(name,event.getChannel().getIdLong());
+            case SHARD:        return event.getJDA().getShardInfo() != JDA.ShardInfo.SINGLE ? cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId()) :
+                CooldownScope.GLOBAL.genKey(name, 0);
+            case USER_SHARD:   return event.getJDA().getShardInfo() != JDA.ShardInfo.SINGLE ? cooldownScope.genKey(name,event.getUser().getIdLong(),event.getJDA().getShardInfo().getShardId()) :
+                CooldownScope.USER.genKey(name, event.getUser().getIdLong());
+            case GLOBAL:       return cooldownScope.genKey(name, 0);
+            default:           return "";
+        }
+    }
+
+    /**
+     * Gets an error message for this Context Menu under the provided {@link ContextMenuEvent}.
+     *
+     * @param  event
+     *         The CommandEvent to generate the error message for.
+     * @param  remaining
+     *         The remaining number of seconds a command is on cooldown for.
+     *
+     * @return A String error message for this command if {@code remaining > 0},
+     *         else {@code null}.
+     */
+    public String getCooldownError(ContextMenuEvent event, int remaining)
+    {
+        if(remaining<=0)
+            return null;
+        String front = event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds";
+        if(cooldownScope.equals(CooldownScope.USER))
+            return front+"!";
+        else if(cooldownScope.equals(CooldownScope.USER_GUILD) && event.getGuild()==null)
+            return front+" "+CooldownScope.USER_CHANNEL.errorSpecification+"!";
+        else if(cooldownScope.equals(CooldownScope.GUILD) && event.getGuild()==null)
+            return front+" "+CooldownScope.CHANNEL.errorSpecification+"!";
+        else
+            return front+" "+cooldownScope.errorSpecification+"!";
     }
 
     /**

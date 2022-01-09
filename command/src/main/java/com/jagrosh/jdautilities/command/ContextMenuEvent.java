@@ -1,17 +1,22 @@
 package com.jagrosh.jdautilities.command;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.AttachmentOption;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 
 /**
  * A wrapper class for both {@link UserContextInteractionEvent UserContextInteractionEvent} and
@@ -235,5 +240,144 @@ public class ContextMenuEvent
     public Guild getGuild()
     {
         return getEvent().getGuild();
+    }
+
+    /**
+     * Returns the {@link JDA} instance of this interaction
+     *
+     * @return the corresponding JDA instance
+     */
+    @Nonnull
+    public JDA getJDA()
+    {
+        return getEvent().getJDA();
+    }
+
+    /**
+     * Responds with a String message.
+     *
+     * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
+     * {@link ReplyCallbackAction#queue() RestAction#queue()}.
+     *
+     * @param message A String message to reply with
+     */
+    public void respond(String message)
+    {
+        getEvent().reply(message).queue();
+    }
+
+    /**
+     * Replies with a String message.
+     *
+     * <p>Unlike {@link #respond(String)}, this will not queue the ReplyCallbackAction, it returns it instead.
+     *
+     * @param message A String message to reply with
+     */
+    public ReplyCallbackAction reply(String message)
+    {
+        return getEvent().reply(message);
+    }
+
+    /**
+     * Responds with a {@link MessageEmbed}.
+     *
+     * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
+     * {@link ReplyCallbackAction#queue() RestAction#queue()}.
+     *
+     * @param embed The MessageEmbed to reply with
+     */
+    public void respond(MessageEmbed embed)
+    {
+        getEvent().replyEmbeds(embed).queue();
+    }
+
+    /**
+     * Replies with a {@link MessageEmbed} and returns a {@link ReplyCallbackAction}.
+     *
+     * <p>Unlike {@link #respond(MessageEmbed)}, this will not queue the ReplyCallbackAction, it returns it instead.
+     *
+     * @param embed The MessageEmbed to reply with
+     * @return A {@link ReplyCallbackAction}
+     */
+    public ReplyCallbackAction reply(MessageEmbed embed)
+    {
+        return getEvent().replyEmbeds(embed);
+    }
+
+    /**
+     * Replies with a {@link Message}.
+     *
+     * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
+     * {@link ReplyCallbackAction#queue() RestAction#queue()}.
+     *
+     * @param message The Message to reply with
+     */
+    public void respond(Message message)
+    {
+        getEvent().reply(message).queue();
+    }
+
+    /**
+     * Replies with a {@link Message} and returns a {@link ReplyCallbackAction}.
+     *
+     * <p>Unlike {@link #respond(Message)}, this will not queue the ReplyCallbackAction, it returns it instead.
+     *
+     * @param message The Message to reply with
+     * @return A {@link ReplyCallbackAction}
+     */
+    public ReplyCallbackAction reply(Message message)
+    {
+        return getEvent().reply(message);
+    }
+
+    /**
+     * Replies with a {@link File} with the provided name, or a default name if left null.
+     *
+     * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
+     * {@link ReplyCallbackAction#queue() RestAction#queue()}.
+     *
+     * <p>This method uses {@link GenericCommandInteractionEvent#replyFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...)}
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
+     *
+     * @param file The File to reply with
+     * @param filename The filename that Discord should display (null for default).
+     * @param options The {@link AttachmentOption}s to apply to the File.
+     */
+    public void respond(File file, String filename, AttachmentOption... options)
+    {
+        getEvent().replyFile(file, filename, options).queue();
+    }
+
+    /**
+     * Replies with a {@link File} and returns a {@link ReplyCallbackAction}.
+     *
+     * <p>Unlike {@link #respond(File, String, AttachmentOption...)}, this will not queue the ReplyCallbackAction, it returns it instead.
+     *
+     * @param file The File to reply with
+     * @param filename The filename that Discord should display (null for default).
+     * @param options The {@link AttachmentOption}s to apply to the File.
+     * @return A {@link ReplyCallbackAction}
+     */
+    public ReplyCallbackAction reply(File file, String filename, AttachmentOption... options)
+    {
+        return getEvent().replyFile(file, filename, options);
+    }
+
+    /**
+     * Tests whether the {@link User} who triggered this
+     * event is an owner of the bot.
+     *
+     * @return {@code true} if the User is the Owner, else {@code false}
+     */
+    public boolean isOwner()
+    {
+        if(getUser().getId().equals(this.getClient().getOwnerId()))
+            return true;
+        if(this.getClient().getCoOwnerIds()==null)
+            return false;
+        for(String id : this.getClient().getCoOwnerIds())
+            if(id.equals(getUser().getId()))
+                return true;
+        return false;
     }
 }
