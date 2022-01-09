@@ -225,7 +225,29 @@ public interface CommandClient
      */
     void addSlashCommand(SlashCommand command, int index);
 
+    /**
+     * Adds a single {@link ContextMenu} to this CommandClient's registered Context Menus.
+     *
+     * @param  menu
+     *         The menu to add
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         If the Context Menu provided has a name that has already been registered
+     */
     void addContextMenu(ContextMenu menu);
+
+    /**
+     * Adds a single {@link ContextMenu} to this CommandClient's registered Context Menus.
+     *
+     * @param  menu
+     *         The menu to add
+     * @param  index
+     *         The index to add the Context Menu at (must follow the specifications {@code 0<=index<=size()})
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         If the Context Menu provided has a name that has already been registered
+     */
+    void addContextMenu(ContextMenu menu, int index);
 
     /**
      * Removes a single {@link com.jagrosh.jdautilities.command.Command Command} from this CommandClient's

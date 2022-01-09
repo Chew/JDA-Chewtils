@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
@@ -121,8 +122,9 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final HashMap<String, Integer> slashCommandIndex;
     private final ArrayList<Command> commands;
     private final ArrayList<SlashCommand> slashCommands;
-    private final ArrayList<ContextMenu> contextMenus;
     private final ArrayList<String> slashCommandIds;
+    private final ArrayList<ContextMenu> contextMenus;
+    private final HashMap<String, Integer> contextMenuIndex;
     private final String forcedGuildId;
     private final boolean manualUpsert;
     private final String success;
@@ -193,6 +195,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.slashCommands = new ArrayList<>();
         this.slashCommandIds = new ArrayList<>();
         this.contextMenus = new ArrayList<>();
+        this.contextMenuIndex = new HashMap<>();
         this.forcedGuildId = forcedGuildId;
         this.manualUpsert = manualUpsert;
         this.cooldowns = new HashMap<>();
@@ -418,7 +421,30 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public void addContextMenu(ContextMenu menu)
     {
-        contextMenus.add(menu);
+        addContextMenu(menu, contextMenus.size());
+    }
+
+    @Override
+    public void addContextMenu(ContextMenu menu, int index)
+    {
+        if(index>contextMenus.size() || index<0)
+            throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+contextMenus.size()+"]");
+        synchronized(contextMenuIndex)
+        {
+            String name = menu.getName();
+            //check for collision
+            if(contextMenuIndex.containsKey(name))
+                throw new IllegalArgumentException("Context Menu added has a name that has already been indexed: \""+name+"\"!");
+            //shift if not append
+            if(index<contextMenuIndex.size())
+            {
+                contextMenuIndex.entrySet().stream().filter(entry -> entry.getValue()>=index).collect(Collectors.toList())
+                    .forEach(entry -> contextMenuIndex.put(entry.getKey(), entry.getValue()+1));
+            }
+            //add
+            contextMenuIndex.put(name, index);
+        }
+        contextMenus.add(index,menu);
     }
 
     @Override
@@ -594,7 +620,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             onSlashCommand((SlashCommandInteractionEvent)event);
 
         else if(event instanceof MessageContextInteractionEvent)
-            onMessageContextInteraction((MessageContextInteractionEvent)event);
+            onMessageContextMenu((MessageContextInteractionEvent)event);
         else if(event instanceof UserContextInteractionEvent)
             onUserContextMenu((UserContextInteractionEvent)event);
 
@@ -914,37 +940,32 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void onUserContextMenu(UserContextInteractionEvent event)
     {
-        ContextMenu menu = null;
-        // iterate through contextMenu list to find one with matching name
-        for (ContextMenu contextMenu : contextMenus) {
-            if (event.getName().equals(contextMenu.getName())) {
-                menu = contextMenu;
-            }
-        }
-        final ContextMenuEvent contextMenuEvent = new ContextMenuEvent(event, this);
-
-        if (menu != null) {
-            menu.run(contextMenuEvent);
-        } else {
-            LOG.debug("No context menu found with name {}", event.getName());
-        }
+        final ContextMenuEvent menuEvent = new ContextMenuEvent(event, this);
+        onContextMenu(event, menuEvent);
     }
 
-    private void onMessageContextInteraction(MessageContextInteractionEvent event)
+    private void onMessageContextMenu(MessageContextInteractionEvent event)
     {
-        ContextMenu menu = null;
-        // iterate through contextMenu list to find one with matching name
-        for (ContextMenu contextMenu : contextMenus) {
-            if (event.getName().equals(contextMenu.getName())) {
-                menu = contextMenu;
-            }
-        }
-        final ContextMenuEvent contextMenuEvent = new ContextMenuEvent(event, this);
+        final ContextMenuEvent menuEvent = new ContextMenuEvent(event, this);
+        onContextMenu(event, menuEvent);
+    }
 
-        if (menu != null) {
-            menu.run(contextMenuEvent);
-        } else {
-            LOG.debug("No context menu found with name {}", event.getName());
+    private void onContextMenu(GenericCommandInteractionEvent event, ContextMenuEvent menuEvent)
+    {
+        final ContextMenu menu; // this will be null if it's not a command
+        synchronized(contextMenuIndex)
+        {
+            int i = contextMenuIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
+            menu = i != -1? contextMenus.get(i) : null;
+        }
+
+        if(menu != null)
+        {
+            if(listener != null)
+                listener.onContextMenu(menuEvent, menu);
+            uses.put(menu.getName(), uses.getOrDefault(menu.getName(), 0) + 1);
+            menu.run(menuEvent);
+            // Command is done
         }
     }
 
