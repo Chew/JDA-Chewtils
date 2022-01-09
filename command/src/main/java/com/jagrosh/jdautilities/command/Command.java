@@ -67,7 +67,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
  *
  * @author John Grosh (jagrosh)
  */
-public abstract class Command
+public abstract class Command extends Interaction
 {
     /**
      * The name of the command, allows the command to be called the formats: <br>
@@ -116,32 +116,6 @@ public abstract class Command
     protected String requiredRole = null;
 
     /**
-     * {@code true} if the command may only be used by a User with an ID matching the
-     * Owners or any of the CoOwners.<br>
-     * If enabled for a Slash Command, only owners (owner + up to 9 co-owners) will be added to the SlashCommand.
-     * All other permissions will be ignored.
-     * <br>Default {@code false}.
-     */
-    protected boolean ownerCommand = false;
-
-    /**
-     * An {@code int} number of seconds users must wait before using this command again.
-     */
-    protected int cooldown = 0;
-
-    /**
-     * Any {@link net.dv8tion.jda.api.Permission Permission}s a Member must have to use this command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
-     */
-    protected Permission[] userPermissions = new Permission[0];
-
-    /**
-     * Any {@link net.dv8tion.jda.api.Permission Permission}s the bot must have to use a command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
-     */
-    protected Permission[] botPermissions = new Permission[0];
-
-    /**
      * The aliases of the command, when calling a command these function identically to calling the
      * {@link com.jagrosh.jdautilities.command.Command#name Command.name}.
      * This options only works for normal commands, not slash commands.
@@ -174,25 +148,6 @@ public abstract class Command
      * <b>This has no effect for SlashCommands.</b>
      */
     protected boolean hidden = false;
-
-    /**
-     * The {@link com.jagrosh.jdautilities.command.Command.CooldownScope CooldownScope}
-     * of the command. This defines how far of a scope cooldowns have.
-     * <br>Default {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER CooldownScope.USER}.
-     */
-    protected CooldownScope cooldownScope = CooldownScope.USER;
-
-    /**
-     * The permission message used when the bot does not have the requires permission.
-     * Requires 3 "%s", first is user mention, second is the permission needed, third is type, e.g. Guild.
-     */
-    protected String botMissingPermMessage = "%s I need the %s permission in this %s!";
-
-    /**
-     * The permission message used when the user does not have the requires permission.
-     * Requires 3 "%s", first is user mention, second is the permission needed, third is type, e.g. Guild.
-     */
-    protected String userMissingPermMessage = "%s You must have the %s permission in this %s to use that!";
 
     /**
      * The main body method of a {@link com.jagrosh.jdautilities.command.Command Command}.
@@ -495,36 +450,6 @@ public abstract class Command
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.command.Command#cooldown Command.cooldown} for the Command.
-     *
-     * @return The cooldown for the Command
-     */
-    public int getCooldown()
-    {
-        return cooldown;
-    }
-
-    /**
-     * Gets the {@link com.jagrosh.jdautilities.command.Command#userPermissions Command.userPermissions} for the Command.
-     *
-     * @return The userPermissions for the Command
-     */
-    public Permission[] getUserPermissions()
-    {
-        return userPermissions;
-    }
-
-    /**
-     * Gets the {@link com.jagrosh.jdautilities.command.Command#botPermissions Command.botPermissions} for the Command.
-     *
-     * @return The botPermissions for the Command
-     */
-    public Permission[] getBotPermissions()
-    {
-        return botPermissions;
-    }
-
-    /**
      * Gets the {@link com.jagrosh.jdautilities.command.Command#aliases Command.aliases} for the Command.
      *
      * @return The aliases for the Command
@@ -542,16 +467,6 @@ public abstract class Command
     public Command[] getChildren()
     {
         return children;
-    }
-
-    /**
-     * Checks whether or not this command is an owner only Command.
-     *
-     * @return {@code true} if the command is an owner command, otherwise {@code false} if it is not
-     */
-    public boolean isOwnerCommand()
-    {
-        return ownerCommand;
     }
 
     /**
@@ -749,171 +664,6 @@ public abstract class Command
             hash = 17 * hash + Objects.hashCode(this.failResponse);
             hash = 17 * hash + Objects.hashCode(this.predicate);
             return hash;
-        }
-    }
-
-    /**
-     * A series of {@link java.lang.Enum Enum}s used for defining the scope size for a
-     * {@link com.jagrosh.jdautilities.command.Command Command}'s cooldown.
-     *
-     * <p>The purpose for these values is to allow easy, refined, and generally convenient keys
-     * for cooldown scopes, allowing a command to remain on cooldown for more than just the user
-     * calling it, with no unnecessary abstraction or developer input.
-     *
-     * Cooldown keys are generated via {@link com.jagrosh.jdautilities.command.Command#getCooldownKey(CommandEvent)
-     * Command#getCooldownKey(CommandEvent)} using 1-2 Snowflake ID's corresponding to the name
-     * (IE: {@code USER_CHANNEL} uses the ID's of the User and the Channel from the CommandEvent).
-     *
-     * <p>However, the issue with generalizing and generating like this is that the command may
-     * be called in a non-guild environment, causing errors internally.
-     * <br>To prevent this, all of the values that contain "{@code GUILD}" in their name default
-     * to their "{@code CHANNEL}" counterparts when commands using them are called outside of a
-     * {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
-     * <ul>
-     *     <li>{@link com.jagrosh.jdautilities.command.Command.CooldownScope#GUILD GUILD} defaults to
-     *     {@link com.jagrosh.jdautilities.command.Command.CooldownScope#CHANNEL CHANNEL}.</li>
-     *     <li>{@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER_GUILD USER_GUILD} defaults to
-     *     {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER_CHANNEL USER_CHANNEL}.</li>
-     * </ul>
-     *
-     * These are effective across a single instance of JDA, and not multiple
-     * ones, save when multiple shards run on a single JVM and under a
-     * {@link net.dv8tion.jda.api.sharding.ShardManager ShardManager}.
-     * <br>There is no shard magic, and no guarantees for a 100% "global"
-     * cooldown, unless all shards of the bot run under the same ShardManager,
-     * and/or via some external system unrelated to JDA-Utilities.
-     *
-     * @since  1.3
-     * @author Kaidan Gustave
-     *
-     * @see    com.jagrosh.jdautilities.command.Command#cooldownScope Command.cooldownScope
-     */
-    public enum CooldownScope
-    {
-        /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} across all
-         * locations on this instance (IE: TextChannels, PrivateChannels, etc).
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|U:<userID>}
-         * </ul>
-         */
-        USER("U:%d",""),
-
-        /**
-         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the
-         * command is called in.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|C:<channelID>}
-         * </ul>
-         */
-        CHANNEL("C:%d","in this channel"),
-
-        /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} local to the
-         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the command is called in.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|U:<userID>|C:<channelID>}
-         * </ul>
-         */
-        USER_CHANNEL("U:%d|C:%d", "in this channel"),
-
-        /**
-         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.Guild Guild} the command is called in.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|G:<guildID>}
-         * </ul>
-         *
-         * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
-         * when called in a private channel.  This is done in order to prevent internal
-         * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
-         */
-        GUILD("G:%d", "in this server"),
-
-        /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} local to the
-         * {@link net.dv8tion.jda.api.entities.Guild Guild} the command is called in.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|U:<userID>|G:<guildID>}
-         * </ul>
-         *
-         * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
-         * when called in a private channel. This is done in order to prevent internal
-         * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
-         */
-        USER_GUILD("U:%d|G:%d", "in this server"),
-
-        /**
-         * Applies the cooldown to the calling Shard the command is called on.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|S:<shardID>}
-         * </ul>
-         *
-         * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#GLOBAL CooldownScope.GLOBAL}
-         * when {@link net.dv8tion.jda.api.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
-         * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
-         * from being thrown while generating cooldown keys!
-         */
-        SHARD("S:%d", "on this shard"),
-
-        /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} on the Shard
-         * the command is called on.
-         *
-         * <p>The key for this is generated in the format
-         * <ul>
-         *     {@code <command-name>|U:<userID>|S:<shardID>}
-         * </ul>
-         *
-         * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER CooldownScope.USER}
-         * when {@link net.dv8tion.jda.api.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
-         * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
-         * from being thrown while generating cooldown keys!
-         */
-        USER_SHARD("U:%d|S:%d", "on this shard"),
-
-        /**
-         * Applies this cooldown globally.
-         *
-         * <p>As this implies: the command will be unusable on the instance of JDA in all types of
-         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}s until the cooldown has ended.
-         *
-         * <p>The key for this is {@code <command-name>|globally}
-         */
-        GLOBAL("Global", "globally");
-
-        private final String format;
-        final String errorSpecification;
-
-        CooldownScope(String format, String errorSpecification)
-        {
-            this.format = format;
-            this.errorSpecification = errorSpecification;
-        }
-
-        String genKey(String name, long id)
-        {
-            return genKey(name, id, -1);
-        }
-
-        String genKey(String name, long idOne, long idTwo)
-        {
-            if(this.equals(GLOBAL))
-                return name+"|"+format;
-            else if(idTwo==-1)
-                return name+"|"+String.format(format,idOne);
-            else return name+"|"+String.format(format,idOne,idTwo);
         }
     }
 }

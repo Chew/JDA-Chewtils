@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ContextMenu
+public abstract class ContextMenu extends Interaction
 {
     /**
      * The name of the command. This appears in the context menu.
@@ -64,27 +64,6 @@ public abstract class ContextMenu
      * This is useless if {@link #defaultEnabled} isn't true.
      */
     protected String[] disabledUsers = new String[]{};
-
-    /**
-     * {@code true} if the command may only be used by a User with an ID matching the
-     * Owners or any of the CoOwners.<br>
-     * If enabled for a Slash Command, only owners (owner + up to 9 co-owners) will be added to the SlashCommand.
-     * All other permissions will be ignored.
-     * <br>Default {@code false}.
-     */
-    protected boolean ownerCommand = false;
-
-    /**
-     * Any {@link net.dv8tion.jda.api.Permission Permission}s a Member must have to use this command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
-     */
-    protected Permission[] userPermissions = new Permission[0];
-
-    /**
-     * Any {@link net.dv8tion.jda.api.Permission Permission}s the bot must have to use a command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
-     */
-    protected Permission[] botPermissions = new Permission[0];
 
     /**
      * Runs checks for the {@link SlashCommand SlashCommand} with the
@@ -261,16 +240,6 @@ public abstract class ContextMenu
     public String[] getDisabledUsers()
     {
         return disabledUsers;
-    }
-
-    /**
-     * Checks whether or not this command is an owner only Command.
-     *
-     * @return {@code true} if the command is an owner command, otherwise {@code false} if it is not
-     */
-    public boolean isOwnerCommand()
-    {
-        return ownerCommand;
     }
 
     private void terminate(ContextMenuEvent event, String message)
