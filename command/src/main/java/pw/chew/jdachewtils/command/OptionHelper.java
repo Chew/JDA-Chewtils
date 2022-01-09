@@ -16,6 +16,8 @@
 package pw.chew.jdachewtils.command;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.annotations.DeprecatedSince;
+import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -52,7 +54,12 @@ import org.jetbrains.annotations.Nullable;
  *     }
  * }
  * </code></pre>
+ *
+ * @deprecated Use {@link SlashCommandEvent} methods instead.
  */
+@Deprecated
+@DeprecatedSince("2.0")
+@ForRemoval(deadline = "2.1")
 public final class OptionHelper {
     private OptionHelper() {}
 
@@ -62,8 +69,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optString(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static String optString(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optString(event, key, null);
     }
@@ -75,9 +86,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optString(String, String)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static String optString(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable String defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -90,7 +105,11 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or false if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optBoolean(String)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optBoolean(event, key, false);
     }
@@ -102,7 +121,11 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optBoolean(String, boolean)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static boolean optBoolean(@NotNull SlashCommandEvent event, @NotNull String key, boolean defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -115,7 +138,11 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or 0 if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optLong(String)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static long optLong(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optLong(event, key, 0);
     }
@@ -127,7 +154,11 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optLong(String, long)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static long optLong(@NotNull SlashCommandEvent event, @NotNull String key, long defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -140,7 +171,11 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or 0.0 if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optDouble(String)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optDouble(event, key, 0.0);
     }
@@ -152,7 +187,11 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue The fallback option in case of the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optDouble(String, double)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static double optDouble(@NotNull SlashCommandEvent event, @NotNull String key, double defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -166,8 +205,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optGuildChannel(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optGuildChannel(event, key, null);
     }
@@ -180,9 +223,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optGuildChannel(String, GuildChannel)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static GuildChannel optGuildChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable GuildChannel defaultValue) {
         if (!event.isFromGuild())
             return defaultValue;
@@ -199,8 +246,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMember(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optMember(event, key, null);
     }
@@ -213,9 +264,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMember(String, Member)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static Member optMember(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable Member defaultValue) {
         if (!event.isFromGuild())
             return defaultValue; // Non-guild commands do not have a member.
@@ -231,8 +286,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMentionable(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optMentionable(event, key, null);
     }
@@ -244,9 +303,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMentionable(String, IMentionable)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static IMentionable optMentionable(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable IMentionable defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -260,8 +323,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optRole(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optRole(event, key, null);
     }
@@ -274,9 +341,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optRole(String, Role)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static Role optRole(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable Role defaultValue) {
         if (!event.isFromGuild())
             return defaultValue;
@@ -292,8 +363,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optUser(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static User optUser(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optUser(event, key, null);
     }
@@ -305,9 +380,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optUser(String, User)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static User optUser(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable User defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -320,8 +399,12 @@ public final class OptionHelper {
      * @param event The slash command event to get options from
      * @param key   The option we want
      * @return The provided option, or null if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMessageChannel(String)} instead.
      */
     @Nullable
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String key) {
         return optMessageChannel(event, key, null);
     }
@@ -333,9 +416,13 @@ public final class OptionHelper {
      * @param key          The option we want
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
+     * @deprecated Use {@link SlashCommandEvent#optMessageChannel(String, MessageChannel)} instead.
      */
     @Nullable
     @Contract("_, _, !null -> !null")
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable MessageChannel defaultValue) {
         OptionMapping option = event.getOption(key);
 
@@ -348,7 +435,11 @@ public final class OptionHelper {
      * @param event the slash command event to get options from
      * @param key   the option we want
      * @return true if the option exists, false otherwise
+     * @deprecated Use {@link SlashCommandEvent#hasOption(String)} instead.
      */
+    @Deprecated
+    @DeprecatedSince("2.0")
+    @ForRemoval(deadline = "2.1")
     public static boolean hasOption(@NotNull SlashCommandEvent event, @NotNull String key) {
         return event.getOption(key) != null;
     }
