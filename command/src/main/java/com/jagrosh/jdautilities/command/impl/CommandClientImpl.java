@@ -21,6 +21,8 @@ import com.jagrosh.jdautilities.command.Command.Category;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.CommandListener;
+import com.jagrosh.jdautilities.command.ContextMenu;
+import com.jagrosh.jdautilities.command.ContextMenuEvent;
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import com.jagrosh.jdautilities.command.GuildSettingsProvider;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -40,7 +42,9 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -117,6 +121,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final HashMap<String, Integer> slashCommandIndex;
     private final ArrayList<Command> commands;
     private final ArrayList<SlashCommand> slashCommands;
+    private final ArrayList<ContextMenu> contextMenus;
     private final ArrayList<String> slashCommandIds;
     private final String forcedGuildId;
     private final boolean manualUpsert;
@@ -140,7 +145,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private int totalGuilds;
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, String[] prefixes, Function<MessageReceivedEvent, String> prefixFunction, Function<MessageReceivedEvent, Boolean> commandPreProcessFunction, BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction, Activity activity, OnlineStatus status, String serverInvite,
-                             String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, ArrayList<SlashCommand> slashCommands, String forcedGuildId, boolean manualUpsert,
+                             String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, ArrayList<SlashCommand> slashCommands, ArrayList<ContextMenu> contextMenus, String forcedGuildId, boolean manualUpsert,
                              boolean useHelp, boolean shutdownAutomatically, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor,
                              int linkedCacheSize, AnnotatedModuleCompiler compiler, GuildSettingsManager manager)
     {
@@ -187,6 +192,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.commands = new ArrayList<>();
         this.slashCommands = new ArrayList<>();
         this.slashCommandIds = new ArrayList<>();
+        this.contextMenus = new ArrayList<>();
         this.forcedGuildId = forcedGuildId;
         this.manualUpsert = manualUpsert;
         this.cooldowns = new HashMap<>();
@@ -240,6 +246,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         {
             addSlashCommand(command);
         }
+
+        // Load context menus
+        for(ContextMenu menu : contextMenus)
+        {
+            addContextMenu(menu);
+        }
     }
 
     @Override
@@ -264,6 +276,12 @@ public class CommandClientImpl implements CommandClient, EventListener
     public List<SlashCommand> getSlashCommands()
     {
         return slashCommands;
+    }
+
+    @Override
+    public List<ContextMenu> getContextMenus()
+    {
+        return contextMenus;
     }
 
     @Override
@@ -395,6 +413,12 @@ public class CommandClientImpl implements CommandClient, EventListener
             slashCommandIndex.put(name, index);
         }
         slashCommands.add(index,command);
+    }
+
+    @Override
+    public void addContextMenu(ContextMenu menu)
+    {
+        contextMenus.add(menu);
     }
 
     @Override
@@ -569,6 +593,11 @@ public class CommandClientImpl implements CommandClient, EventListener
         else if(event instanceof SlashCommandInteractionEvent)
             onSlashCommand((SlashCommandInteractionEvent)event);
 
+        else if(event instanceof MessageContextInteractionEvent)
+            onMessageContextInteraction((MessageContextInteractionEvent)event);
+        else if(event instanceof UserContextInteractionEvent)
+            onUserContextMenu((UserContextInteractionEvent)event);
+
         else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
             onMessageDelete((MessageDeleteEvent) event);
 
@@ -623,12 +652,19 @@ public class CommandClientImpl implements CommandClient, EventListener
         List<CommandData> data = new ArrayList<>();
         List<SlashCommand> slashCommands = getSlashCommands();
         Map<String, SlashCommand> slashCommandMap = new HashMap<>();
+        List<ContextMenu> contextMenus = getContextMenus();
+        Map<String, ContextMenu> contextMenuMap = new HashMap<>();
 
         // Build the command and privilege data
         for (SlashCommand command : slashCommands)
         {
             data.add(command.buildCommandData());
             slashCommandMap.put(command.getName(), command);
+        }
+
+        for (ContextMenu menu : contextMenus) {
+            data.add(menu.buildCommandData());
+            contextMenuMap.put(menu.getName(), menu);
         }
 
         // Upsert the commands
@@ -648,10 +684,14 @@ public class CommandClientImpl implements CommandClient, EventListener
                     for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
                     {
                         SlashCommand slashCommand = slashCommandMap.get(command.getName());
-                        privileges.put(command.getId(), slashCommand.buildPrivileges(this));
+                        ContextMenu contextMenu = contextMenuMap.get(command.getName());
+                        if (slashCommand != null)
+                            privileges.put(command.getId(), slashCommand.buildPrivileges(this));
+                        if (contextMenu != null)
+                            privileges.put(command.getId(), contextMenu.buildPrivileges(this));
                     }
                     server.updateCommandPrivileges(privileges)
-                        .queue(priv -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
+                        .queue(priv -> LOG.debug("Successfully added " + commands.size() + " slash commands and " + contextMenus.size() + " menus to server " + server.getName()));
                 }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
         }
         else
@@ -869,6 +909,42 @@ public class CommandClientImpl implements CommandClient, EventListener
             uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
             command.run(commandEvent);
             // Command is done
+        }
+    }
+
+    private void onUserContextMenu(UserContextInteractionEvent event)
+    {
+        ContextMenu menu = null;
+        // iterate through contextMenu list to find one with matching name
+        for (ContextMenu contextMenu : contextMenus) {
+            if (event.getName().equals(contextMenu.getName())) {
+                menu = contextMenu;
+            }
+        }
+        final ContextMenuEvent contextMenuEvent = new ContextMenuEvent(event, this);
+
+        if (menu != null) {
+            menu.run(contextMenuEvent);
+        } else {
+            LOG.debug("No context menu found with name {}", event.getName());
+        }
+    }
+
+    private void onMessageContextInteraction(MessageContextInteractionEvent event)
+    {
+        ContextMenu menu = null;
+        // iterate through contextMenu list to find one with matching name
+        for (ContextMenu contextMenu : contextMenus) {
+            if (event.getName().equals(contextMenu.getName())) {
+                menu = contextMenu;
+            }
+        }
+        final ContextMenuEvent contextMenuEvent = new ContextMenuEvent(event, this);
+
+        if (menu != null) {
+            menu.run(contextMenuEvent);
+        } else {
+            LOG.debug("No context menu found with name {}", event.getName());
         }
     }
 

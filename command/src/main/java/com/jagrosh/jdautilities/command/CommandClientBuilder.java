@@ -60,6 +60,7 @@ public class CommandClientBuilder
     private String botsKey;
     private final LinkedList<Command> commands = new LinkedList<>();
     private final LinkedList<SlashCommand> slashCommands = new LinkedList<>();
+    private final LinkedList<ContextMenu> contextMenus = new LinkedList<>();
     private String forcedGuildId = null;
     private boolean manualUpsert = false;
     private CommandListener listener;
@@ -83,7 +84,7 @@ public class CommandClientBuilder
     public CommandClient build()
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, prefixes, prefixFunction, commandPreProcessFunction, commandPreProcessBiFunction, activity, status, serverInvite,
-                                                     success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), new ArrayList<>(slashCommands), forcedGuildId, manualUpsert, useHelp,
+                                                     success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), new ArrayList<>(slashCommands), new ArrayList<>(contextMenus), forcedGuildId, manualUpsert, useHelp,
                                                      shutdownAutomatically, helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
@@ -436,6 +437,38 @@ public class CommandClientBuilder
     {
         for(SlashCommand command: commands)
             this.addSlashCommand(command);
+        return this;
+    }
+
+    /**
+     * Adds a {@link com.jagrosh.jdautilities.command.SlashCommand SlashCommand} and registers it to the
+     * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
+     *
+     * @param  contextMenu
+     *         The Context Menu to add
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder addContextMenu(ContextMenu contextMenu)
+    {
+        contextMenus.add(contextMenu);
+        return this;
+    }
+
+    /**
+     * Adds and registers multiple {@link com.jagrosh.jdautilities.command.SlashCommand SlashCommand}s to the
+     * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
+     * <br>This is the same as calling {@link com.jagrosh.jdautilities.command.CommandClientBuilder#addSlashCommand(SlashCommand)} multiple times.
+     *
+     * @param  contextMenus
+     *         The Context Menus to add
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder addContextMenus(ContextMenu... contextMenus)
+    {
+        for(ContextMenu contextMenu: contextMenus)
+            this.addContextMenu(contextMenu);
         return this;
     }
 

@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /**
  * A Bot Client interface implemented on objects used to hold bot data.
- * 
+ *
  * <p>This is implemented in {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
  * alongside implementation of {@link net.dv8tion.jda.api.hooks.EventListener EventListener} to create a
  * compounded "Client Listener" which catches specific kinds of events thrown by JDA and processes them
@@ -42,7 +42,7 @@ import java.util.function.Function;
  * </ul>
  *
  * @author John Grosh (jagrosh)
- * 
+ *
  * @implNote
  *         While typically safe, there are a few ways to misuse the standard implementation of this interface:
  *         the CommandClientImpl.
@@ -73,7 +73,7 @@ public interface CommandClient
 {
     /**
      * Gets the Client's prefix.
-     * 
+     *
      * @return A possibly-null prefix
      */
     String getPrefix();
@@ -100,11 +100,11 @@ public interface CommandClient
     Function<MessageReceivedEvent, String> getPrefixFunction();
 
     /**
-     * Returns the visual representation of the bot's prefix. 
-     * 
+     * Returns the visual representation of the bot's prefix.
+     *
      * <p>This is the same as {@link com.jagrosh.jdautilities.command.CommandClient#getPrefix() } unless the prefix is the default,
      * in which case it appears as {@literal @Botname}.
-     * 
+     *
      * @return A never-null prefix
      */
     String getTextualPrefix();
@@ -225,6 +225,8 @@ public interface CommandClient
      */
     void addSlashCommand(SlashCommand command, int index);
 
+    void addContextMenu(ContextMenu menu);
+
     /**
      * Removes a single {@link com.jagrosh.jdautilities.command.Command Command} from this CommandClient's
      * registered Commands at the index linked to the provided name/alias.
@@ -298,23 +300,23 @@ public interface CommandClient
     /**
      * Sets the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener} to catch
      * command-related events thrown by this {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}.
-     * 
+     *
      * @param  listener
      *         The CommandListener
      */
     void setListener(CommandListener listener);
-    
+
     /**
      * Returns the current {@link com.jagrosh.jdautilities.command.CommandListener CommandListener}.
-     * 
+     *
      * @return A possibly-null CommandListener
      */
     CommandListener getListener();
-    
+
     /**
      * Returns the list of registered {@link com.jagrosh.jdautilities.command.Command Command}s
      * during this session.
-     * 
+     *
      * @return A never-null List of Commands registered during this session
      */
     List<Command> getCommands();
@@ -326,6 +328,8 @@ public interface CommandClient
      * @return A never-null List of Slash Commands registered during this session
      */
     List<SlashCommand> getSlashCommands();
+
+    List<ContextMenu> getContextMenus();
 
     /**
      * Returns whether manual upsertion is enabled
@@ -344,144 +348,144 @@ public interface CommandClient
     /**
      * Gets the time this {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
      * implementation was created.
-     * 
+     *
      * @return The start time of this CommandClient implementation
      */
     OffsetDateTime getStartTime();
-    
+
     /**
      * Gets the {@link java.time.OffsetDateTime OffsetDateTime} that the specified cooldown expires.
-     * 
+     *
      * @param  name
      *         The cooldown name
-     *         
+     *
      * @return The expiration time, or null if the cooldown does not exist
      */
     OffsetDateTime getCooldown(String name);
-    
+
     /**
      * Gets the remaining number of seconds on the specified cooldown.
-     * 
+     *
      * @param  name
      *         The cooldown name
-     *         
+     *
      * @return The number of seconds remaining
      */
     int getRemainingCooldown(String name);
-    
+
     /**
      * Applies the specified cooldown with the provided name.
-     * 
+     *
      * @param  name
      *         The cooldown name
      * @param  seconds
      *         The time to make the cooldown last
      */
     void applyCooldown(String name, int seconds);
-    
+
     /**
      * Cleans up expired cooldowns to reduce memory.
      */
     void cleanCooldowns();
-    
+
     /**
      * Gets the number of uses for the provide {@link com.jagrosh.jdautilities.command.Command Command}
      * during this session, or {@code 0} if the command is not registered to this CommandClient.
-     * 
-     * @param  command 
+     *
+     * @param  command
      *         The Command
-     *         
+     *
      * @return The number of uses for the Command
      */
     int getCommandUses(Command command);
-    
+
     /**
      * Gets the number of uses for a {@link com.jagrosh.jdautilities.command.Command Command}
-     * during this session matching the provided String name, or {@code 0} if there is no Command 
+     * during this session matching the provided String name, or {@code 0} if there is no Command
      * with the name.
      *
      * <p><b>NOTE:</b> this method <b>WILL NOT</b> get uses for a command if an
      * {@link com.jagrosh.jdautilities.command.Command#aliases alias} is provided! Also note that
      * {@link com.jagrosh.jdautilities.command.Command#children child commands} <b>ARE NOT</b>
      * tracked and providing names or effective names of child commands will return {@code 0}.
-     * 
+     *
      * @param  name
      *         The name of the Command
-     *         
+     *
      * @return The number of uses for the Command, or {@code 0} if the name does not match with a Command
      */
     int getCommandUses(String name);
-    
+
     /**
      * Gets the ID of the owner of this bot as a String.
-     * 
+     *
      * @return The String ID of the owner of the bot
      */
     String getOwnerId();
-    
+
     /**
      * Gets the ID of the owner of this bot as a {@code long}.
-     * 
+     *
      * @return The {@code long} ID of the owner of the bot
      */
     long getOwnerIdLong();
-    
+
     /**
      * Gets the ID(s) of any CoOwners of this bot as a String Array.
-     * 
+     *
      * @return The String ID(s) of any CoOwners of this bot
      */
     String[] getCoOwnerIds();
-    
+
     /**
      * Gets the ID(s) of any CoOwners of this bot as a {@code long} Array.
-     * 
+     *
      * @return The {@code long} ID(s) of any CoOwners of this bot
      */
     long[] getCoOwnerIdsLong();
-    
+
     /**
      * Gets the success emoji.
-     * 
+     *
      * @return The success emoji
      */
     String getSuccess();
-    
+
     /**
      * Gets the warning emoji.
-     * 
+     *
      * @return The warning emoji
      */
     String getWarning();
-    
+
     /**
      * Gets the error emoji.
-     * 
+     *
      * @return The error emoji
      */
     String getError();
-    
+
     /**
      * Gets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} held by this client.
      *
      * <p>This is used for methods such as {@link com.jagrosh.jdautilities.command.CommandEvent#async(Runnable)
      * CommandEvent#async(Runnable)} run code asynchronously.
-     * 
+     *
      * @return The ScheduledExecutorService held by this client.
      */
     ScheduledExecutorService getScheduleExecutor();
-    
+
     /**
      * Gets the invite to the bot's support server.
-     * 
+     *
      * @return A possibly-null server invite
      */
     String getServerInvite();
-    
+
     /**
      * Gets an a recently updated count of all the {@link net.dv8tion.jda.api.entities.Guild Guild}s
      * the bot is connected to on all shards.
-     * 
+     *
      * <p><b>NOTE:</b> This may not always or should not be assumed accurate! Any time
      * a shard joins or leaves a guild it will update the number retrieved by this method
      * but will not update when other shards join or leave guilds. This means that shards
@@ -494,19 +498,19 @@ public interface CommandClient
      * The number retrieved by Shard B will be that of the number retrieved by Shard A,
      * minus 10 guilds because Shard B hasn't updated and accounted for those 10 guilds
      * on Shard A.
-     * 
+     *
      * <p><b>This feature requires a Discord Bots API Key to be set!</b>
      * <br>To set your Discord Bots API Key, you'll have to retrieve it from the
      * <a href="http://bots.discord.pw/">Discord Bots</a> website.
-     * 
+     *
      * @return A recently updated count of all the Guilds the bot is connected to on
      *         all shards.
      */
     int getTotalGuilds();
-    
+
     /**
      * Gets the word used to invoke a help DM.
-     * 
+     *
      * @return The help word
      */
     String getHelpWord();
@@ -557,11 +561,11 @@ public interface CommandClient
      *
      * @param  <M>
      *         The type of the GuildSettingsManager
-     * 
+     *
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
      */
     <M extends GuildSettingsManager> M getSettingsManager();
-    
+
     /**
      * Shuts down internals of the Command Client, such as the threadpool and guild settings manager
      */
