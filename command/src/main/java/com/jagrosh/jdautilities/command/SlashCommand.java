@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -171,6 +172,15 @@ public abstract class SlashCommand extends Command
      *         triggered this Command
      */
     protected abstract void execute(SlashCommandEvent event);
+
+    /**
+     * This body is executed when an auto-complete event is received.
+     * This only ever gets executed if an auto-complete {@link #options option} is set.
+     *
+     * @param event The event to handle.
+     * @see OptionData#setAutoComplete(boolean) 
+     */
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {}
 
     /**
      * The main body method of a {@link com.jagrosh.jdautilities.command.Command Command}.

@@ -45,6 +45,7 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
@@ -626,6 +627,9 @@ public class CommandClientImpl implements CommandClient, EventListener
         else if(event instanceof UserContextInteractionEvent)
             onUserContextMenu((UserContextInteractionEvent)event);
 
+        else if (event instanceof CommandAutoCompleteInteractionEvent)
+            onCommandAutoComplete((CommandAutoCompleteInteractionEvent)event);
+
         else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
             onMessageDelete((MessageDeleteEvent) event);
 
@@ -937,6 +941,21 @@ public class CommandClientImpl implements CommandClient, EventListener
             uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
             command.run(commandEvent);
             // Command is done
+        }
+    }
+
+    private void onCommandAutoComplete(CommandAutoCompleteInteractionEvent event)
+    {
+        final SlashCommand command; // this will be null if it's not a command
+        synchronized(slashCommandIndex)
+        {
+            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
+            command = i != -1? slashCommands.get(i) : null;
+        }
+
+        if(command != null)
+        {
+            command.onAutoComplete(event);
         }
     }
 
