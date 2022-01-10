@@ -706,13 +706,13 @@ public class CommandClientImpl implements CommandClient, EventListener
             Guild server = jda.getGuildById(forcedGuildId);
             if (server == null)
             {
-                LOG.error("Server used for slash command testing is null! Slash Commands will NOT be added!");
+                LOG.error("Specified forced guild is null! Slash Commands will NOT be added! Is the bot added?");
                 return;
             }
             // Upsert the commands + their privileges
             server.updateCommands().addCommands(data)
                 .queue(commands -> {
-                    Map<String, Collection<? extends CommandPrivilege>> privileges = new HashMap<>();
+                    Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
                     for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
                     {
                         SlashCommand slashCommand = slashCommandMap.get(command.getName());
@@ -727,10 +727,8 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
         }
         else
-        {
             jda.updateCommands().addCommands(data)
-                .queue(commands -> LOG.debug("Successfully added" + commands.size() + "slash commands!"));
-        }
+                .queue(commands -> LOG.debug("Successfully added " + commands.size() + " slash commands!"));
     }
 
     private void onMessageReceived(MessageReceivedEvent event)
