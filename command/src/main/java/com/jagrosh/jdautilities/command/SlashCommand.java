@@ -178,7 +178,7 @@ public abstract class SlashCommand extends Command
      * This only ever gets executed if an auto-complete {@link #options option} is set.
      *
      * @param event The event to handle.
-     * @see OptionData#setAutoComplete(boolean) 
+     * @see OptionData#setAutoComplete(boolean)
      */
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {}
 

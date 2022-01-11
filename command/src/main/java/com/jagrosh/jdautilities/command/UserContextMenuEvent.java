@@ -24,8 +24,7 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
     }
 
     /**
-     * Returns the {@link CommandClient CommandClient}
-     * that initiated this CommandEvent.
+     * Returns the {@link CommandClient} that triggered this event.
      *
      * @return The initiating CommandClient
      */
@@ -61,7 +60,7 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
     }
 
     /**
-     * Replies with a {@link Message}.
+     * Responds with a {@link Message}.
      *
      * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
      * {@link ReplyCallbackAction#queue() RestAction#queue()}.
@@ -74,7 +73,7 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
     }
 
     /**
-     * Replies with a {@link File} with the provided name, or a default name if left null.
+     * Responds with a {@link File} with the provided name, or a default name if left null.
      *
      * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
      * {@link ReplyCallbackAction#queue() RestAction#queue()}.

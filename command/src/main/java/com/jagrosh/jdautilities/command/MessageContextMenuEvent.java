@@ -24,8 +24,7 @@ public class MessageContextMenuEvent extends MessageContextInteractionEvent
     }
 
     /**
-     * Returns the {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
-     * that initiated this CommandEvent.
+     * Returns the {@link CommandClient} that initiated this event.
      *
      * @return The initiating CommandClient
      */

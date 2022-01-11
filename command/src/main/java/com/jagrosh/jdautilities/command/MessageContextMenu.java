@@ -13,7 +13,7 @@ public abstract class MessageContextMenu extends ContextMenu
      * <br>Will terminate, and possibly respond with a failure message, if any checks fail.
      *
      * @param  event
-     *         The SlashCommandEvent that triggered this Command
+     *         The MessageContextMenuEvent that triggered this menu
      */
     public final void run(MessageContextMenuEvent event)
     {
@@ -38,7 +38,7 @@ public abstract class MessageContextMenu extends ContextMenu
         }
 
         // availability check
-        if(event.getChannelType()== ChannelType.TEXT)
+        if(event.isFromGuild())
         {
             //user perms
             for(Permission p: userPermissions)

@@ -13,7 +13,7 @@ public abstract class UserContextMenu extends ContextMenu
      * <br>Will terminate, and possibly respond with a failure message, if any checks fail.
      *
      * @param  event
-     *         The SlashCommandEvent that triggered this Command
+     *         The UserContextMenuEvent that triggered this Context Menu
      */
     public final void run(UserContextMenuEvent event)
     {
@@ -38,12 +38,12 @@ public abstract class UserContextMenu extends ContextMenu
         }
 
         // availability check
-        if(event.getChannelType()== ChannelType.TEXT)
+        if(event.isFromGuild())
         {
             //user perms
             for(Permission p: userPermissions)
             {
-                // Member will never be null because this is only ran in a server (text channel)
+                // Member will never be null because this is only ran in a server
                 if(event.getMember() == null)
                     continue;
 
@@ -135,7 +135,7 @@ public abstract class UserContextMenu extends ContextMenu
      * {@link UserContextMenu#run(UserContextMenuEvent)}
      *
      * @param  event
-     *         The {@link MessageContextMenuEvent} that triggered this menu.
+     *         The {@link UserContextMenuEvent} that triggered this menu.
      */
     protected abstract void execute(UserContextMenuEvent event);
 

@@ -16,40 +16,40 @@ public abstract class ContextMenu extends Interaction
     /**
      * The name of the command. This appears in the context menu.
      * Can be 1-32 characters long. Spaces are allowed.
-     * @see net.dv8tion.jda.api.interactions.commands.build.Commands#context(Command.Type, String) Commands#context string argument.
+     * @see CommandData#setName(String)
      */
     protected String name = "null";
 
     /**
-     * Whether this command is disabled by default.
+     * Whether this menu is disabled by default.
      * If disabled, you must give yourself permission to use it.<br>
      * @see net.dv8tion.jda.api.interactions.commands.build.CommandData#setDefaultEnabled
      */
     protected boolean defaultEnabled = true;
 
     /**
-     * The list of role IDs who can use this Slash Command.
+     * The list of role IDs who can use this Context Menu.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't false.
      */
     protected String[] enabledRoles = new String[]{};
 
     /**
-     * The list of user IDs who can use this Slash Command.
+     * The list of user IDs who can use this Context Menu.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't false.
      */
     protected String[] enabledUsers = new String[]{};
 
     /**
-     * The list of role IDs who cannot use this Slash Command.
+     * The list of role IDs who cannot use this Context Menu.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't true.
      */
     protected String[] disabledRoles = new String[]{};
 
     /**
-     * The list of user IDs who cannot use this Slash Command.
+     * The list of user IDs who cannot use this Context Menu.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't true.
      */
@@ -91,8 +91,8 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Gets the enabled roles for this Slash Command.
-     * A user MUST have a role for a command to be ran.
+     * Gets the enabled roles for this Context Menu.
+     * A user MUST have one of these roles for the context menu to appear.
      *
      * @return a list of String role IDs
      */
@@ -102,8 +102,8 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Gets the enabled users for this Slash Command.
-     * A user with an ID in this list is required for the command to be ran.
+     * Gets the enabled users for this Context Menu.
+     * A user with an ID in this list is required for the context menu to appear.
      *
      * @return a list of String user IDs
      */
@@ -113,8 +113,8 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Gets the disabled roles for this Slash Command.
-     * A user with this role may not run this command.
+     * Gets the disabled roles for this Context Menu.
+     * A user with this role won't see and won't be able to run this context menu.
      *
      * @return a list of String role IDs
      */
@@ -124,8 +124,8 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Gets the disabled users for this Slash Command.
-     * Uses in this list may not run this command.
+     * Gets the disabled users for this Context Menu.
+     * Uses in this list won't see and won't be able to run this context menu.
      *
      * @return a list of String user IDs
      */
@@ -165,12 +165,12 @@ public abstract class ContextMenu extends Interaction
      * Gets an error message for this Context Menu under the provided {@link GenericCommandInteractionEvent}.
      *
      * @param  event
-     *         The CommandEvent to generate the error message for.
+     *         The event to generate the error message for.
      * @param  remaining
-     *         The remaining number of seconds a command is on cooldown for.
+     *         The remaining number of seconds a context menu is on cooldown for.
      * @param client the client
      *
-     * @return A String error message for this command if {@code remaining > 0},
+     * @return A String error message for this menu if {@code remaining > 0},
      *         else {@code null}.
      */
     public String getCooldownError(GenericCommandInteractionEvent event, int remaining, CommandClient client)
@@ -190,7 +190,7 @@ public abstract class ContextMenu extends Interaction
 
     /**
      * Builds CommandData for the ContextMenu upsert.
-     * This code is executed when we need to upsert the command.
+     * This code is executed when we need to upsert the menu.
      *
      * Useful for manual upserting.
      *
@@ -208,7 +208,7 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * Builds CommandPrivilege for the SlashCommand permissions.
+     * Builds CommandPrivilege for the Context Menu permissions.
      * This code is executed after upsertion to update the permissions.
      * <br>
      * <b>The max amount of privilege is 10, keep this in mind.</b>
