@@ -220,7 +220,7 @@ public abstract class Command extends Interaction
             }
 
         // availability check
-        if(event.getChannelType()==ChannelType.TEXT)
+        if(!event.isFromType(ChannelType.PRIVATE))
         {
             //user perms
             for(Permission p: userPermissions)
@@ -248,7 +248,7 @@ public abstract class Command extends Interaction
             {
                 if(p.isChannel())
                 {
-                    if(p.name().startsWith("VOICE"))
+                    if(p.isVoice())
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();
@@ -283,7 +283,7 @@ public abstract class Command extends Interaction
             }
 
             // nsfw check
-            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            if (nsfwOnly && event.isFromType(ChannelType.TEXT) && !event.getTextChannel().isNSFW())
             {
                 terminate(event, "This command may only be used in NSFW text channels!");
                 return;
