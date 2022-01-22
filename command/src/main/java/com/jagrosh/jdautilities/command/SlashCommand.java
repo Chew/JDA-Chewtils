@@ -248,7 +248,7 @@ public abstract class SlashCommand extends Command
             }
 
         // availability check
-        if(event.getChannelType()==ChannelType.TEXT)
+        if(event.getChannelType() != ChannelType.PRIVATE)
         {
             //user perms
             for(Permission p: userPermissions)
@@ -287,7 +287,7 @@ public abstract class SlashCommand extends Command
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
-                    if(p.name().startsWith("VOICE"))
+                    if(p.isVoice())
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();
@@ -322,7 +322,7 @@ public abstract class SlashCommand extends Command
             }
 
             // nsfw check
-            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            if (nsfwOnly && event.getChannelType() == ChannelType.TEXT && !event.getTextChannel().isNSFW())
             {
                 terminate(event, "This command may only be used in NSFW text channels!", client);
                 return;
