@@ -19,6 +19,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 /**
  * <h1><b>User Context Menus In JDA-Chewtils</b></h1>
@@ -196,5 +198,15 @@ public abstract class UserContextMenu extends ContextMenu
             event.reply(message).setEphemeral(true).queue();
         if(event.getClient().getListener()!=null)
             event.getClient().getListener().onTerminatedUserContextMenu(event, this);
+    }
+
+    @Override
+    public CommandData buildCommandData()
+    {
+        // Make the command data
+        CommandData data = Commands.user(getName());
+        data.setDefaultEnabled(isDefaultEnabled());
+
+        return data;
     }
 }
