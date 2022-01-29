@@ -436,8 +436,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         {
             String name = menu.getName();
             //check for collision
-            if(contextMenuIndex.containsKey(name))
-                throw new IllegalArgumentException("Context Menu added has a name that has already been indexed: \""+name+"\"!");
+            if(contextMenuIndex.containsKey(name)) {
+                // Compare the existing menu's class to the new menu's class
+                if (contextMenuIndex.get(name).getClass().getName().equals(menu.getClass().getName())) {
+                    throw new IllegalArgumentException("Context Menu added has a name and class that has already been indexed: \"" + name + "\"!");
+                }
+            }
             //shift if not append
             if(index<contextMenuIndex.size())
             {
@@ -963,7 +967,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         synchronized(contextMenuIndex)
         {
             ContextMenu c;
-            int i = contextMenuIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
+            int i = contextMenuIndex.getOrDefault(event.getName(), -1);
             c = i != -1 ? contextMenus.get(i) : null;
 
             if (c instanceof UserContextMenu)
