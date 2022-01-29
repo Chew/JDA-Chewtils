@@ -30,8 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A wrapper class for a {@link SlashCommandInteractionEvent SlashCommandInteractionEvent} and
- * {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}.
+ * A wrapper class for a {@link SlashCommandInteractionEvent} and {@link CommandClient}.
  *
  * <p>From here, developers can invoke several useful and specialized methods to assist in Command function and
  * development. Because this extends SlashCommandInteractionEvent, all methods from it work fine.
@@ -57,7 +56,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     }
 
     /**
-     * The {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} that this event was triggered from.
+     * The {@link CommandClient} that this event was triggered from.
      *
      * @return The CommandClient that this event was triggered from
      */
