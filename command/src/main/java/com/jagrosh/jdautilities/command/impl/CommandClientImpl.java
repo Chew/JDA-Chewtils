@@ -990,7 +990,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         synchronized(contextMenuIndex)
         {
             ContextMenu c;
-            int i = contextMenuIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
+            // Do not lowercase, as there could be 2 menus with the same name, but different letter cases
+            int i = contextMenuIndex.getOrDefault(event.getName(), -1);
             c = i != -1 ? contextMenus.get(i) : null;
 
             if (c instanceof MessageContextMenu)
