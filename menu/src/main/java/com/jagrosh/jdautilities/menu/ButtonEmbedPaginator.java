@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -82,8 +81,7 @@ public class ButtonEmbedPaginator extends Menu {
     }
 
     /**
-     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * Begins pagination on page 1 as a new {@link Message} in the provided {@link MessageChannel}.
      *
      * @param channel The MessageChannel to send the new Message to
      */
@@ -93,8 +91,7 @@ public class ButtonEmbedPaginator extends Menu {
     }
 
     /**
-     * Begins pagination on page 1 displaying this by editing the provided
-     * {@link net.dv8tion.jda.api.entities.Message Message}.
+     * Begins pagination on page 1 displaying this by editing the provided {@link Message}.
      *
      * @param message The Message to display the Menu in
      */
@@ -104,9 +101,8 @@ public class ButtonEmbedPaginator extends Menu {
     }
 
     /**
-     * Begins pagination as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting
-     * on whatever page number is provided.
+     * Begins pagination as a new {@link Message} in the provided {@link MessageChannel}, starting on whatever
+     * page number is provided.
      *
      * @param channel The MessageChannel to send the new Message to
      * @param pageNum The page number to begin on
@@ -121,11 +117,10 @@ public class ButtonEmbedPaginator extends Menu {
     }
 
     /**
-     * Begins pagination displaying this by editing the provided
-     * {@link net.dv8tion.jda.api.entities.Message Message}, starting on whatever
-     * page number is provided.
+     * Begins pagination displaying this by editing the provided {@link Message}, starting on whatever page number
+     * is provided.
      *
-     * @param message The MessageChannel to send the new Message to
+     * @param message The message to edit
      * @param pageNum The page number to begin on
      */
     public void paginate(Message message, int pageNum) {
@@ -144,7 +139,7 @@ public class ButtonEmbedPaginator extends Menu {
 
                 m.editMessage(renderPage(pageNum)).setActionRow(actions).queue(v -> pagination(m, pageNum));
             } else if (waitOnSinglePage) {
-                String id = Instant.now().toString() + ":STOP";
+                String id = System.currentTimeMillis() + ":STOP";
                 m.editMessage(renderPage(pageNum)).setActionRow(Button.of(style, id, STOP)).queue(v -> pagination(m, pageNum));
             } else {
                 finalAction.accept(m);
@@ -154,7 +149,7 @@ public class ButtonEmbedPaginator extends Menu {
 
     private List<Button> buildButtons() {
         // bep = button embed paginator
-        String id = "bep:" + Instant.now().toString();
+        String id = "bep:" + System.currentTimeMillis();
         List<Button> actions = new ArrayList<>();
 
         actions.add(Button.of(style, id + ":LEFT", LEFT));
@@ -254,10 +249,7 @@ public class ButtonEmbedPaginator extends Menu {
     }
 
     /**
-     * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * a {@link com.jagrosh.jdautilities.menu.EmbedPaginator EmbedPaginator}.
-     *
-     * @author Andre_601
+     * The {@link Menu.Builder} for a {@link ButtonEmbedPaginator}.
      */
     public static class Builder extends Menu.Builder<Builder, ButtonEmbedPaginator> {
         private BiFunction<Integer, Integer, String> text = (page, pages) -> null;
