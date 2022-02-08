@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
@@ -330,6 +331,29 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         OptionMapping option = getOption(key);
 
         return option == null ? defaultValue : option.getAsMessageChannel();
+    }
+
+    /**
+     * Gets the provided Option Key as an Attachment value, or returns {@code null} if the option cannot be found.
+     *
+     * @param key          The option we want
+     * @return The provided option, or the default value if the option is not present
+     */
+    public Message.Attachment optAttachment(@NotNull String key) {
+        return optAttachment(key, null);
+    }
+
+    /**
+     * Gets the provided Option Key as an Attachment value, or returns the default one if the option cannot be found.
+     *
+     * @param key          The option we want
+     * @param defaultValue Nullable default value used in the absence of the option value
+     * @return The provided option, or the default value if the option is not present
+     */
+    public Message.Attachment optAttachment(@NotNull String key, Message.Attachment defaultValue) {
+        OptionMapping option = getOption(key);
+
+        return option == null ? defaultValue : option.getAsAttachment();
     }
 
     /**
