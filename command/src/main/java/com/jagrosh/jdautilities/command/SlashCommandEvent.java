@@ -40,15 +40,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @SuppressWarnings("unused")
 public class SlashCommandEvent extends SlashCommandInteractionEvent {
-    private CommandClient client = null;
-
-    /**
-     * Required by law.
-     */
-    private SlashCommandEvent(@NotNull JDA api, long responseNumber, @NotNull SlashCommandInteraction interaction)
-    {
-        super(api, responseNumber, interaction);
-    }
+    private final CommandClient client;
 
     public SlashCommandEvent(SlashCommandInteractionEvent event, CommandClient client)
     {
@@ -87,9 +79,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public String optString(@NotNull String key, @Nullable String defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsString();
+        return getOption(key, defaultValue, OptionMapping::getAsString);
     }
 
     /**
@@ -110,9 +100,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
      * @return The provided option, or the default value if the option is not present
      */
     public boolean optBoolean(@NotNull String key, boolean defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsBoolean();
+        return getOption(key, defaultValue, OptionMapping::getAsBoolean);
     }
 
     /**
@@ -133,9 +121,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
      * @return The provided option, or the default value if the option is not present
      */
     public long optLong(@NotNull String key, long defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsLong();
+        return getOption(key, defaultValue, OptionMapping::getAsLong);
     }
 
     /**
@@ -156,9 +142,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
      * @return The provided option, or the default value if the option is not present
      */
     public double optDouble(@NotNull String key, double defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsDouble();
+        return getOption(key, defaultValue, OptionMapping::getAsDouble);
     }
 
     /**
@@ -187,9 +171,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         if (!isFromGuild())
             return defaultValue;
 
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsGuildChannel();
+        return getOption(key, defaultValue, OptionMapping::getAsGuildChannel);
     }
 
     /**
@@ -218,9 +200,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         if (!isFromGuild())
             return defaultValue; // Non-guild commands do not have a member.
 
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsMember();
+        return getOption(key, defaultValue, OptionMapping::getAsMember);
     }
 
     /**
@@ -244,9 +224,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public IMentionable optMentionable(@NotNull String key, @Nullable IMentionable defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsMentionable();
+        return getOption(key, defaultValue, OptionMapping::getAsMentionable);
     }
 
     /**
@@ -275,9 +253,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         if (!isFromGuild())
             return defaultValue;
 
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsRole();
+        return getOption(key, defaultValue, OptionMapping::getAsRole);
     }
 
     /**
@@ -301,9 +277,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public User optUser(@NotNull String key, @Nullable User defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsUser();
+        return getOption(key, defaultValue, OptionMapping::getAsUser);
     }
 
     /**
@@ -327,9 +301,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public MessageChannel optMessageChannel(@NotNull String key, @Nullable MessageChannel defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsMessageChannel();
+        return getOption(key, defaultValue, OptionMapping::getAsMessageChannel);
     }
 
     /**
