@@ -1176,7 +1176,19 @@ public class CommandEvent
     {
         return event.getTextChannel();
     }
-    
+
+    /**
+     * Gets the {@link GuildMessageChannel} that this CommandEvent may have taken place on,
+     * or {@code null} if it didn't happen on a GuildMessageChannel.
+     *
+     * @return The GuildMessageChannel this CommandEvent may have taken place on, or null
+     *         if it did not happen on a GuildMessageChannel.
+     */
+    public GuildMessageChannel getGuildChannel()
+    {
+        return event.getGuildChannel();
+    }
+
     /**
      * Compares a provided {@link net.dv8tion.jda.api.entities.ChannelType ChannelType} with the one this
      * CommandEvent occurred on, returning {@code true} if they are the same ChannelType.

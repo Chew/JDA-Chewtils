@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -351,6 +352,11 @@ public interface CommandClient
      */
     List<SlashCommand> getSlashCommands();
 
+    /**
+     * Returns the list of registered {@link ContextMenu}s during this session.
+     *
+     * @return A never-null List of Context Menus registered during this session
+     */
     List<ContextMenu> getContextMenus();
 
     /**
@@ -592,4 +598,27 @@ public interface CommandClient
      * Shuts down internals of the Command Client, such as the threadpool and guild settings manager
      */
     void shutdown();
+
+    /**
+     * Upserts all interactions to the provided {@link #forcedGuildId() forced server}.
+     * <br>This runs after the {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent} has been fired
+     * if {@link #isManualUpsert()} is {@code false}.
+     * <br>If {@link #forcedGuildId()} is {@code null}, commands will upsert globally.
+     * <b>This may take up to an hour.</b>
+     *
+     * @param jda The JDA instance to use
+     */
+    void upsertInteractions(JDA jda);
+
+    /**
+     * Upserts all interactions to the provided server.
+     * <br>This runs after the {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent} has been fired
+     * if {@link #isManualUpsert()} is {@code false}.
+     * <br>If {@code null} is passed for the server, commands will upsert globally.
+     * <b>This may take up to an hour.</b>
+     *
+     * @param jda The JDA instance to use
+     * @param serverId The server to upsert interactions for
+     */
+    void upsertInteractions(JDA jda, String serverId);
 }

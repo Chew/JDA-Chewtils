@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <h1><b>Slash Commands In JDA-Chewtils</b></h1>
+ * <h2><b>Slash Commands In JDA-Chewtils</b></h2>
  *
  * <p>This intends to mimic the {@link Command command} with minimal breaking changes,
  * to make migration easy and smooth.</p>
@@ -259,7 +259,7 @@ public abstract class SlashCommand extends Command
 
                 if(p.isChannel())
                 {
-                    if(!event.getMember().hasPermission(event.getTextChannel(), p))
+                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
                     {
                         terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
                         return;
@@ -304,7 +304,7 @@ public abstract class SlashCommand extends Command
                     }
                     else
                     {
-                        if(!selfMember.hasPermission(event.getTextChannel(), p))
+                        if(!selfMember.hasPermission(event.getGuildChannel(), p))
                         {
                             terminate(event, String.format(botMissingPermMessage, client.getError(), p.getName(), "channel"), client);
                             return;

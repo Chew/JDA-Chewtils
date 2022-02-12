@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 /**
- * <h1><b>Message Context Menus In JDA-Chewtils</b></h1>
+ * <h2><b>Message Context Menus In JDA-Chewtils</b></h2>
  *
  * <p>The internal inheritance for Message Context Menus used in JDA-Chewtils is that of the object.
  *

@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 /**
- * <h1><b>User Context Menus In JDA-Chewtils</b></h1>
+ * <h2><b>User Context Menus In JDA-Chewtils</b></h2>
  *
  * <p>The internal inheritance for User Context Menus used in JDA-Chewtils is that of the object.
  *

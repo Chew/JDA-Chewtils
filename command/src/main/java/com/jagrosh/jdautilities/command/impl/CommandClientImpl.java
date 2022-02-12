@@ -676,13 +676,20 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Upsert slash commands, if not manual
         if (!manualUpsert)
         {
-            upsertSlashCommands(event.getJDA());
+            upsertInteractions(event.getJDA());
         }
 
         sendStats(event.getJDA());
     }
 
-    private void upsertSlashCommands(JDA jda)
+    @Override
+    public void upsertInteractions(JDA jda)
+    {
+        upsertInteractions(jda, forcedGuildId);
+    }
+
+    @Override
+    public void upsertInteractions(JDA jda, String serverId)
     {
         // Get all commands
         List<CommandData> data = new ArrayList<>();
@@ -704,10 +711,10 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
 
         // Upsert the commands
-        if (forcedGuildId != null)
+        if (serverId != null)
         {
             // Attempt to retrieve the provided guild
-            Guild server = jda.getGuildById(forcedGuildId);
+            Guild server = jda.getGuildById(serverId);
             if (server == null)
             {
                 LOG.error("Specified forced guild is null! Slash Commands will NOT be added! Is the bot added?");

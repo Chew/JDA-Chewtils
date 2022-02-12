@@ -59,7 +59,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|U:<userID>}
+     *     <li>{@code <command-name>|U:<userID>}</li>
      * </ul>
      */
     USER("U:%d",""),
@@ -70,7 +70,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|C:<channelID>}
+     *     <li>{@code <command-name>|C:<channelID>}</li>
      * </ul>
      */
     CHANNEL("C:%d","in this channel"),
@@ -81,7 +81,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|U:<userID>|C:<channelID>}
+     *     <li>{@code <command-name>|U:<userID>|C:<channelID>}</li>
      * </ul>
      */
     USER_CHANNEL("U:%d|C:%d", "in this channel"),
@@ -91,7 +91,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|G:<guildID>}
+     *     <li>{@code <command-name>|G:<guildID>}</li>
      * </ul>
      *
      * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#CHANNEL CooldownScope.CHANNEL}
@@ -106,7 +106,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|U:<userID>|G:<guildID>}
+     *     <li>{@code <command-name>|U:<userID>|G:<guildID>}</li>
      * </ul>
      *
      * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#CHANNEL CooldownScope.CHANNEL}
@@ -120,7 +120,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|S:<shardID>}
+     *     <li>{@code <command-name>|S:<shardID>}</li>
      * </ul>
      *
      * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#GLOBAL CooldownScope.GLOBAL}
@@ -136,7 +136,7 @@ public enum CooldownScope
      *
      * <p>The key for this is generated in the format
      * <ul>
-     *     {@code <command-name>|U:<userID>|S:<shardID>}
+     *     <li>{@code <command-name>|U:<userID>|S:<shardID>}</li>
      * </ul>
      *
      * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#USER CooldownScope.USER}

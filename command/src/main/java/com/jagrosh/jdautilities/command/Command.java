@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 
 /**
- * <h1><b>Commands In JDA-Utilities</b></h1>
+ * <h2><b>Commands In JDA-Utilities</b></h2>
  *
  * <p>The internal inheritance for Commands used in JDA-Utilities is that of the Command object.
  *
@@ -227,7 +227,7 @@ public abstract class Command extends Interaction
             {
                 if(p.isChannel())
                 {
-                    if(!event.getMember().hasPermission(event.getTextChannel(), p))
+                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
                     {
                         terminate(event, String.format(userMissingPermMessage, event.getClient().getError(), p.getName(), "channel"));
                         return;
@@ -265,7 +265,7 @@ public abstract class Command extends Interaction
                     }
                     else
                     {
-                        if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
+                        if(!event.getSelfMember().hasPermission(event.getGuildChannel(), p))
                         {
                             terminate(event, String.format(botMissingPermMessage, event.getClient().getError(), p.getName(), "channel"));
                             return;

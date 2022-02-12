@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -339,5 +340,20 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
      */
     public boolean hasOption(@NotNull String key) {
         return getOption(key) != null;
+    }
+
+    /**
+     * Compares a provided {@link ChannelType} with the one this event occurred on,
+     * returning {@code true} if they are the same ChannelType.
+     *
+     * @param  channelType
+     *         The ChannelType to compare
+     *
+     * @return {@code true} if the CommandEvent originated from a {@link MessageChannel}
+     *         of the provided ChannelType, otherwise {@code false}.
+     */
+    public boolean isFromType(ChannelType channelType)
+    {
+        return getChannelType() == channelType;
     }
 }
