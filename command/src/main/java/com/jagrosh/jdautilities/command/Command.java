@@ -20,6 +20,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -507,9 +509,9 @@ public abstract class Command extends Interaction
             case GUILD:        return event.getGuild()!=null ? cooldownScope.genKey(name,event.getGuild().getIdLong()) :
                 CooldownScope.CHANNEL.genKey(name,event.getChannel().getIdLong());
             case CHANNEL:      return cooldownScope.genKey(name,event.getChannel().getIdLong());
-            case SHARD:        return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId()) :
+            case SHARD:        return event.getJDA().getShardInfo()!= JDA.ShardInfo.SINGLE ? cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId()) :
                 CooldownScope.GLOBAL.genKey(name, 0);
-            case USER_SHARD:   return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getJDA().getShardInfo().getShardId()) :
+            case USER_SHARD:   return event.getJDA().getShardInfo()!= JDA.ShardInfo.SINGLE ? cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getJDA().getShardInfo().getShardId()) :
                 CooldownScope.USER.genKey(name, event.getAuthor().getIdLong());
             case GLOBAL:       return cooldownScope.genKey(name, 0);
             default:           return "";
