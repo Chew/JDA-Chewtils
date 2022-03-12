@@ -1033,7 +1033,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                     .add("key", carbonKey)
                     .add("servercount", Integer.toString(jda.getGuilds().size()));
 
-            if(jda.getShardInfo() != null)
+            if(jda.getShardInfo() != JDA.ShardInfo.SINGLE)
             {
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
                            .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
@@ -1063,7 +1063,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(botsKey != null)
         {
             JSONObject body = new JSONObject().put("guildCount", jda.getGuilds().size());
-            if(jda.getShardInfo() != null)
+            if(jda.getShardInfo() != JDA.ShardInfo.SINGLE)
             {
                 body.put("shardId", jda.getShardInfo().getShardId())
                     .put("shardCount", jda.getShardInfo().getShardTotal());
