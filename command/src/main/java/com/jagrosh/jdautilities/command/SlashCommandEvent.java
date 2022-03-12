@@ -322,10 +322,8 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
      * @param defaultValue Nullable default value used in the absence of the option value
      * @return The provided option, or the default value if the option is not present
      */
-    public Message.Attachment optAttachment(@NotNull String key, Message.Attachment defaultValue) {
-        OptionMapping option = getOption(key);
-
-        return option == null ? defaultValue : option.getAsAttachment();
+    public Message.Attachment optAttachment(@NotNull String key, @Nullable Message.Attachment defaultValue) {
+        return getOption(key, defaultValue, OptionMapping::getAsAttachment);
     }
 
     /**
