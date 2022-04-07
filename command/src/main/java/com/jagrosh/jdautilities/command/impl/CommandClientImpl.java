@@ -822,7 +822,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
                     rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
                 // Since we now use substring into makeMessageParts function and a indexOf here, we need to do a +1 to get the good substring
-                final var mentionEndIndex = rawContent.indexOf('>') + 1;
+                final int mentionEndIndex = rawContent.indexOf('>') + 1;
                 // Make sure that the content isn't just the mention
                 if (rawContent.length() >= mentionEndIndex + 1) {
                     // On top of that we need to do another +1 because the default @mention prefix will always be followed by a space
