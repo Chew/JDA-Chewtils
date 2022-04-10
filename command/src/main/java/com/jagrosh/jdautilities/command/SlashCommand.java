@@ -212,19 +212,6 @@ public abstract class SlashCommand extends Command
         // set the client
         this.client = event.getClient();
 
-        // child check
-        if(event.getSubcommandName() != null)
-        {
-            for(SlashCommand cmd: getChildren())
-            {
-                if(cmd.isCommandFor(event.getSubcommandName()))
-                {
-                    cmd.run(event);
-                    return;
-                }
-            }
-        }
-
         // owner check
         if(ownerCommand && !(isOwner(event, client)))
         {
