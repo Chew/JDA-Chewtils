@@ -1220,13 +1220,12 @@ public class CommandEvent
     public <S> S getGuildSettings()
     {
         try {
-            getGuild();
+            final GuildSettingsManager<S> manager = getClient().getSettingsManager();
+            if (manager == null) return null;
+            return manager.getSettings(getGuild());
         } catch (IllegalStateException ignored) {
             return null;
         }
-        final GuildSettingsManager<S> manager = getClient().getSettingsManager();
-        if (manager == null) return null;
-        return manager.getSettings(getGuild());
     }
 
     /**
@@ -1248,13 +1247,13 @@ public class CommandEvent
     {
         try {
             getGuild();
+            final GuildSettingsManager manager = getClient().getSettingsManager();
+            if (manager == null) return null;
+            final Object settings = manager.getSettings(getGuild());
+            if (!settingsClazz.isInstance(settings)) return null;
+            return settingsClazz.cast(settings);
         } catch (IllegalStateException ignored) {
             return null;
         }
-        final GuildSettingsManager manager = getClient().getSettingsManager();
-        if (manager == null) return null;
-        final Object settings = manager.getSettings(getGuild());
-        if (!settingsClazz.isInstance(settings)) return null;
-        return settingsClazz.cast(settings);
     }
 }
