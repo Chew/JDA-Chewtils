@@ -4,10 +4,10 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 
@@ -189,8 +189,8 @@ public class PaginationHandler
     }
     
     /**
-     * Will send a Message in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} and
-     * add Reactions to it, before handling the pagination.
+     * Will send a Message in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} with
+     * {@link net.dv8tion.jda.api.interactions.components.buttons.Button Buttons} attached to it,
      * <br>The provided page number will be set to 1 if it is lower than 1, or set to the total page count if going
      * above it.
      *
@@ -307,7 +307,7 @@ public class PaginationHandler
     private void handleButtonPagination(Message message, EventWaiter waiter, int pageNumber)
     {
         waiter.waitForEvent(
-            ButtonClickEvent.class,
+            ButtonInteractionEvent.class,
             event -> isValidButton(event, message.getIdLong()),
             event -> handleButtonEvent(event, message, pageNumber),
             time, unit, () -> finalAction.accept(message)
@@ -354,7 +354,7 @@ public class PaginationHandler
         }
     }
     
-    private boolean isValidButton(ButtonClickEvent event, long messageId)
+    private boolean isValidButton(ButtonInteractionEvent event, long messageId)
     {
         if(event.getMessageIdLong() != messageId)
             return false;
@@ -439,7 +439,7 @@ public class PaginationHandler
         message.editMessage(renderMessage(finalPageNumber)).queue(m -> handleReactionPagination(m, waiter, finalPageNumber));
     }
     
-    private void handleButtonEvent(ButtonClickEvent event, Message message, int pageNumber)
+    private void handleButtonEvent(ButtonInteractionEvent event, Message message, int pageNumber)
     {
         int newPageNumber = pageNumber;
         switch(event.getComponentId())
