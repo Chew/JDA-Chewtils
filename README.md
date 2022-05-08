@@ -21,10 +21,11 @@ in order to better organize its contents based on what developers might want to 
 Visit individual modules to read more about their contents!
 
 ## Getting Started
-You will need to add this project as a dependency (either from the latest .jar from the releases page, 
-or via maven or gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). 
+You will need to add this project as a dependency (via Maven or Gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). 
 
-With maven:
+**Keep in mind the 1.x version of JDA-Chewtils is only compatible with JDA 4, for compatibility with JDA 5, see [the wiki](https://github.com/Chew/JDA-Chewtils/wiki/Compatibility-with-JDA-4-%26-5)**
+
+With Maven:
 ```xml
   <dependency>
     <groupId>pw.chew</groupId>
@@ -54,16 +55,16 @@ With maven:
   </repository>
 ```
 
-With gradle:
+With Gradle:
 ```groovy
 dependencies {
-    compile 'pw.chew:jda-chewtils:JDA-UTILITIES-VERSION'
-    compile 'net.dv8tion:JDA:JDA-VERSION'
+    implementation 'pw.chew:jda-chewtils:JDA-UTILITIES-VERSION'
+    implementation 'net.dv8tion:JDA:JDA-VERSION'
 }
 
 repositories {
     mavenCentral() // for transitive dependencies
-    // for JDA
+    // for JDA 4
     maven {
       name 'm2-dv8tion'
       url 'https://m2.dv8tion.net/releases'
@@ -73,10 +74,29 @@ repositories {
 }
 ```
 
+Gradle (Kotlin):
+```kotlin
+dependencies {
+    implementation("pw.chew:jda-chewtils:JDA-UTILITIES-VERSION")
+    implementation("net.dv8tion:JDA:JDA-VERSION")
+}
+
+repositories {
+    mavenCentral() // for transitive dependencies
+    // for JDA 4
+    maven {
+      name = "m2-dv8tion"
+      url = uri("https://m2.dv8tion.net/releases")
+    }
+    // For JDA-Chewtils
+    maven { url = uri("https://m2.chew.pro/releases") }
+}
+```
+
 Individual modules can be downloaded using the same structure shown above, with the addition of the module's
 name as a suffix to the dependency:
 
-With maven:
+With Maven:
 ```xml
   <dependency>
     <groupId>pw.chew</groupId>
@@ -87,11 +107,11 @@ With maven:
   </dependency>
 ```
 
-With gradle:
+With Gradle:
 ```groovy
 dependencies {
     // Notice that the dependency notation ends with "-command"
-    compile 'pw.chew:jda-chewtils-command:JDA-CHEWTILS-VERSION'
+    implementaton 'pw.chew:jda-chewtils-command:JDA-CHEWTILS-VERSION'
 }
 ```
 

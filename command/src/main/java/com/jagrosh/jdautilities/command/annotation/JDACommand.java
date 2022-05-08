@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command.annotation;
 
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CooldownScope;
 import net.dv8tion.jda.api.Permission;
 
 import java.lang.annotation.*;
@@ -116,9 +117,8 @@ public @interface JDACommand
      * The {@link JDACommand.Cooldown JDACommand.Cooldown} for the command.
      *
      * <p>This holds both metadata for both the
-     * {@link com.jagrosh.jdautilities.command.Command#cooldown Command#cooldown}
-     * and {@link com.jagrosh.jdautilities.command.Command#cooldownScope
-     * Command#cooldownScope}.
+     * {@link Command#getCooldown() Command#cooldown}
+     * and {@link Command#getCooldownScope() Command#cooldownScope}.
      *
      * @return The {@code @Cooldown} for the command.
      */
@@ -206,12 +206,11 @@ public @interface JDACommand
     }
 
     /**
-     * A value wrapper for what would be {@link com.jagrosh.jdautilities.command.Command#cooldown
-     * Command#cooldown} and {@link com.jagrosh.jdautilities.command.Command#cooldownScope
-     * Command#cooldownScope}.
+     * A value wrapper for what would be {@link Command#getCooldown() Command#cooldown}
+     * and {@link Command#getCooldownScope() Command#cooldownScope}.
      *
-     * The default {@link com.jagrosh.jdautilities.command.Command.CooldownScope CooldownScope}
-     * is {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER CooldownScope.USER}.
+     * The default {@link CooldownScope}
+     * is {@link CooldownScope#USER CooldownScope.USER}.
      *
      * @see    JDACommand#cooldown()
      */
@@ -227,15 +226,14 @@ public @interface JDACommand
         int value();
 
         /**
-         * The {@link com.jagrosh.jdautilities.command.Command.CooldownScope CooldownScope}
+         * The {@link CooldownScope CooldownScope}
          * for the annotated Command.
          *
-         * <p>By default this is {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER
-         * CooldownScope.USER}.
+         * <p>By default this is {@link CooldownScope#USER CooldownScope.USER}.
          *
          * @return The CooldownScope for this annotated Command.
          */
-        Command.CooldownScope scope() default Command.CooldownScope.USER;
+        CooldownScope scope() default CooldownScope.USER;
     }
 
     /**

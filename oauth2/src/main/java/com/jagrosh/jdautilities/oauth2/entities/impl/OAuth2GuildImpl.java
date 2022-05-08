@@ -31,9 +31,9 @@ public class OAuth2GuildImpl implements OAuth2Guild
     private final long id;
     private final String name, icon;
     private final boolean owner;
-    private final int permissions;
-    
-    public OAuth2GuildImpl(OAuth2Client client, long id, String name, String icon, boolean owner, int permissions)
+    private final long permissions;
+
+    public OAuth2GuildImpl(OAuth2Client client, long id, String name, String icon, boolean owner, long permissions)
     {
         this.client = client;
         this.id = id;
@@ -54,43 +54,43 @@ public class OAuth2GuildImpl implements OAuth2Guild
     {
         return id;
     }
-    
+
     @Override
     public String getName()
     {
         return name;
     }
-    
+
     @Override
     public String getIconId()
     {
         return icon;
     }
-    
+
     @Override
     public String getIconUrl()
     {
         return icon == null ? null : "https://cdn.discordapp.com/icons/" + id + "/" + icon + ".png";
     }
-    
+
     @Override
-    public int getPermissionsRaw()
+    public long getPermissionsRaw()
     {
         return permissions;
     }
-    
+
     @Override
     public EnumSet<Permission> getPermissions()
     {
         return Permission.getPermissions(permissions);
     }
-    
+
     @Override
     public boolean isOwner()
     {
         return owner;
     }
-    
+
     @Override
     public boolean hasPermission(Permission... perms)
     {
@@ -98,7 +98,7 @@ public class OAuth2GuildImpl implements OAuth2Guild
             return true;
 
         long adminPermRaw = Permission.ADMINISTRATOR.getRawValue();
-        int permissions = getPermissionsRaw();
+        long permissions = getPermissionsRaw();
 
         if ((permissions & adminPermRaw) == adminPermRaw)
             return true;

@@ -269,7 +269,7 @@ public class OrderedMenu extends Menu
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
-        mbuilder.setEmbed(new EmbedBuilder().setColor(color)
+        mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
                 .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
         return mbuilder.build();
     }

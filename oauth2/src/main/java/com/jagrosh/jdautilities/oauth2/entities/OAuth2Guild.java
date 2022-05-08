@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * OAuth2 representation of a Discord Server/Guild.
@@ -67,7 +66,7 @@ public interface OAuth2Guild extends ISnowflake
      *
      * @return The Session User's raw permission value for the Guild.
      */
-    int getPermissionsRaw();
+    long getPermissionsRaw();
 
     /**
      * Gets the Session User's {@link net.dv8tion.jda.api.Permission Permissions} for the Guild.

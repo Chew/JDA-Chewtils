@@ -55,7 +55,7 @@ import java.util.List;
 public class OAuth2ClientImpl implements OAuth2Client
 {
     private static final Logger LOG = JDALogger.getLog(OAuth2Client.class);
-    
+
     private final long clientId;
     private final String clientSecret;
     private final SessionController sessionController;
@@ -76,7 +76,7 @@ public class OAuth2ClientImpl implements OAuth2Client
         this.httpClient = httpClient == null? new OkHttpClient.Builder().build() : httpClient;
         this.requester = new OAuth2Requester(this.httpClient);
     }
-    
+
     @Override
     public String generateAuthorizationURL(String redirectUri, Scope... scopes)
     {
@@ -188,7 +188,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                     obj = body.getJSONObject(i);
                     list.add(new OAuth2GuildImpl(OAuth2ClientImpl.this, obj.getLong("id"),
                         obj.getString("name"), obj.optString("icon", null), obj.getBoolean("owner"),
-                        obj.getInt("permissions")));
+                        obj.getLong("permissions")));
                 }
                 return list;
             }

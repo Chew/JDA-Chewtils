@@ -15,14 +15,17 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
@@ -34,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <h1><b>Slash Commands In JDA-Chewtils</b></h1>
+ * <h2><b>Slash Commands In JDA-Chewtils</b></h2>
  *
  * <p>This intends to mimic the {@link Command command} with minimal breaking changes,
  * to make migration easy and smooth.</p>
@@ -58,7 +61,7 @@ import java.util.Map;
  *
  * Execution is with the provision of the SlashCommandEvent is performed in two steps:
  * <ul>
- *     <li>{@link SlashCommand#run(SlashCommandEvent, CommandClient) run} - The command runs
+ *     <li>{@link SlashCommand#run(SlashCommandEvent) run} - The command runs
  *     through a series of conditionals, automatically terminating the command instance if one is not met,
  *     and possibly providing an error response.</li>
  *
@@ -83,28 +86,36 @@ public abstract class SlashCommand extends Command
      * The list of role IDs who can use this Slash Command.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't false.
+     * @deprecated Discord no longer supports this.
      */
+    @Deprecated
     protected String[] enabledRoles = new String[]{};
 
     /**
      * The list of user IDs who can use this Slash Command.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't false.
+     * @deprecated Discord no longer support this.
      */
+    @Deprecated
     protected String[] enabledUsers = new String[]{};
 
     /**
      * The list of role IDs who cannot use this Slash Command.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't true.
+     * @deprecated Discord no longer supports this.
      */
+    @Deprecated
     protected String[] disabledRoles = new String[]{};
 
     /**
      * The list of user IDs who cannot use this Slash Command.
      * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
      * This is useless if {@link #defaultEnabled} isn't true.
+     * @deprecated Discord no longer supports this.
      */
+    @Deprecated
     protected String[] disabledUsers = new String[]{};
 
     /**
@@ -114,7 +125,9 @@ public abstract class SlashCommand extends Command
      * @see net.dv8tion.jda.api.requests.restaction.CommandCreateAction#setDefaultEnabled(boolean)
      * @see SlashCommand#enabledRoles
      * @see SlashCommand#enabledUsers
+     * @deprecated Discord no longer lets you disable commands.
      */
+    @Deprecated
     protected boolean defaultEnabled = true;
 
     /**
@@ -123,15 +136,6 @@ public abstract class SlashCommand extends Command
      * This is synonymous with sub commands. Additionally, sub-commands cannot have children.<br>
      */
     protected SlashCommand[] children = new SlashCommand[0];
-
-    /**
-     * The ID of the server you want guildOnly tied to.
-     * This means the slash command will only work and show up in the specified Guild.
-     * If this is null, guildOnly will still be processed, however an ephemeral message will be sent telling them to move.
-     * @deprecated This will be removed in favor of {@link CommandClientBuilder#forceGuildOnly(String)}. Please use that instead.
-     * @see CommandClientBuilder#forceGuildOnly(String)
-     */
-    protected String guildId = null;
 
     /**
      * The subcommand/child group this is associated with.
@@ -164,19 +168,29 @@ public abstract class SlashCommand extends Command
 
     /**
      * The command client to be retrieved if needed.
+     * @deprecated This is now retrieved from {@link SlashCommandEvent#getClient()}.
      */
     protected CommandClient client;
 
     /**
      * The main body method of a {@link SlashCommand SlashCommand}.
      * <br>This is the "response" for a successful
-     * {@link SlashCommand#run(SlashCommandEvent, CommandClient) #run(CommandEvent)}.
+     * {@link SlashCommand#run(SlashCommandEvent) #run(CommandEvent)}.
      *
      * @param  event
      *         The {@link SlashCommandEvent SlashCommandEvent} that
      *         triggered this Command
      */
     protected abstract void execute(SlashCommandEvent event);
+
+    /**
+     * This body is executed when an auto-complete event is received.
+     * This only ever gets executed if an auto-complete {@link #options option} is set.
+     *
+     * @param event The event to handle.
+     * @see OptionData#setAutoComplete(boolean)
+     */
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {}
 
     /**
      * The main body method of a {@link com.jagrosh.jdautilities.command.Command Command}.
@@ -202,13 +216,11 @@ public abstract class SlashCommand extends Command
      *
      * @param  event
      *         The SlashCommandEvent that triggered this Command
-     * @param  client
-     *         The CommandClient for checks and stuff
      */
-    public final void run(SlashCommandEvent event, CommandClient client)
+    public final void run(SlashCommandEvent event)
     {
         // set the client
-        this.client = client;
+        this.client = event.getClient();
 
         // child check
         if(event.getSubcommandName() != null)
@@ -217,7 +229,7 @@ public abstract class SlashCommand extends Command
             {
                 if(cmd.isCommandFor(event.getSubcommandName()))
                 {
-                    cmd.run(event, client);
+                    cmd.run(event);
                     return;
                 }
             }
@@ -246,7 +258,7 @@ public abstract class SlashCommand extends Command
             }
 
         // availability check
-        if(event.getChannelType()==ChannelType.TEXT)
+        if(event.getChannelType() != ChannelType.PRIVATE)
         {
             //user perms
             for(Permission p: userPermissions)
@@ -257,7 +269,7 @@ public abstract class SlashCommand extends Command
 
                 if(p.isChannel())
                 {
-                    if(!event.getMember().hasPermission(event.getTextChannel(), p))
+                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
                     {
                         terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
                         return;
@@ -285,10 +297,10 @@ public abstract class SlashCommand extends Command
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
-                    if(p.name().startsWith("VOICE"))
+                    if(p.isVoice())
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
-                        VoiceChannel vc = gvc == null ? null : gvc.getChannel();
+                        AudioChannel vc = gvc == null ? null : gvc.getChannel();
                         if(vc==null)
                         {
                             terminate(event, client.getError()+" You must be in a voice channel to use that!", client);
@@ -302,7 +314,7 @@ public abstract class SlashCommand extends Command
                     }
                     else
                     {
-                        if(!selfMember.hasPermission(event.getTextChannel(), p))
+                        if(!selfMember.hasPermission(event.getGuildChannel(), p))
                         {
                             terminate(event, String.format(botMissingPermMessage, client.getError(), p.getName(), "channel"), client);
                             return;
@@ -320,7 +332,7 @@ public abstract class SlashCommand extends Command
             }
 
             // nsfw check
-            if (nsfwOnly && !event.getTextChannel().isNSFW())
+            if (nsfwOnly && event.getChannelType() == ChannelType.TEXT && !event.getTextChannel().isNSFW())
             {
                 terminate(event, "This command may only be used in NSFW text channels!", client);
                 return;
@@ -386,22 +398,13 @@ public abstract class SlashCommand extends Command
      * Gets the CommandClient.
      *
      * @return the CommandClient.
+     * @deprecated This is now retrieved from {@link SlashCommandEvent#getClient()}.
      */
+    @Deprecated
+    @ForRemoval(deadline = "2.0.0")
     public CommandClient getClient()
     {
         return client;
-    }
-
-    /**
-     * Gets the associated Guild ID for Guild Only command.
-     *
-     * @deprecated This will be removed in favor of {@link CommandClientBuilder#forceGuildOnly(String)}. Please use that instead.
-     * @see CommandClientBuilder#forceGuildOnly(String)
-     * @return the ID for the specific Guild
-     */
-    public String getGuildId()
-    {
-        return guildId;
     }
 
     /**
@@ -409,7 +412,9 @@ public abstract class SlashCommand extends Command
      * A user MUST have a role for a command to be ran.
      *
      * @return a list of String role IDs
+     * @deprecated No longer supported by Discord.
      */
+    @Deprecated
     public String[] getEnabledRoles()
     {
         return enabledRoles;
@@ -420,7 +425,9 @@ public abstract class SlashCommand extends Command
      * A user with an ID in this list is required for the command to be ran.
      *
      * @return a list of String user IDs
+     * @deprecated No longer supported by Discord.
      */
+    @Deprecated
     public String[] getEnabledUsers()
     {
         return enabledUsers;
@@ -431,7 +438,9 @@ public abstract class SlashCommand extends Command
      * A user with this role may not run this command.
      *
      * @return a list of String role IDs
+     * @deprecated No longer supported by Discord.
      */
+    @Deprecated
     public String[] getDisabledRoles()
     {
         return disabledRoles;
@@ -442,7 +451,9 @@ public abstract class SlashCommand extends Command
      * Uses in this list may not run this command.
      *
      * @return a list of String user IDs
+     * @deprecated No longer supported by Discord.
      */
+    @Deprecated
     public String[] getDisabledUsers()
     {
         return disabledUsers;
@@ -454,8 +465,10 @@ public abstract class SlashCommand extends Command
      * or {@link #enabledUsers users} to access it.
      * This does NOT hide it, it simply appears greyed out.
      *
-     * @return a list of String user IDs
+     * @return whether this command is default enabled
+     * @deprecated No longer supported by Discord.
      */
+    @Deprecated
     public boolean isDefaultEnabled()
     {
         return defaultEnabled;
@@ -492,7 +505,7 @@ public abstract class SlashCommand extends Command
     public CommandData buildCommandData()
     {
         // Make the command data
-        CommandData data = new CommandData(getName(), getHelp());
+        SlashCommandData data = Commands.slash(getName(), getHelp());
         if (!getOptions().isEmpty())
         {
             data.addOptions(getOptions());

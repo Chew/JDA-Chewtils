@@ -3,10 +3,12 @@ on: [push, pull_request]
 
 jobs:
   build:
+    # Only run on PRs if the source branch is on someone else's repo
+    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [8, 11] # Gradle 4 does not support 16...
+        java: [8, 11, 17]
       fail-fast: true
     steps:
       - uses: actions/checkout@v2
@@ -14,17 +16,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
-      - name: Cache gradle
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/jdks
-            ~/.gradle/native
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-paper-2-${{ hashFiles('**/*.gradle*', 'gradle/**', 'gradle.properties') }}
-          restore-keys: ${{ runner.os }}-paper-2
+          distribution: 'temurin'
+          cache: 'gradle'
       - name: Patch and build
         run: |
           chmod u+x ./gradlew
