@@ -45,7 +45,7 @@ import java.util.Map;
  * <a href="https://github.com/Chew/JDA-Chewtils/wiki/Command-to-SlashCommand-Migration">here</a>.</p>
  * {@link SlashCommand#execute(SlashCommandEvent) #execute(CommandEvent)} body:
  *
- * <pre><code> public class ExampleCmd extends Command {
+ * <pre><code> public class ExampleCmd extends SlashCommand {
  *
  *      public ExampleCmd() {
  *          this.name = "example";
