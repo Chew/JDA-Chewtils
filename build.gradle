@@ -37,10 +37,10 @@ allprojects {
 
     ext {
         jdaVersion = '5.0.0-alpha.13'
-        slf4jVersion = '1.7.25'
-        okhttpVersion = '3.13.0'
+        slf4jVersion = '1.7.36'
+        okhttpVersion = '4.9.3'
         findbugsVersion = '3.0.2'
-        jsonVersion = '20160810'
+        jsonVersion = '20220320'
         junitVersion = '4.13.1' // TODO Move to junit 5?
 
         dependencies {
