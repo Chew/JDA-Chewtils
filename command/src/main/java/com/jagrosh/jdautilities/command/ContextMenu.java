@@ -18,14 +18,9 @@ package com.jagrosh.jdautilities.command;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.CommandPermission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Middleware for child context menu types. Anything that extends this class will inherit the following options.
@@ -40,51 +35,6 @@ public abstract class ContextMenu extends Interaction
      * @see CommandData#setName(String)
      */
     protected String name = "null";
-
-    /**
-     * Whether this menu is disabled by default.
-     * If disabled, you must give yourself permission to use it.<br>
-     * @see net.dv8tion.jda.api.interactions.commands.build.CommandData#setDefaultEnabled
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    protected boolean defaultEnabled = true;
-
-    /**
-     * The list of role IDs who can use this Context Menu.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't false.
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    protected String[] enabledRoles = new String[]{};
-
-    /**
-     * The list of user IDs who can use this Context Menu.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't false.
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    protected String[] enabledUsers = new String[]{};
-
-    /**
-     * The list of role IDs who cannot use this Context Menu.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't true.
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    protected String[] disabledRoles = new String[]{};
-
-    /**
-     * The list of user IDs who cannot use this Context Menu.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't true.
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    protected String[] disabledUsers = new String[]{};
 
     /**
      * Gets the {@link ContextMenu ContextMenu.name} for the Context Menu.
@@ -109,70 +59,6 @@ public abstract class ContextMenu extends Interaction
             return Command.Type.USER;
         else
             return Command.Type.UNKNOWN;
-    }
-
-    /**
-     * Whether this context menu is enabled by default.
-     *
-     * @return if this is default enabled
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    public boolean isDefaultEnabled()
-    {
-        return defaultEnabled;
-    }
-
-    /**
-     * Gets the enabled roles for this Context Menu.
-     * A user MUST have one of these roles for the context menu to appear.
-     *
-     * @return a list of String role IDs
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    public String[] getEnabledRoles()
-    {
-        return enabledRoles;
-    }
-
-    /**
-     * Gets the enabled users for this Context Menu.
-     * A user with an ID in this list is required for the context menu to appear.
-     *
-     * @return a list of String user IDs
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    public String[] getEnabledUsers()
-    {
-        return enabledUsers;
-    }
-
-    /**
-     * Gets the disabled roles for this Context Menu.
-     * A user with this role won't see and won't be able to run this context menu.
-     *
-     * @return a list of String role IDs
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    public String[] getDisabledRoles()
-    {
-        return disabledRoles;
-    }
-
-    /**
-     * Gets the disabled users for this Context Menu.
-     * Uses in this list won't see and won't be able to run this context menu.
-     *
-     * @return a list of String user IDs
-     * @deprecated Discord no longer supports this feature.
-     */
-    @Deprecated
-    public String[] getDisabledUsers()
-    {
-        return disabledUsers;
     }
 
     /**
@@ -242,11 +128,11 @@ public abstract class ContextMenu extends Interaction
         // Make the command data
         CommandData data = Commands.context(getType(), name);
 
-        // Default enabled is synonymous with hidden now.
-        data.setDefaultEnabled(isDefaultEnabled());
+        if (this.userPermissions == null)
+            data.setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        else
+            data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.userPermissions));
 
-        if (this.userPermissions != null && this.userPermissions.length > 0)
-            data.setDefaultPermissions(CommandPermission.enabledFor(this.userPermissions));
         data.setGuildOnly(this.guildOnly);
 
         return data;

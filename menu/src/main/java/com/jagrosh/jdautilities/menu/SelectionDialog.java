@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -55,12 +56,12 @@ public class SelectionDialog extends Menu
     private final BiConsumer<Message, Integer> success;
     private final Consumer<Message> cancel;
     private final boolean singleSelectionMode;
-    
+
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
     public static final String SELECT = "\u2705";
     public static final String CANCEL = "\u274E";
-    
+
     SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                     List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
                     Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
@@ -97,7 +98,7 @@ public class SelectionDialog extends Menu
      * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
      * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
      * the first selection.
-     * 
+     *
      * @param  channel
      *         The MessageChannel to send the new Message to
      */
@@ -108,9 +109,9 @@ public class SelectionDialog extends Menu
     }
 
     /**
-     * Displays this SelectionDialog by editing the provided 
+     * Displays this SelectionDialog by editing the provided
      * {@link net.dv8tion.jda.api.entities.Message Message}, starting with the first selection.
-     * 
+     *
      * @param  message
      *         The Message to display the Menu in
      */
@@ -119,12 +120,12 @@ public class SelectionDialog extends Menu
     {
         showDialog(message, 1);
     }
-    
+
     /**
      * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
      * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
      * the number selection provided.
-     * 
+     *
      * @param  channel
      *         The MessageChannel to send the new Message to
      * @param  selection
@@ -139,12 +140,12 @@ public class SelectionDialog extends Menu
         Message msg = render(selection);
         initialize(channel.sendMessage(msg), selection);
     }
-    
+
     /**
-     * Displays this SelectionDialog by editing the provided 
+     * Displays this SelectionDialog by editing the provided
      * {@link net.dv8tion.jda.api.entities.Message Message}, starting with the number selection
      * provided.
-     * 
+     *
      * @param  message
      *         The Message to display the Menu in
      * @param  selection
@@ -159,39 +160,39 @@ public class SelectionDialog extends Menu
         Message msg = render(selection);
         initialize(message.editMessage(msg), selection);
     }
-    
+
     private void initialize(RestAction<Message> action, int selection)
     {
         action.queue(m -> {
             if(choices.size()>1)
             {
-                m.addReaction(UP).queue();
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue();
-                m.addReaction(DOWN).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromFormatted(UP)).queue();
+                m.addReaction(Emoji.fromFormatted(SELECT)).queue();
+                m.addReaction(Emoji.fromFormatted(CANCEL)).queue();
+                m.addReaction(Emoji.fromFormatted(DOWN)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
             else
             {
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromFormatted(SELECT)).queue();
+                m.addReaction(Emoji.fromFormatted(CANCEL)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
         });
     }
-    
+
     private void selectionDialog(Message message, int selection)
     {
         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(UP.equals(event.getReaction().getReactionEmote().getName())
-                    || DOWN.equals(event.getReaction().getReactionEmote().getName())
-                    || CANCEL.equals(event.getReaction().getReactionEmote().getName())
-                    || SELECT.equals(event.getReaction().getReactionEmote().getName())))
+            if(!(UP.equals(event.getReaction().getEmoji().getName())
+                    || DOWN.equals(event.getReaction().getEmoji().getName())
+                    || CANCEL.equals(event.getReaction().getEmoji().getName())
+                    || SELECT.equals(event.getReaction().getEmoji().getName())))
                 return false;
             return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
         }, event -> {
             int newSelection = selection;
-            switch(event.getReaction().getReactionEmote().getName())
+            switch(event.getReaction().getEmoji().getName())
             {
                 case UP:
                     if(newSelection>1)
@@ -222,7 +223,7 @@ public class SelectionDialog extends Menu
             message.editMessage(render(n)).queue(m -> selectionDialog(m, n));
         }, timeout, unit, () -> cancel.accept(message));
     }
-    
+
     private Message render(int selection)
     {
         StringBuilder sbuilder = new StringBuilder();

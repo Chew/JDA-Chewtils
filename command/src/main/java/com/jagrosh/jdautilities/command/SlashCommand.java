@@ -22,17 +22,18 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.CommandPermission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
-import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,61 +76,11 @@ import java.util.Map;
 public abstract class SlashCommand extends Command
 {
     /**
-     * This option is deprecated in favor of {@link #enabledRoles}
-     * Please replace this with this.enabledRoles = new String[]{Roles};
-     * While this check is still done, it's better to let Discord do the work.<br>
+     * This option is deprecated in favor of using Discord's permissions<br>
      * This deprecation can be ignored if you intend to support normal and slash commands.
      */
     @Deprecated
     protected String requiredRole = null;
-
-    /**
-     * The list of role IDs who can use this Slash Command.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't false.
-     * @deprecated Discord no longer supports this.
-     */
-    @Deprecated
-    protected String[] enabledRoles = new String[]{};
-
-    /**
-     * The list of user IDs who can use this Slash Command.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't false.
-     * @deprecated Discord no longer support this.
-     */
-    @Deprecated
-    protected String[] enabledUsers = new String[]{};
-
-    /**
-     * The list of role IDs who cannot use this Slash Command.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't true.
-     * @deprecated Discord no longer supports this.
-     */
-    @Deprecated
-    protected String[] disabledRoles = new String[]{};
-
-    /**
-     * The list of user IDs who cannot use this Slash Command.
-     * Because command privileges are restricted to a Guild, these will not take effect for Global commands.<br>
-     * This is useless if {@link #defaultEnabled} isn't true.
-     * @deprecated Discord no longer supports this.
-     */
-    @Deprecated
-    protected String[] disabledUsers = new String[]{};
-
-    /**
-     * Whether this command is disabled by default.
-     * If disabled, you must give yourself permission to use it.<br>
-     * In order for {@link #enabledUsers} and {@link #enabledRoles} to work, this must be set to false.
-     * @see net.dv8tion.jda.api.requests.restaction.CommandCreateAction#setDefaultEnabled(boolean)
-     * @see SlashCommand#enabledRoles
-     * @see SlashCommand#enabledUsers
-     * @deprecated Discord no longer lets you disable commands.
-     */
-    @Deprecated
-    protected boolean defaultEnabled = true;
 
     /**
      * The child commands of the command. These are used in the format {@code /<parent name>
@@ -244,10 +195,14 @@ public abstract class SlashCommand extends Command
         }
 
         // is allowed check
-        if((event.getChannelType() == ChannelType.TEXT) && !isAllowed(event.getTextChannel()))
-        {
-            terminate(event, "That command cannot be used in this channel!", client);
-            return;
+        try {
+            if(!isAllowed(event.getTextChannel()))
+            {
+                terminate(event, "That command cannot be used in this channel!", client);
+                return;
+            }
+        } catch (Exception e) {
+            // ignore for now
         }
 
         // required role check
@@ -409,73 +364,6 @@ public abstract class SlashCommand extends Command
     }
 
     /**
-     * Gets the enabled roles for this Slash Command.
-     * A user MUST have a role for a command to be ran.
-     *
-     * @return a list of String role IDs
-     * @deprecated No longer supported by Discord.
-     */
-    @Deprecated
-    public String[] getEnabledRoles()
-    {
-        return enabledRoles;
-    }
-
-    /**
-     * Gets the enabled users for this Slash Command.
-     * A user with an ID in this list is required for the command to be ran.
-     *
-     * @return a list of String user IDs
-     * @deprecated No longer supported by Discord.
-     */
-    @Deprecated
-    public String[] getEnabledUsers()
-    {
-        return enabledUsers;
-    }
-
-    /**
-     * Gets the disabled roles for this Slash Command.
-     * A user with this role may not run this command.
-     *
-     * @return a list of String role IDs
-     * @deprecated No longer supported by Discord.
-     */
-    @Deprecated
-    public String[] getDisabledRoles()
-    {
-        return disabledRoles;
-    }
-
-    /**
-     * Gets the disabled users for this Slash Command.
-     * Uses in this list may not run this command.
-     *
-     * @return a list of String user IDs
-     * @deprecated No longer supported by Discord.
-     */
-    @Deprecated
-    public String[] getDisabledUsers()
-    {
-        return disabledUsers;
-    }
-
-    /**
-     * Whether or not this command is enabled by default.
-     * If disabled by default, you MUST enable {@link #enabledRoles roles}
-     * or {@link #enabledUsers users} to access it.
-     * This does NOT hide it, it simply appears greyed out.
-     *
-     * @return whether this command is default enabled
-     * @deprecated No longer supported by Discord.
-     */
-    @Deprecated
-    public boolean isDefaultEnabled()
-    {
-        return defaultEnabled;
-    }
-
-    /**
      * Gets the subcommand data associated with this subcommand.
      *
      * @return subcommand data
@@ -546,12 +434,10 @@ public abstract class SlashCommand extends Command
                 data.addSubcommandGroups(groupData.values());
         }
 
-        // Default enabled is synonymous with hidden now.
-        data.setDefaultEnabled(isDefaultEnabled());
-
-        if (this.userPermissions != null && this.userPermissions.length > 0) {
-            data.setDefaultPermissions(CommandPermission.enabledFor(this.userPermissions));
-        }
+        if (this.getUserPermissions() == null)
+            data.setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        else
+            data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.getUserPermissions()));
 
         data.setGuildOnly(this.guildOnly);
 
