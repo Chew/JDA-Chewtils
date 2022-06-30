@@ -53,7 +53,6 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -722,20 +721,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
             // Upsert the commands + their privileges
             server.updateCommands().addCommands(data)
-                .queue(commands -> {
-                    Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
-                    for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
-                    {
-                        SlashCommand slashCommand = slashCommandMap.get(command.getName());
-                        ContextMenu contextMenu = contextMenuMap.get(command.getName());
-                        if (slashCommand != null)
-                            privileges.put(command.getId(), slashCommand.buildPrivileges(this));
-                        if (contextMenu != null)
-                            privileges.put(command.getId(), contextMenu.buildPrivileges(this));
-                    }
-                    server.updateCommandPrivileges(privileges)
-                        .queue(priv -> LOG.debug("Successfully added " + commands.size() + " slash commands and " + contextMenus.size() + " menus to server " + server.getName()));
-                }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
+                .queue(
+                    priv -> LOG.debug("Successfully added " + commands.size() + " slash commands and " + contextMenus.size() + " menus to server " + server.getName()),
+                    error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error)
+                );
         }
         else
             jda.updateCommands().addCommands(data)
