@@ -27,8 +27,19 @@ import net.dv8tion.jda.api.Permission;
 public abstract class Interaction
 {
     /**
+     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
+     * {@code false} if it may be used in both a Guild and a DM.
+     * <br>Default {@code true}.
+     */
+    protected boolean guildOnly = true;
+
+    /**
      * Any {@link Permission Permissions} a Member must have to use this interaction.
      * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild server} environment.
+     * <br>To disable the command for everyone (for interactions), set this to {@code null}.
+     * <br>Keep in mind, commands may still show up if the channel permissions are updated in settings.
+     * Otherwise, commands will automatically be hidden unless a user has these perms.
+     * However, permissions are always checked, just in case. A user must have these permissions regardless.
      */
     protected Permission[] userPermissions = new Permission[0];
 

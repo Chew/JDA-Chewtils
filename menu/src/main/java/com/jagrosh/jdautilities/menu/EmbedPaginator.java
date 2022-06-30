@@ -19,6 +19,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -148,17 +149,17 @@ public class EmbedPaginator extends Menu{
             if(embeds.size()>1)
             {
                 if(bulkSkipNumber > 1)
-                    m.addReaction(BIG_LEFT).queue();
-                m.addReaction(LEFT).queue();
-                m.addReaction(STOP).queue();
+                    m.addReaction(Emoji.fromFormatted(BIG_LEFT)).queue();
+                m.addReaction(Emoji.fromFormatted(LEFT)).queue();
+                m.addReaction(Emoji.fromFormatted(STOP)).queue();
                 if(bulkSkipNumber > 1)
-                    m.addReaction(RIGHT).queue();
-                m.addReaction(bulkSkipNumber > 1 ? BIG_RIGHT : RIGHT)
+                    m.addReaction(Emoji.fromFormatted(RIGHT)).queue();
+                m.addReaction(Emoji.fromFormatted(bulkSkipNumber > 1 ? BIG_RIGHT : RIGHT))
                     .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else if(waitOnSinglePage)
             {
-                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                m.addReaction(Emoji.fromFormatted(STOP)).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else
             {
@@ -241,7 +242,7 @@ public class EmbedPaginator extends Menu{
     {
         if(event.getMessageIdLong() != messageId)
             return false;
-        switch(event.getReactionEmote().getName())
+        switch(event.getEmoji().getName())
         {
             case LEFT:
             case STOP:
@@ -259,7 +260,7 @@ public class EmbedPaginator extends Menu{
     {
         int newPageNum = pageNum;
         int pages = embeds.size();
-        switch(event.getReaction().getReactionEmote().getName())
+        switch(event.getReaction().getEmoji().getName())
         {
             case LEFT:
                 if(newPageNum == 1 && wrapPageEnds)
@@ -450,14 +451,14 @@ public class EmbedPaginator extends Menu{
             this.embeds.addAll(Arrays.asList(embeds));
             return this;
         }
-        
+
         /**
          * Adds the collection of provided {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbeds} to the list
          * of items to paginate.
-         * 
+         *
          * @param  embeds
          *         The collection of MessageEmbeds to add
-         *         
+         *
          * @return This builder
          */
         public Builder addItems(Collection<MessageEmbed> embeds)
@@ -509,10 +510,10 @@ public class EmbedPaginator extends Menu{
         /**
          * Sets the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbeds} to paginate.
          * <br>This method clears all previously set items before adding the provided collection of MessageEmbeds.
-         * 
+         *
          * @param  embeds
          *         The collection of MessageEmbeds to set.
-         *         
+         *
          * @return This builder
          */
         public Builder setItems(Collection<MessageEmbed> embeds)
@@ -521,7 +522,7 @@ public class EmbedPaginator extends Menu{
             addItems(embeds);
             return this;
         }
-        
+
         /**
          * Sets the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbeds} to paginate.
          * <br>This method clears all previously set items before setting each String as a new MessageEmbed.

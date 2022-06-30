@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -79,7 +80,7 @@ public class Paginator extends Menu
     public static final String STOP = "\u23F9";
     public static final String RIGHT = "\u25B6";
     public static final String BIG_RIGHT = "\u23E9";
-    
+
     Paginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
               BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
               Consumer<Message> finalAction, int columns, int itemsPerPage, boolean showPageNumbers,
@@ -111,7 +112,7 @@ public class Paginator extends Menu
      * <p>Starting on another page is available via {@link
      * Paginator#paginate(MessageChannel, int)
      * Paginator#paginate(MessageChannel, int)}.
-     * 
+     *
      * @param  channel
      *         The MessageChannel to send the new Message to
      */
@@ -122,12 +123,12 @@ public class Paginator extends Menu
     }
 
     /**
-     * Begins pagination on page 1 displaying this Pagination by editing the provided 
+     * Begins pagination on page 1 displaying this Pagination by editing the provided
      * {@link net.dv8tion.jda.api.entities.Message Message}.
      *
      * <p>Starting on another page is available via
      * {@link Paginator#paginate(Message, int) Paginator#paginate(Message, int)}.
-     * 
+     *
      * @param  message
      *         The Message to display the Menu in
      */
@@ -136,12 +137,12 @@ public class Paginator extends Menu
     {
         paginate(message, 1);
     }
-    
+
     /**
      * Begins pagination as a new {@link net.dv8tion.jda.api.entities.Message Message}
      * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting
      * on whatever page number is provided.
-     * 
+     *
      * @param  channel
      *         The MessageChannel to send the new Message to
      * @param  pageNum
@@ -156,12 +157,12 @@ public class Paginator extends Menu
         Message msg = renderPage(pageNum);
         initialize(channel.sendMessage(msg), pageNum);
     }
-    
+
     /**
-     * Begins pagination displaying this Pagination by editing the provided 
+     * Begins pagination displaying this Pagination by editing the provided
      * {@link net.dv8tion.jda.api.entities.Message Message}, starting on whatever
      * page number is provided.
-     * 
+     *
      * @param  message
      *         The MessageChannel to send the new Message to
      * @param  pageNum
@@ -176,25 +177,25 @@ public class Paginator extends Menu
         Message msg = renderPage(pageNum);
         initialize(message.editMessage(msg), pageNum);
     }
-    
+
     private void initialize(RestAction<Message> action, int pageNum)
     {
         action.queue(m -> {
             if(pages > 1)
             {
                 if(bulkSkipNumber > 1)
-                    m.addReaction(BIG_LEFT).queue();
-                m.addReaction(LEFT).queue();
-                m.addReaction(STOP).queue();
+                    m.addReaction(Emoji.fromFormatted(BIG_LEFT)).queue();
+                m.addReaction(Emoji.fromFormatted(LEFT)).queue();
+                m.addReaction(Emoji.fromFormatted(STOP)).queue();
                 if(bulkSkipNumber > 1)
-                    m.addReaction(RIGHT).queue();
-                m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
+                    m.addReaction(Emoji.fromFormatted(RIGHT)).queue();
+                m.addReaction(Emoji.fromFormatted(bulkSkipNumber > 1? BIG_RIGHT : RIGHT))
                  .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else if(waitOnSinglePage)
             {
                 // Go straight to without text-input because only one page is available
-                m.addReaction(STOP).queue(
+                m.addReaction(Emoji.fromFormatted(STOP)).queue(
                     v -> paginationWithoutTextInput(m, pageNum),
                     t -> paginationWithoutTextInput(m, pageNum)
                 );
@@ -273,7 +274,7 @@ public class Paginator extends Menu
             }
         }, timeout, unit, () -> finalAction.accept(message));
     }
-    
+
     private void paginationWithoutTextInput(Message message, int pageNum)
     {
         waiter.waitForEvent(MessageReactionAddEvent.class,
@@ -287,7 +288,7 @@ public class Paginator extends Menu
     {
         if(event.getMessageIdLong() != messageId)
             return false;
-        switch(event.getReactionEmote().getName())
+        switch(event.getEmoji().getName())
         {
             // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
             // return if the User is valid or not. If none trip, this defaults
@@ -308,7 +309,7 @@ public class Paginator extends Menu
     private void handleMessageReactionAddAction(MessageReactionAddEvent event, Message message, int pageNum)
     {
         int newPageNum = pageNum;
-        switch(event.getReaction().getReactionEmote().getName())
+        switch(event.getReaction().getEmoji().getName())
         {
             case LEFT:
                 if(newPageNum == 1 && wrapPageEnds)
@@ -356,7 +357,7 @@ public class Paginator extends Menu
         int n = newPageNum;
         message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
     }
-    
+
     private Message renderPage(int pageNum)
     {
         MessageBuilder mbuilder = new MessageBuilder();
@@ -381,7 +382,7 @@ public class Paginator extends Menu
                 ebuilder.addField("", strbuilder.toString(), true);
             }
         }
-        
+
         ebuilder.setColor(color.apply(pageNum, pages));
         if(showPageNumbers)
             ebuilder.setFooter("Page "+pageNum+"/"+pages, null);
