@@ -236,7 +236,7 @@ public final class OptionHelper {
 
         OptionMapping option = event.getOption(key);
 
-        return option == null ? defaultValue : option.getAsGuildChannel();
+        return option == null ? defaultValue : option.getAsChannel().asStandardGuildChannel();
     }
 
     /**
@@ -426,7 +426,7 @@ public final class OptionHelper {
     public static MessageChannel optMessageChannel(@NotNull SlashCommandEvent event, @NotNull String key, @Nullable MessageChannel defaultValue) {
         OptionMapping option = event.getOption(key);
 
-        return option == null ? defaultValue : option.getAsMessageChannel();
+        return option == null ? defaultValue : option.getAsChannel().asGuildMessageChannel();
     }
 
     /**

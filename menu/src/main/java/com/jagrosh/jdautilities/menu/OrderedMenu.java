@@ -144,7 +144,7 @@ public class OrderedMenu extends Menu
         // Does not have permission to add reactions
         if(message.getChannelType() == ChannelType.TEXT
                 && !allowTypedInput
-                && !message.getGuild().getSelfMember().hasPermission(message.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
+                && !message.getGuild().getSelfMember().hasPermission(message.getChannel().asGuildMessageChannel(), Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }

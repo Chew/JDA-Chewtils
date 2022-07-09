@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -170,7 +171,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         if (!isFromGuild())
             return defaultValue;
 
-        return getOption(key, defaultValue, OptionMapping::getAsGuildChannel);
+        return getOption(key, defaultValue, optionMapping -> optionMapping.getAsChannel().asStandardGuildChannel());
     }
 
     /**
@@ -300,7 +301,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public MessageChannel optMessageChannel(@NotNull String key, @Nullable MessageChannel defaultValue) {
-        return getOption(key, defaultValue, OptionMapping::getAsMessageChannel);
+        return getOption(key, defaultValue, optionMapping -> optionMapping.getAsChannel().asGuildMessageChannel());
     }
 
     /**
@@ -350,5 +351,16 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     public boolean isFromType(ChannelType channelType)
     {
         return getChannelType() == channelType;
+    }
+
+    /**
+     * Gets the {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} that this CommandEvent
+     * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
+     *
+     * @return The TextChannel this CommandEvent may have taken place on, or null
+     *         if it did not happen on a TextChannel.
+     */
+    public TextChannel getTextChannel() {
+        return getChannel().asTextChannel();
     }
 }

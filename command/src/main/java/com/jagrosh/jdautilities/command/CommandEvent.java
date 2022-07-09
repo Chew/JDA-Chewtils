@@ -1153,7 +1153,7 @@ public class CommandEvent
      */
     public PrivateChannel getPrivateChannel()
     {
-        return event.getPrivateChannel();
+        return event.getChannel().asPrivateChannel();
     }
     
     /**
@@ -1175,7 +1175,7 @@ public class CommandEvent
      */
     public TextChannel getTextChannel()
     {
-        return event.getTextChannel();
+        return event.getChannel().asTextChannel();
     }
 
     /**
