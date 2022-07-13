@@ -36,7 +36,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = 'master-SNAPSHOT'
+        jdaVersion = '07e8166'
         slf4jVersion = '1.7.36'
         okhttpVersion = '4.9.3'
         findbugsVersion = '3.0.2'
