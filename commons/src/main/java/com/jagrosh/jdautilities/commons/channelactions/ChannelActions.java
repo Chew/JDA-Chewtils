@@ -22,8 +22,7 @@ import org.jetbrains.annotations.NotNull;
  *   .delete(3L, TimeUnit.SECONDS)
  *   .send("Player XXX won the fight!")
  *   .delete(3L, TimeUnit.SECONDS);
- * }
- * </pre>
+ * }</pre>
  */
 public interface ChannelActions {
 
