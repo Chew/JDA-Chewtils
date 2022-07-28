@@ -24,15 +24,6 @@ public final class MessageChannelNodeImpl extends ChannelNodeImpl implements Mes
         this(channel, CompletableFuture.completedFuture(channel));
     }
 
-    @NotNull
-    @Contract("_ -> param1")
-    private static MessageChannel messageChannel(@NotNull final Channel channel) {
-        if (!(channel instanceof MessageChannel messageChannel)) {
-            throw new IllegalStateException("This is not a message channel!");
-        }
-        return messageChannel;
-    }
-
     @Override
     @NotNull
     @Contract("_ -> new")
@@ -65,7 +56,16 @@ public final class MessageChannelNodeImpl extends ChannelNodeImpl implements Mes
     @Override
     @Contract("_ -> new")
     public MessageChannelNode with(@NotNull final CompletableFuture<?> future) {
-        final var channel = MessageChannelNodeImpl.messageChannel(this.channel);
+        final MessageChannel channel = MessageChannelNodeImpl.messageChannel(this.channel);
         return new MessageChannelNodeImpl(channel, future.thenApply(o -> channel));
+    }
+
+    @NotNull
+    @Contract("_ -> param1")
+    private static MessageChannel messageChannel(@NotNull final Channel channel) {
+        if (!(channel instanceof MessageChannel)) {
+            throw new IllegalStateException("This is not a message channel!");
+        }
+        return (MessageChannel) channel;
     }
 }
