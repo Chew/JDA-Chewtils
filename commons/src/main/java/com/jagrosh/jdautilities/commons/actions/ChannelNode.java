@@ -1,6 +1,8 @@
 package com.jagrosh.jdautilities.commons.actions;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -62,7 +64,7 @@ public interface ChannelNode extends DeleteNode<JdaNode, Channel> {
     default JdaNode delete() {
         return JdaNode.node(
             this.thenCompose(channel -> {
-                final var jda = channel.getJDA();
+                final JDA jda = channel.getJDA();
                 return channel.delete().submit().thenApply(unused -> jda);
             })
         );
@@ -73,7 +75,7 @@ public interface ChannelNode extends DeleteNode<JdaNode, Channel> {
     default JdaNode delete(final long time, @NotNull final TimeUnit unit) {
         return JdaNode.node(
             this.thenCompose(channel -> {
-                final var jda = channel.getJDA();
+                final JDA jda = channel.getJDA();
                 return channel
                     .delete()
                     .submitAfter(time, unit)
@@ -90,7 +92,7 @@ public interface ChannelNode extends DeleteNode<JdaNode, Channel> {
         return GuildNode.node(
             this.thenApply(GuildChannel.class::cast)
                 .thenCompose(channel -> {
-                    final var guild = channel.getGuild();
+                    final Guild guild = channel.getGuild();
                     return channel.delete().submit().thenApply(unused -> guild);
                 })
         );
@@ -110,7 +112,7 @@ public interface ChannelNode extends DeleteNode<JdaNode, Channel> {
         return GuildNode.node(
             this.thenApply(GuildChannel.class::cast)
                 .thenCompose(channel -> {
-                    final var guild = channel.getGuild();
+                    final Guild guild = channel.getGuild();
                     return channel
                         .delete()
                         .submitAfter(time, unit)
