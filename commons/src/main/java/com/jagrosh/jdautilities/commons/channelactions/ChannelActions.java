@@ -13,14 +13,14 @@ import org.jetbrains.annotations.NotNull;
  * {@code
  * ChannelActions
  *   .node(messageChannel)
- *   .send("Guns are ready!", 1L, TimeUnit.SECONDS)
+ *   .sendMessage("Guns are ready!", 1L, TimeUnit.SECONDS)
  *   .delete(3L, TimeUnit.SECONDS)
- *   .send("3")
+ *   .sendMessage("3")
  *   .editMessage("2", 1L, TimeUnit.SECONDS)
  *   .editMessage("1", 1L, TimeUnit.SECONDS)
  *   .editMessage("OMG WHAT'S HAPPENING!!!", 1L, TimeUnit.SECONDS)
  *   .delete(3L, TimeUnit.SECONDS)
- *   .send("Player XXX won the fight!")
+ *   .sendMessage("Player XXX won the fight!")
  *   .delete(Duration.ofSeconds(3L))
  *   .thenAccept(channel -> {
  *   });
