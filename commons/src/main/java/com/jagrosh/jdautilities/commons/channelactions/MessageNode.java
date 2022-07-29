@@ -1,6 +1,7 @@
 package com.jagrosh.jdautilities.commons.channelactions;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,38 +11,33 @@ import java.util.concurrent.TimeUnit;
 /**
  * an interface to determine message nodes.
  */
-public interface MessageNode {
+public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode, Message> {
 
-    /**
-     * deletes the message.
-     *
-     * @return message channel node.
-     */
     @NotNull
-    @Contract("-> new")
-    MessageChannelNode delete();
+    @Override
+    default MessageChannelNode delete() {
+        return this.parent()
+            .with(
+                this.queue()
+                    .thenApply(Message::delete)
+                    .thenCompose(RestAction::submit)
+                    .thenApply(unused -> this.parent().channel())
+            );
+    }
 
-    /**
-     * deletes the message.
-     *
-     * @param time the time to delete.
-     * @param unit the unit to delete.
-     * @return message channel node.
-     */
     @NotNull
-    @Contract("_, _ -> new")
-    MessageChannelNode delete(long time, @NotNull TimeUnit unit);
-
-    /**
-     * deletes the message.
-     *
-     * @param duration the duration to delete.
-     * @return message channel node.
-     */
-    @NotNull
-    @Contract("_ -> new")
-    default MessageChannelNode delete(@NotNull final Duration duration) {
-        return this.delete(duration.toMillis(), TimeUnit.MILLISECONDS);
+    @Override
+    default MessageChannelNode delete(
+        final long time,
+        @NotNull final TimeUnit unit
+    ) {
+        return this.parent()
+            .with(
+                this.queue()
+                    .thenApply(Message::delete)
+                    .thenCompose(action -> action.submitAfter(time, unit))
+                    .thenApply(unused -> this.parent().channel())
+            );
     }
 
     /**
@@ -52,7 +48,13 @@ public interface MessageNode {
      */
     @NotNull
     @Contract("_ -> new")
-    MessageNode editMessage(@NotNull Message newContent);
+    default MessageNode editMessage(@NotNull final Message newContent) {
+        return this.with(
+            this.queue()
+                .thenApply(message -> message.editMessage(newContent))
+                .thenCompose(RestAction::submit)
+        );
+    }
 
     /**
      * edits the message.
@@ -64,11 +66,17 @@ public interface MessageNode {
      */
     @NotNull
     @Contract("_, _, _ -> new")
-    MessageNode editMessage(
-        @NotNull Message newContent,
-        long time,
-        @NotNull TimeUnit unit
-    );
+    default MessageNode editMessage(
+        @NotNull final Message newContent,
+        final long time,
+        @NotNull final TimeUnit unit
+    ) {
+        return this.with(
+            this.queue()
+                .thenApply(message -> message.editMessage(newContent))
+                .thenCompose(action -> action.submitAfter(time, unit))
+        );
+    }
 
     /**
      * edits the message.
@@ -83,7 +91,11 @@ public interface MessageNode {
         @NotNull final Message newContent,
         @NotNull final Duration duration
     ) {
-        return this.editMessage(newContent, duration.toMillis(), TimeUnit.MILLISECONDS);
+        return this.editMessage(
+            newContent,
+            duration.toMillis(),
+            TimeUnit.MILLISECONDS
+        );
     }
 
     /**
@@ -94,7 +106,13 @@ public interface MessageNode {
      */
     @NotNull
     @Contract("_ -> new")
-    MessageNode editMessage(@NotNull String newContent);
+    default MessageNode editMessage(@NotNull final String newContent) {
+        return this.with(
+            this.queue()
+                .thenApply(message -> message.editMessage(newContent))
+                .thenCompose(RestAction::submit)
+        );
+    }
 
     /**
      * edits the message.
@@ -106,11 +124,17 @@ public interface MessageNode {
      */
     @NotNull
     @Contract("_, _, _ -> new")
-    MessageNode editMessage(
-        @NotNull String newContent,
-        long time,
-        @NotNull TimeUnit unit
-    );
+    default MessageNode editMessage(
+        @NotNull final String newContent,
+        final long time,
+        @NotNull final TimeUnit unit
+    ) {
+        return this.with(
+            this.queue()
+                .thenApply(message -> message.editMessage(newContent))
+                .thenCompose(action -> action.submitAfter(time, unit))
+        );
+    }
 
     /**
      * edits the message.
@@ -125,6 +149,18 @@ public interface MessageNode {
         @NotNull final String newContent,
         @NotNull final Duration duration
     ) {
-        return this.editMessage(newContent, duration.toMillis(), TimeUnit.MILLISECONDS);
+        return this.editMessage(
+            newContent,
+            duration.toMillis(),
+            TimeUnit.MILLISECONDS
+        );
     }
+
+    /**
+     * obtains the parent.
+     *
+     * @return parent.
+     */
+    @NotNull
+    MessageChannelNode parent();
 }

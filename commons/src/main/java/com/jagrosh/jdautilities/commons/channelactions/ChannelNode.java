@@ -1,34 +1,10 @@
 package com.jagrosh.jdautilities.commons.channelactions;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.api.entities.Channel;
 
 /**
- * an interface to determine channel nodes.
+ * an interface to determiner message channel nodes.
  */
-public interface ChannelNode {
+public interface ChannelNode extends BaseChannelNode<Channel, ChannelNode> {
 
-    /**
-     * deletes the channel.
-     */
-    void delete();
-
-    /**
-     * deletes the channel.
-     *
-     * @param time the time to delete.
-     * @param unit the unit to delete.
-     */
-    void delete(long time, @NotNull TimeUnit unit);
-
-    /**
-     * deletes the channel.
-     *
-     * @param duration the duration to delete.
-     */
-    default void delete(@NotNull final Duration duration) {
-        this.delete(duration.toMillis(), TimeUnit.MILLISECONDS);
-    }
 }

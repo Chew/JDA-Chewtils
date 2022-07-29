@@ -21,7 +21,9 @@ import org.jetbrains.annotations.NotNull;
  *   .editMessage("OMG WHAT'S HAPPENING!!!", 1L, TimeUnit.SECONDS)
  *   .delete(3L, TimeUnit.SECONDS)
  *   .send("Player XXX won the fight!")
- *   .delete(3L, TimeUnit.SECONDS);
+ *   .delete(Duration.ofSeconds(3L))
+ *   .thenAccept(channel -> {
+ *   });
  * }</pre>
  */
 public interface ChannelActions {

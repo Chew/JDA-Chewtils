@@ -2,70 +2,57 @@ package com.jagrosh.jdautilities.commons.channelactions.impl;
 
 import com.jagrosh.jdautilities.commons.channelactions.MessageChannelNode;
 import com.jagrosh.jdautilities.commons.channelactions.MessageNode;
-import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.requests.RestAction;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
-public final class MessageChannelNodeImpl extends ChannelNodeImpl implements MessageChannelNode {
+public final class MessageChannelNodeImpl implements MessageChannelNode {
 
-    public MessageChannelNodeImpl(
-        @NotNull final MessageChannel channel,
-        @NotNull final CompletableFuture<MessageChannel> queue
-    ) {
-        super(channel, queue);
+    @NotNull
+    private final MessageChannel channel;
+
+    @NotNull
+    private final CompletableFuture<MessageChannel> queue;
+
+    public MessageChannelNodeImpl(@NotNull final MessageChannel channel, @NotNull final CompletableFuture<MessageChannel> queue) {
+        this.channel = channel;
+        this.queue = queue;
     }
 
     public MessageChannelNodeImpl(@NotNull final MessageChannel channel) {
         this(channel, CompletableFuture.completedFuture(channel));
     }
 
-    @Override
     @NotNull
-    @Contract("_ -> new")
-    public MessageNode send(@NotNull final String message) {
-        return new MessageNodeImpl(
-            this,
-            this.queue.thenApply(MessageChannelNodeImpl::messageChannel)
-                .thenApply(channel -> channel.sendMessage(message))
-                .thenCompose(RestAction::submit)
-        );
-    }
-
     @Override
-    @NotNull
-    @Contract("_, _, _ -> new")
-    public MessageNode send(
-        @NotNull final String message,
-        final long time,
-        @NotNull final TimeUnit unit
+    public MessageChannelNode with(
+        @NotNull final CompletableFuture<MessageChannel> future
     ) {
-        return new MessageNodeImpl(
-            this,
-            this.queue.thenApply(MessageChannelNodeImpl::messageChannel)
-                .thenApply(channel -> channel.sendMessage(message))
-                .thenCompose(action -> action.submitAfter(time, unit))
+        return new MessageChannelNodeImpl(
+            this.channel,
+            future.thenApply(o -> this.channel)
         );
     }
 
     @NotNull
     @Override
-    @Contract("_ -> new")
-    public MessageChannelNode with(@NotNull final CompletableFuture<?> future) {
-        final MessageChannel channel = MessageChannelNodeImpl.messageChannel(this.channel);
-        return new MessageChannelNodeImpl(channel, future.thenApply(o -> channel));
+    public MessageNode withMessage(
+        @NotNull final CompletableFuture<Message> future
+    ) {
+        return new MessageNodeImpl(this, future);
     }
 
     @NotNull
-    @Contract("_ -> param1")
-    private static MessageChannel messageChannel(@NotNull final Channel channel) {
-        if (!(channel instanceof MessageChannel)) {
-            throw new IllegalStateException("This is not a message channel!");
-        }
-        return (MessageChannel) channel;
+    @Override
+    public MessageChannel channel() {
+        return this.channel;
+    }
+
+    @NotNull
+    @Override
+    public CompletableFuture<MessageChannel> queue() {
+        return this.queue;
     }
 }
