@@ -1,4 +1,4 @@
-package com.jagrosh.jdautilities.commons.channelactions;
+package com.jagrosh.jdautilities.commons.actions;
 
 import org.jetbrains.annotations.NotNull;
 

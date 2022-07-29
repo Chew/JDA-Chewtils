@@ -1,4 +1,4 @@
-package com.jagrosh.jdautilities.commons.channelactions;
+package com.jagrosh.jdautilities.commons.actions;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -6,38 +6,72 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 /**
  * an interface to determine message nodes.
  */
-public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode, Message> {
+public interface MessageNode extends DeleteNode<ChannelNode, Message> {
 
+    /**
+     * creates a new message node.
+     *
+     * @param message the message to create.
+     * @return a newly created message node.
+     */
     @NotNull
-    @Override
-    default MessageChannelNode delete() {
-        return this.parent()
-            .with(
-                this.queue()
-                    .thenApply(Message::delete)
-                    .thenCompose(RestAction::submit)
-                    .thenApply(unused -> this.parent().channel())
-            );
+    @Contract("_ -> new")
+    static MessageNode node(@NotNull final CompletableFuture<Message> message) {
+        return () -> message;
+    }
+
+    /**
+     * creates a new message node.
+     *
+     * @param stage the stage to create.
+     * @return a newly created message node.
+     */
+    @NotNull
+    @Contract("_ -> new")
+    static MessageNode node(@NotNull final CompletionStage<Message> stage) {
+        return MessageNode.node(stage.toCompletableFuture());
+    }
+
+    /**
+     * creates a new message node.
+     *
+     * @param message the message to create.
+     * @return a newly created message node.
+     */
+    @NotNull
+    @Contract("_ -> new")
+    static MessageNode node(@NotNull final Message message) {
+        return MessageNode.node(CompletableFuture.completedFuture(message));
     }
 
     @NotNull
     @Override
-    default MessageChannelNode delete(
-        final long time,
-        @NotNull final TimeUnit unit
-    ) {
-        return this.parent()
-            .with(
-                this.queue()
-                    .thenApply(Message::delete)
-                    .thenCompose(action -> action.submitAfter(time, unit))
-                    .thenApply(unused -> this.parent().channel())
-            );
+    default ChannelNode delete() {
+        return ChannelNode.node(
+            this.thenCompose(message ->
+                message.delete().submit().thenApply(unused -> message.getChannel())
+            )
+        );
+    }
+
+    @NotNull
+    @Override
+    default ChannelNode delete(final long time, @NotNull final TimeUnit unit) {
+        return ChannelNode.node(
+            this.thenCompose(message ->
+                message
+                    .delete()
+                    .submitAfter(time, unit)
+                    .thenApply(unused -> message.getChannel())
+            )
+        );
     }
 
     /**
@@ -49,9 +83,8 @@ public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode,
     @NotNull
     @Contract("_ -> new")
     default MessageNode editMessage(@NotNull final Message newContent) {
-        return this.with(
-            this.queue()
-                .thenApply(message -> message.editMessage(newContent))
+        return MessageNode.node(
+            this.thenApply(message -> message.editMessage(newContent))
                 .thenCompose(RestAction::submit)
         );
     }
@@ -71,9 +104,8 @@ public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode,
         final long time,
         @NotNull final TimeUnit unit
     ) {
-        return this.with(
-            this.queue()
-                .thenApply(message -> message.editMessage(newContent))
+        return MessageNode.node(
+            this.thenApply(message -> message.editMessage(newContent))
                 .thenCompose(action -> action.submitAfter(time, unit))
         );
     }
@@ -107,9 +139,8 @@ public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode,
     @NotNull
     @Contract("_ -> new")
     default MessageNode editMessage(@NotNull final String newContent) {
-        return this.with(
-            this.queue()
-                .thenApply(message -> message.editMessage(newContent))
+        return MessageNode.node(
+            this.thenApply(message -> message.editMessage(newContent))
                 .thenCompose(RestAction::submit)
         );
     }
@@ -129,9 +160,8 @@ public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode,
         final long time,
         @NotNull final TimeUnit unit
     ) {
-        return this.with(
-            this.queue()
-                .thenApply(message -> message.editMessage(newContent))
+        return MessageNode.node(
+            this.thenApply(message -> message.editMessage(newContent))
                 .thenCompose(action -> action.submitAfter(time, unit))
         );
     }
@@ -155,12 +185,4 @@ public interface MessageNode extends DeleteNode<MessageChannelNode, MessageNode,
             TimeUnit.MILLISECONDS
         );
     }
-
-    /**
-     * obtains the parent.
-     *
-     * @return parent.
-     */
-    @NotNull
-    MessageChannelNode parent();
 }

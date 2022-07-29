@@ -1,5 +1,6 @@
-package com.jagrosh.jdautilities.commons.channelactions;
+package com.jagrosh.jdautilities.commons.actions;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -9,15 +10,15 @@ import java.util.concurrent.TimeUnit;
  * an interface to determine delete nodes.
  *
  * @param <D> type of the after delete node.
- * @param <N> type of the node itself.
- * @param <F> type of the queue.
+ * @param <Q> type of the queue object.
  */
-public interface DeleteNode<D, N, F> extends Node<N, F> {
+public interface DeleteNode<D, Q> extends Node<Q> {
 
     /**
      * deletes the context.
      */
     @NotNull
+    @Contract("-> new")
     D delete();
 
     /**
@@ -27,6 +28,7 @@ public interface DeleteNode<D, N, F> extends Node<N, F> {
      * @param unit the unit to delete.
      */
     @NotNull
+    @Contract("_, _ -> new")
     D delete(long time, @NotNull TimeUnit unit);
 
     /**
@@ -35,6 +37,7 @@ public interface DeleteNode<D, N, F> extends Node<N, F> {
      * @param duration the duration to delete.
      */
     @NotNull
+    @Contract("_ -> new")
     default D delete(@NotNull final Duration duration) {
         return this.delete(duration.toMillis(), TimeUnit.MILLISECONDS);
     }
