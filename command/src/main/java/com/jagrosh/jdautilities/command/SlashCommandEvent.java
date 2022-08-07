@@ -402,6 +402,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         return settingsClazz.cast(settings);
      }
      
+    /**
      * Gets the {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} that this CommandEvent
      * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
      *
