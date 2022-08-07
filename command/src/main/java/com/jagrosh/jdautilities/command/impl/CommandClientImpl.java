@@ -53,7 +53,6 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -722,20 +721,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
             // Upsert the commands + their privileges
             server.updateCommands().addCommands(data)
-                .queue(commands -> {
-                    Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
-                    for (net.dv8tion.jda.api.interactions.commands.Command command : commands)
-                    {
-                        SlashCommand slashCommand = slashCommandMap.get(command.getName());
-                        ContextMenu contextMenu = contextMenuMap.get(command.getName());
-                        if (slashCommand != null)
-                            privileges.put(command.getId(), slashCommand.buildPrivileges(this));
-                        if (contextMenu != null)
-                            privileges.put(command.getId(), contextMenu.buildPrivileges(this));
-                    }
-                    server.updateCommandPrivileges(privileges)
-                        .queue(priv -> LOG.debug("Successfully added " + commands.size() + " slash commands and " + contextMenus.size() + " menus to server " + server.getName()));
-                }, error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error));
+                .queue(
+                    priv -> LOG.debug("Successfully added " + commands.size() + " slash commands and " + contextMenus.size() + " menus to server " + server.getName()),
+                    error -> LOG.error("Could not upsert commands! Does the bot have the applications.commands scope?" + error)
+                );
         }
         else
             jda.updateCommands().addCommands(data)
@@ -933,12 +922,8 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void onSlashCommand(SlashCommandInteractionEvent event)
     {
-        final SlashCommand command; // this will be null if it's not a command
-        synchronized(slashCommandIndex)
-        {
-            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
-            command = i != -1? slashCommands.get(i) : null;
-        }
+        // this will be null if it's not a command
+        final SlashCommand command = findSlashCommand(event.getCommandPath());
 
         // Wrap the event in a SlashCommandEvent
         final SlashCommandEvent commandEvent = new SlashCommandEvent(event, this);
@@ -955,17 +940,49 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void onCommandAutoComplete(CommandAutoCompleteInteractionEvent event)
     {
-        final SlashCommand command; // this will be null if it's not a command
-        synchronized(slashCommandIndex)
-        {
-            int i = slashCommandIndex.getOrDefault(event.getName().toLowerCase(Locale.ROOT), -1);
-            command = i != -1? slashCommands.get(i) : null;
-        }
+        // this will be null if it's not a command
+        final SlashCommand command = findSlashCommand(event.getCommandPath());
 
         if(command != null)
         {
             command.onAutoComplete(event);
         }
+    }
+
+    private SlashCommand findSlashCommand(String path)
+    {
+        String[] parts = path.split("/");
+
+        final SlashCommand command; // this will be null if it's not a command
+        synchronized(slashCommandIndex)
+        {
+            int i = slashCommandIndex.getOrDefault(parts[0].toLowerCase(Locale.ROOT), -1);
+            command = i != -1? slashCommands.get(i) : null;
+        }
+
+        if (command == null)
+            return null;
+
+        switch (parts.length) {
+            case 1: // Slash command with no children
+                return command;
+            case 2: // Slash command with children
+                // child check
+                for(SlashCommand cmd: command.getChildren())
+                    if(cmd.isCommandFor(parts[1]))
+                        return cmd;
+
+                return null;
+            case 3: // Slash command with a group and a child
+                for(SlashCommand cmd: command.getChildren())
+                    if(cmd.isCommandFor(parts[2]) && cmd.getSubcommandGroup().getName().equals(parts[1]))
+                        return cmd;
+
+                return null;
+        }
+
+        // How did we get here?
+        return null;
     }
 
     private void onUserContextMenu(UserContextInteractionEvent event)
@@ -1127,8 +1144,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             {
                 Set<Message> messages = linkMap.get(event.getMessageIdLong());
                 if(messages.size()>1 && event.getGuild().getSelfMember()
-                        .hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE))
-                    event.getTextChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
+                        .hasPermission(event.getChannel().asTextChannel(), Permission.MESSAGE_MANAGE))
+                    event.getChannel().asTextChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
                 else if(messages.size()>0)
                     messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
             }

@@ -98,13 +98,6 @@ public abstract class Command extends Interaction
     protected String arguments = null;
 
     /**
-     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
-     * {@code false} if it may be used in both a Guild and a DM.
-     * <br>Default {@code true}.
-     */
-    protected boolean guildOnly = true;
-
-    /**
      * {@code true} if the command may only be used in an NSFW
      * {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} or DMs.
      * {@code false} if it may be used anywhere

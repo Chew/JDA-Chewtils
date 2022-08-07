@@ -15,7 +15,6 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -23,10 +22,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -172,7 +171,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         if (!isFromGuild())
             return defaultValue;
 
-        return getOption(key, defaultValue, OptionMapping::getAsGuildChannel);
+        return getOption(key, defaultValue, optionMapping -> optionMapping.getAsChannel().asStandardGuildChannel());
     }
 
     /**
@@ -302,7 +301,7 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
     @Nullable
     @Contract("_, !null -> !null")
     public MessageChannel optMessageChannel(@NotNull String key, @Nullable MessageChannel defaultValue) {
-        return getOption(key, defaultValue, OptionMapping::getAsMessageChannel);
+        return getOption(key, defaultValue, optionMapping -> optionMapping.getAsChannel().asGuildMessageChannel());
     }
 
     /**
@@ -401,5 +400,15 @@ public class SlashCommandEvent extends SlashCommandInteractionEvent {
         final Object settings = manager.getSettings(getGuild());
         if (!settingsClazz.isInstance(settings)) return null;
         return settingsClazz.cast(settings);
+     }
+     
+     * Gets the {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} that this CommandEvent
+     * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
+     *
+     * @return The TextChannel this CommandEvent may have taken place on, or null
+     *         if it did not happen on a TextChannel.
+     */
+    public TextChannel getTextChannel() {
+        return getChannel().asTextChannel();
     }
 }
