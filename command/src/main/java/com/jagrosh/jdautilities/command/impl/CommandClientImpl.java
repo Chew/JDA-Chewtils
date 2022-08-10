@@ -898,6 +898,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
         }
 
+        if (prefixLength > rawContent.length) {
+            prefixLength = rawContent.length;
+        }
+
         String args = "";
         if (cmd == null) { //Assume there are no args since there were absolutely no whitespace
             cmd = rawContent.substring(prefixLength);
