@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,6 +39,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -116,7 +118,7 @@ public class OrderedMenu extends Menu
                 && !allowTypedInput
                 && !((TextChannel)channel).getGuild().getSelfMember().hasPermission((TextChannel) channel, Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
-        initialize(channel.sendMessage(getMessage()));
+        initialize(channel.sendMessage(MessageCreateData.fromEditData(getMessage())));
     }
 
     /**
@@ -262,11 +264,11 @@ public class OrderedMenu extends Menu
     }
 
     // This is where the displayed message for the OrderedMenu is built.
-    private Message getMessage()
+    private MessageEditData getMessage()
     {
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
         if(text!=null)
-            mbuilder.append(text);
+            mbuilder.setContent(text);
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));

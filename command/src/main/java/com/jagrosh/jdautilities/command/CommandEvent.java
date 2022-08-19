@@ -25,6 +25,8 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -127,7 +129,7 @@ public class CommandEvent
      * contained by this CommandEvent.
      *
      * <p>This method is exposed for those who wish to use linked deletion but may require usage of
-     * {@link net.dv8tion.jda.api.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
+     * {@link net.dv8tion.jda.api.entities.MessageChannel#sendMessage(MessageCreateData) MessageChannel#sendMessage()}
      * or for other reasons cannot use the standard {@code reply()} methods.
      *
      * <p>If the Message provided is <b>not</b> from the bot (IE: {@link net.dv8tion.jda.api.entities.SelfUser SelfUser}),
@@ -287,7 +289,7 @@ public class CommandEvent
      * @param  message
      *         The Message to reply with
      */
-    public void reply(Message message)
+    public void reply(MessageCreateData message)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -309,7 +311,7 @@ public class CommandEvent
      * @param  success
      *         The Consumer to success after sending the Message is sent.
      */
-    public void reply(Message message, Consumer<Message> success)
+    public void reply(MessageCreateData message, Consumer<Message> success)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -334,7 +336,7 @@ public class CommandEvent
      * @param  failure
      *         The Consumer to run if an error occurs when sending the Message.
      */
-    public void reply(Message message, Consumer<Message> success, Consumer<Throwable> failure)
+    public void reply(MessageCreateData message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -351,7 +353,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFiles(FileUpload...) MessageChannel#sendFile(FileUpload...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  file
@@ -361,7 +363,7 @@ public class CommandEvent
      */
     public void reply(File file, String filename)
     {
-        event.getChannel().sendFile(file, filename).queue();
+        event.getChannel().sendFiles(FileUpload.fromData(file, filename)).queue();
     }
     
     /**
@@ -372,7 +374,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFiles(FileUpload...) MessageChannel#sendFile(FileUpload...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -384,7 +386,7 @@ public class CommandEvent
      */
     public void reply(String message, File file, String filename)
     {
-        event.getChannel().sendFile(file, filename).content(message).queue();
+        event.getChannel().sendFiles(FileUpload.fromData(file, filename)).addContent(message).queue();
     }
     
     /**
@@ -440,7 +442,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFiles(FileUpload...) MessageChannel#sendFile(FileUpload...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
@@ -463,7 +465,7 @@ public class CommandEvent
     public void replyOrAlternate(String message, File file, String filename, String alternateMessage)
     {
         try {
-            event.getChannel().sendFile(file, filename).content(message).queue();
+            event.getChannel().sendFiles(FileUpload.fromData(file, filename)).addContent(message).queue();
         } catch(Exception e) {
             reply(alternateMessage);
         }
@@ -652,7 +654,7 @@ public class CommandEvent
      * @param  message
      *         The Message to reply with
      */
-    public void replyInDm(Message message)
+    public void replyInDm(MessageCreateData message)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message);
@@ -679,7 +681,7 @@ public class CommandEvent
      * @param  success
      *         The Consumer to queue after sending the Message is sent.
      */
-    public void replyInDm(Message message, Consumer<Message> success)
+    public void replyInDm(MessageCreateData message, Consumer<Message> success)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             getPrivateChannel().sendMessage(message).queue(success);
@@ -711,10 +713,10 @@ public class CommandEvent
     public void replyInDm(Message message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(message).queue(success, failure);
+            getPrivateChannel().sendMessage(MessageCreateData.fromMessage(message)).queue(success, failure);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success, failure), failure);
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(MessageCreateData.fromMessage(message)).queue(success, failure), failure);
         }
     }
 
@@ -730,7 +732,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFiles(FileUpload...) MessageChannel#sendFile(FileUpload...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -746,7 +748,7 @@ public class CommandEvent
             reply(message, file, filename);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFile(file, filename).content(message).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFiles(FileUpload.fromData(file, filename)).addContent(message).queue());
         }
     }
     

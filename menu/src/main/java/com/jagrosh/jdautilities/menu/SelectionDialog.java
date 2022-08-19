@@ -27,7 +27,6 @@ import java.util.function.Function;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -36,6 +35,9 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -137,8 +139,8 @@ public class SelectionDialog extends Menu
             selection = 1;
         else if(selection>choices.size())
             selection = choices.size();
-        Message msg = render(selection);
-        initialize(channel.sendMessage(msg), selection);
+        MessageEditData msg = render(selection);
+        initialize(channel.sendMessage(MessageCreateData.fromEditData(msg)), selection);
     }
 
     /**
@@ -157,7 +159,7 @@ public class SelectionDialog extends Menu
             selection = 1;
         else if(selection>choices.size())
             selection = choices.size();
-        Message msg = render(selection);
+        MessageEditData msg = render(selection);
         initialize(message.editMessage(msg), selection);
     }
 
@@ -224,7 +226,7 @@ public class SelectionDialog extends Menu
         }, timeout, unit, () -> cancel.accept(message));
     }
 
-    private Message render(int selection)
+    private MessageEditData render(int selection)
     {
         StringBuilder sbuilder = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
@@ -232,10 +234,10 @@ public class SelectionDialog extends Menu
                 sbuilder.append("\n").append(leftEnd).append(choices.get(i)).append(rightEnd);
             else
                 sbuilder.append("\n").append(defaultLeft).append(choices.get(i)).append(defaultRight);
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
         String content = text.apply(selection);
         if(content!=null)
-            mbuilder.append(content);
+            mbuilder.setContent(content);
         return mbuilder.setEmbeds(new EmbedBuilder()
                 .setColor(color.apply(selection))
                 .setDescription(sbuilder.toString())

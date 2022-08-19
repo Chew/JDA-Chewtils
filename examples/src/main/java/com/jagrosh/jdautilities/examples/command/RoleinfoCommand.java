@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Locale;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 /**
  *
@@ -98,8 +98,8 @@ public class RoleinfoCommand extends Command
         if(list.size() * 24 <= 2048-desr.length())
             list.forEach(m -> desr.append("<@").append(m.getUser().getId()).append("> "));
         
-        event.reply(new MessageBuilder()
-                .append(title)
+        event.reply(new MessageCreateBuilder()
+                .setContent(title)
                 .setEmbeds(new EmbedBuilder()
                         .setDescription(desr.toString().trim())
                         .setColor(role.getColor()).build())

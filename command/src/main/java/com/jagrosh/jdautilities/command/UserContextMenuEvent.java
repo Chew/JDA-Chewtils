@@ -23,7 +23,8 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.context.UserContextInteraction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
-import net.dv8tion.jda.api.utils.AttachmentOption;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -82,7 +83,7 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
      *
      * @param message The Message to reply with
      */
-    public void respond(Message message)
+    public void respond(MessageCreateData message)
     {
         reply(message).queue();
     }
@@ -93,16 +94,24 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
      * <p>The {@link ReplyCallbackAction} returned by sending the response as a {@link Message} automatically does
      * {@link ReplyCallbackAction#queue() RestAction#queue()}.
      *
-     * <p>This method uses {@link GenericCommandInteractionEvent#replyFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link GenericCommandInteractionEvent#replyFiles(FileUpload...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      *
      * @param file The File to reply with
      * @param filename The filename that Discord should display (null for default).
-     * @param options The {@link AttachmentOption}s to apply to the File.
+     * @param description The description to set (null for no description).
+     * @param spoiler whether the file should be marked as spoiler.
      */
-    public void respond(File file, String filename, AttachmentOption... options)
+    public void respond(File file, String filename, String description, boolean spoiler)
     {
-        replyFile(file, filename, options).queue();
+        FileUpload fileUpload = FileUpload.fromData(file, filename);
+        if(description != null && !description.isEmpty())
+            fileUpload.setDescription(description);
+        
+        if(spoiler)
+            fileUpload.asSpoiler();
+        
+        replyFiles(fileUpload).queue();
     }
 
     /**

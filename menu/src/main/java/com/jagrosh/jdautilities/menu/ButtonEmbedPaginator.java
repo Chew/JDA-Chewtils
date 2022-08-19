@@ -17,7 +17,6 @@ package com.jagrosh.jdautilities.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -28,6 +27,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +114,7 @@ public class ButtonEmbedPaginator extends Menu {
             pageNum = 1;
         else if (pageNum > embeds.size())
             pageNum = embeds.size();
-        Message msg = renderPage(pageNum);
+        MessageCreateData msg = MessageCreateData.fromEditData(renderPage(pageNum));
         initialize(channel.sendMessage(msg), pageNum);
     }
 
@@ -128,7 +130,7 @@ public class ButtonEmbedPaginator extends Menu {
             pageNum = 1;
         else if (pageNum > embeds.size())
             pageNum = embeds.size();
-        Message msg = renderPage(pageNum);
+        MessageEditData msg = renderPage(pageNum);
         initialize(message.editMessage(msg), pageNum);
     }
 
@@ -234,17 +236,17 @@ public class ButtonEmbedPaginator extends Menu {
         }
 
         int n = newPageNum;
-        event.deferEdit().queue(interactionHook -> {
-            message.editMessage(renderPage(n)).setActionRow(buildButtons()).queue(m -> pagination(m, n));
-        });
+        event.deferEdit().queue(
+            interactionHook -> message.editMessage(renderPage(n)).setActionRow(buildButtons()).queue(m -> pagination(m, n))
+        );
     }
 
-    private Message renderPage(int pageNum) {
-        MessageBuilder mbuilder = new MessageBuilder();
+    private MessageEditData renderPage(int pageNum) {
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
         MessageEmbed membed = this.embeds.get(pageNum - 1);
         mbuilder.setEmbeds(membed);
         if (text != null)
-            mbuilder.append(text.apply(pageNum, embeds.size()));
+            mbuilder.setContent(text.apply(pageNum, embeds.size()));
         return mbuilder.build();
     }
 
