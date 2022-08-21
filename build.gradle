@@ -44,7 +44,7 @@ allprojects {
         junitVersion = '4.13.1' // TODO Move to junit 5?
 
         dependencies {
-            jda = { [group: 'com.github.DV8FromTheWorld', name: 'JDA', version: jdaVersion] }
+            jda = { [group: 'net.dv8tion', name: 'JDA', version: jdaVersion] }
             slf4j = { [group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion] }
             okhttp = { [group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion] }
             findbugs = { [group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion] }
