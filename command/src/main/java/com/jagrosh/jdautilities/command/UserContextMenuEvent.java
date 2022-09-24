@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -130,5 +131,54 @@ public class UserContextMenuEvent extends UserContextInteractionEvent
             if(id.equals(getUser().getId()))
                 return true;
         return false;
+    }
+
+    /**
+     * Gets the settings of the guild in which this context menu was used.
+     *
+     * @param <S> the type of the settings
+     * @return the settings, or {@code null} if either of the following conditions are met:
+     * <ul>
+     *     <li>this interaction didn't happen in a guild</li>
+     *     <li>the client's {@link GuildSettingsManager} is null</li>
+     *     <li>the {@link GuildSettingsManager} returned null settings for the guild</li>
+     * </ul>
+     */
+    @Nullable
+    public <S> S getGuildSettings()
+    {
+        if (!isFromGuild()) {
+            return null;
+        }
+        final GuildSettingsManager<S> manager = getClient().getSettingsManager();
+        if (manager == null) return null;
+        return manager.getSettings(getGuild());
+    }
+
+    /**
+     * Gets the settings of the guild in which this context menu was used.
+     *
+     * @param settingsClazz the class of the settings
+     * @param <S> the type of the settings
+     * @return the settings, or {@code null} if either of the following conditions are met:
+     * <ul>
+     *     <li>this interaction didn't happen in a guild</li>
+     *      <li>the client's {@link GuildSettingsManager} is null</li>
+     *      <li>the {@link GuildSettingsManager} returned null settings for the guild</li>
+     *      <li>the {@link GuildSettingsManager} returned settings that are not assignable to the {@code settingsClazz}</li>
+     * </ul>
+     */
+    @Nullable
+    @SuppressWarnings("rawtypes")
+    public <S> S getGuildSettings(Class<? extends S> settingsClazz)
+    {
+        if (!isFromGuild()) {
+            return null;
+        }
+        final GuildSettingsManager manager = getClient().getSettingsManager();
+        if (manager == null) return null;
+        final Object settings = manager.getSettings(getGuild());
+        if (!settingsClazz.isInstance(settings)) return null;
+        return settingsClazz.cast(settings);
     }
 }
