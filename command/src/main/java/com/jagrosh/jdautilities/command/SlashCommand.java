@@ -22,13 +22,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+import net.dv8tion.jda.api.interactions.commands.build.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +68,11 @@ import java.util.Map;
  */
 public abstract class SlashCommand extends Command
 {
+
+    protected Map<DiscordLocale, String> nameLocalization = new HashMap<>();
+
+    protected Map<DiscordLocale, String> descriptionLocalization = new HashMap<>();
+
     /**
      * This option is deprecated in favor of using Discord's permissions<br>
      * This deprecation can be ignored if you intend to support normal and slash commands.
@@ -383,6 +384,17 @@ public abstract class SlashCommand extends Command
         {
             data.addOptions(getOptions());
         }
+
+        //Add localization
+        if (!getNameLocalization().isEmpty())
+        {
+            data.setNameLocalizations(getNameLocalization());
+        }
+        if (!getDescriptionLocalization().isEmpty())
+        {
+            data.setDescriptionLocalizations(getDescriptionLocalization());
+        }
+
         // Check for children
         if (children.length != 0)
         {
@@ -504,5 +516,13 @@ public abstract class SlashCommand extends Command
             return front+" "+ CooldownScope.CHANNEL.errorSpecification+"!";
         else
             return front+" "+cooldownScope.errorSpecification+"!";
+    }
+
+    public Map<DiscordLocale, String> getNameLocalization() {
+        return nameLocalization;
+    }
+
+    public Map<DiscordLocale, String> getDescriptionLocalization() {
+        return descriptionLocalization;
     }
 }
