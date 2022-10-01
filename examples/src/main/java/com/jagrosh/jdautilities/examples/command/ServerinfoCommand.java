@@ -18,9 +18,7 @@ package com.jagrosh.jdautilities.examples.command;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import java.time.format.DateTimeFormatter;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -34,7 +32,7 @@ public class ServerinfoCommand extends Command
     private final static String LINESTART = "\u25AB"; // ▫
     private final static String GUILD_EMOJI = "\uD83D\uDDA5"; // 🖥
     private final static String NO_REGION = "\u2754"; // ❔
-    
+
     public ServerinfoCommand()
     {
         this.name = "serverinfo";
@@ -43,9 +41,9 @@ public class ServerinfoCommand extends Command
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
         this.guildOnly = true;
     }
-    
+
     @Override
-    protected void execute(CommandEvent event) 
+    protected void execute(CommandEvent event)
     {
         Guild guild = event.getGuild();
         Member owner = guild.getOwner();
@@ -56,25 +54,17 @@ public class ServerinfoCommand extends Command
                 .replace("@everyone", "@\u0435veryone") // cyrillic e
                 .replace("@here", "@h\u0435re") // cyrillic e
                 .replace("discord.gg/", "dis\u0441ord.gg/"); // cyrillic c;
-        String verif;
-        switch(guild.getVerificationLevel()) 
-        {
-            case VERY_HIGH: 
-                verif = "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"; 
-                break;
-            case HIGH:    
-                verif = "(╯°□°）╯︵ ┻━┻"; 
-                break;
-            default:      
-                verif = guild.getVerificationLevel().name(); 
-                break;
-        }
         String str = LINESTART + "ID: **" + guild.getId() + "**\n"
-                + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n"
-                + LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
+                + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n";
+        if(!guild.getVoiceChannels().isEmpty())
+        {
+            Region reg = guild.getVoiceChannels().get(0).getRegion();
+            str += LINESTART + "Location: " + (reg.getEmoji() == null || reg.getEmoji().isEmpty() ? NO_REGION : reg.getEmoji()) + " **" + reg.getName() + "**\n";
+        }
+        str +=    LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
                 + LINESTART + "Users: **" + guild.getMemberCache().size() + "** (" + onlineCount + " online, " + botCount + " bots)\n"
                 + LINESTART + "Channels: **" + guild.getTextChannelCache().size() + "** Text, **" + guild.getVoiceChannelCache().size() + "** Voice, **" + guild.getCategoryCache().size() + "** Categories\n"
-                + LINESTART + "Verification: **" + verif + "**";
+                + LINESTART + "Verification: **" + guild.getVerificationLevel().name() + "**";
         if(!guild.getFeatures().isEmpty())
             str += "\n" + LINESTART + "Features: **" + String.join("**, **", guild.getFeatures()) + "**";
         if(guild.getSplashId() != null)
