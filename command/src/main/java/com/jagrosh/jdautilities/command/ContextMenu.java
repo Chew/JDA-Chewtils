@@ -17,10 +17,14 @@ package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Middleware for child context menu types. Anything that extends this class will inherit the following options.
@@ -44,6 +48,19 @@ public abstract class ContextMenu extends Interaction
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Localization of menu names. Allows discord to change the language of the name of menu in the client.
+     */
+    protected Map<DiscordLocale, String> nameLocalization = new HashMap<>();
+
+    /**
+     * Gets the specified localizations of menu name.
+     * @return Menu name localizations.
+     */
+    public Map<DiscordLocale, String> getNameLocalization() {
+        return nameLocalization;
     }
 
     /**
@@ -134,6 +151,13 @@ public abstract class ContextMenu extends Interaction
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.userPermissions));
 
         data.setGuildOnly(this.guildOnly);
+
+        //Check name localizations
+        if (!getNameLocalization().isEmpty())
+        {
+            //Add localizations
+            data.setNameLocalizations(getNameLocalization());
+        }
 
         return data;
     }
