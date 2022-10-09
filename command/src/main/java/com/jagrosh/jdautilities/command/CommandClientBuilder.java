@@ -663,7 +663,7 @@ public class CommandClientBuilder
 
     /**
      * Sets the Command Client to shut down internals automatically when a
-     * {@link net.dv8tion.jda.api.events.ShutdownEvent ShutdownEvent} is received.
+     * {@link net.dv8tion.jda.api.events.session.ShutdownEvent ShutdownEvent} is received.
      *
      * @param shutdownAutomatically
      *        {@code false} to disable calling the shutdown method when a ShutdownEvent is received

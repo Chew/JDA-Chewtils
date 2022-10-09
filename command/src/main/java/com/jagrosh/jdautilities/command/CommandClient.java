@@ -54,7 +54,7 @@ import java.util.function.Function;
  *
  *         <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it, or there is a
  *                      chance some minor errors will occur, <b>especially</b> if JDA has already fired a {@link
- *                      net.dv8tion.jda.api.events.ReadyEvent ReadyEvent}.
+ *                      net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent}.
  *
  *         <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore a User ID) as
  *                      an Owner ID or a CoOwner ID.  This will generate errors, but not stop the creation of the
@@ -602,7 +602,7 @@ public interface CommandClient
 
     /**
      * Upserts all interactions to the provided {@link #forcedGuildId() forced server}.
-     * <br>This runs after the {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent} has been fired
+     * <br>This runs after the {@link net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent} has been fired
      * if {@link #isManualUpsert()} is {@code false}.
      * <br>If {@link #forcedGuildId()} is {@code null}, commands will upsert globally.
      * <b>This may take up to an hour.</b>
@@ -613,7 +613,7 @@ public interface CommandClient
 
     /**
      * Upserts all interactions to the provided server.
-     * <br>This runs after the {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent} has been fired
+     * <br>This runs after the {@link net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent} has been fired
      * if {@link #isManualUpsert()} is {@code false}.
      * <br>If {@code null} is passed for the server, commands will upsert globally.
      * <b>This may take up to an hour.</b>
