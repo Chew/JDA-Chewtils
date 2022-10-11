@@ -432,6 +432,19 @@ public abstract class SlashCommand extends Command
                     subcommandData.addOptions(child.getOptions());
                 }
 
+                //Check child name localizations
+                if (!child.getNameLocalization().isEmpty())
+                {
+                    //Add localizations
+                    subcommandData.setNameLocalizations(child.getNameLocalization());
+                }
+                //Check child description localizations
+                if (!child.getDescriptionLocalization().isEmpty())
+                {
+                    //Add localizations
+                    subcommandData.setDescriptionLocalizations(child.getDescriptionLocalization());
+                }
+
                 // If there's a subcommand group
                 if (child.getSubcommandGroup() != null)
                 {
