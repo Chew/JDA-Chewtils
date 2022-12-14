@@ -951,7 +951,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private SlashCommand findSlashCommand(String path)
     {
-        String[] parts = path.split("/");
+        String[] parts = path.split(" ");
 
         final SlashCommand command; // this will be null if it's not a command
         synchronized(slashCommandIndex)
