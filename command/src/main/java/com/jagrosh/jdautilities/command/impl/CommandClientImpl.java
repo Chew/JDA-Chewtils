@@ -969,13 +969,13 @@ public class CommandClientImpl implements CommandClient, EventListener
             case 2: // Slash command with children
                 // child check
                 for(SlashCommand cmd: command.getChildren())
-                    if(cmd.isCommandFor(parts[1]))
+                    if(cmd.isCommandFor(parts[1]) && cmd.getSubcommandGroup() == null)
                         return cmd;
 
                 return null;
             case 3: // Slash command with a group and a child
                 for(SlashCommand cmd: command.getChildren())
-                    if(cmd.isCommandFor(parts[2]) && cmd.getSubcommandGroup().getName().equals(parts[1]))
+                    if(cmd.isCommandFor(parts[2]) && cmd.getSubcommandGroup() != null && cmd.getSubcommandGroup().getName().equals(parts[1]))
                         return cmd;
 
                 return null;
