@@ -16,7 +16,7 @@
 package com.jagrosh.jdautilities.oauth2.requests;
 
 import com.jagrosh.jdautilities.oauth2.entities.impl.OAuth2ClientImpl;
-import net.dv8tion.jda.internal.requests.Method;
+import net.dv8tion.jda.api.requests.Method;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Headers;
 import okhttp3.Request;
