@@ -31,7 +31,7 @@ import com.jagrosh.jdautilities.oauth2.session.SessionData;
 import com.jagrosh.jdautilities.oauth2.state.DefaultStateController;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
 import net.dv8tion.jda.api.exceptions.HttpException;
-import net.dv8tion.jda.internal.requests.Method;
+import net.dv8tion.jda.api.requests.Method;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.EncodingUtil;
 import net.dv8tion.jda.internal.utils.IOUtil;
