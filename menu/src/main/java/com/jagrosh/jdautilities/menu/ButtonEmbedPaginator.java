@@ -263,7 +263,7 @@ public class ButtonEmbedPaginator extends Menu {
                 }
             }
         } else if (emoji.equals(STOP)) {
-            event.deferEdit.queue(
+            event.deferEdit().queue(
                 interactionHook -> finalAction.accept(message)
             );
             return;
