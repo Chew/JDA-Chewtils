@@ -96,6 +96,13 @@ public abstract class Interaction
     protected String userMissingPermMessage = "%s You must have the %s permission in this %s to use that!";
 
     /**
+     * {@code true} if the command may only be used in an NSFW {@link TextChannel} or DMs.
+     * {@code false} if it may be used anywhere
+     * <br>Default: {@code false}
+     */
+    protected boolean nsfwOnly = false;
+
+    /**
      * Gets the {@link Interaction#cooldown cooldown} for the Interaction.
      *
      * @return The cooldown for the Interaction
@@ -148,7 +155,7 @@ public abstract class Interaction
     /**
      * Returns the installation scope for this interaction.
      *
-     * @return
+     * @return the installation scope for this interaction
      */
     public Set<InteractionContextType> getContexts() {
         return new HashSet<>(Arrays.asList(contexts));
