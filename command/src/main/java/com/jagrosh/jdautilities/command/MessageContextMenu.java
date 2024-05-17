@@ -19,9 +19,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.util.Set;
 
 public abstract class MessageContextMenu extends ContextMenu
 {
@@ -174,7 +177,18 @@ public abstract class MessageContextMenu extends ContextMenu
         else
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.userPermissions));
 
-        data.setGuildOnly(this.guildOnly);
+        Set<InteractionContextType> contexts = getContexts();
+
+        // manually set to true
+        if (this.guildOnly == null) {
+            // do nothing!!! nothing!!!!
+        } else if (this.guildOnly) {
+            // remove bot dm from contexts
+            contexts.remove(InteractionContextType.BOT_DM);
+        } else if (!this.guildOnly) {
+            contexts.add(InteractionContextType.BOT_DM);
+        }
+        data.setNSFW(this.nsfwOnly);
 
         return data;
     }

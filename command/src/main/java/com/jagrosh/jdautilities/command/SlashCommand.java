@@ -23,13 +23,17 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <h2><b>Slash Commands In JDA-Chewtils</b></h2>
@@ -470,7 +474,29 @@ public abstract class SlashCommand extends Command
         else
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.getUserPermissions()));
 
-        data.setGuildOnly(this.guildOnly);
+        data.setNSFW(this.nsfwOnly);
+
+        Set<InteractionContextType> contexts = getContexts();
+
+        // manually set to true
+        if (this.guildOnly == null) {
+            // do nothing!!! nothing!!!!
+        } else if (this.guildOnly) {
+            // remove bot dm from contexts
+            contexts.remove(InteractionContextType.BOT_DM);
+        } else if (!this.guildOnly) {
+            contexts.add(InteractionContextType.BOT_DM);
+        }
+
+        Set<IntegrationType> types = new HashSet<>();
+        if (contexts.contains(InteractionContextType.PRIVATE_CHANNEL)) {
+            types.add(IntegrationType.USER_INSTALL);
+        } else if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
+            types.add(IntegrationType.GUILD_INSTALL);
+        }
+
+        data.setIntegrationTypes(types);
+        data.setContexts(contexts);
 
         return data;
     }

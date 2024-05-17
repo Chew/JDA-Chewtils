@@ -16,6 +16,13 @@
 package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A class that represents an interaction with a user.
@@ -30,8 +37,9 @@ public abstract class Interaction
      * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
      * {@code false} if it may be used in both a Guild and a DM.
      * <br>Default {@code true}.
+     * @deprecated In favor of
      */
-    protected boolean guildOnly = true;
+    protected Boolean guildOnly = null;
 
     /**
      * Any {@link Permission Permissions} a Member must have to use this interaction.
@@ -69,6 +77,11 @@ public abstract class Interaction
      * <br>Default {@link CooldownScope#USER CooldownScope.USER}.
      */
     protected CooldownScope cooldownScope = CooldownScope.USER;
+
+    /**
+     * The interaction context of this command.
+     */
+    protected InteractionContextType[] contexts = new InteractionContextType[]{InteractionContextType.GUILD};
 
     /**
      * The permission message used when the bot does not have the required permission.
@@ -130,5 +143,14 @@ public abstract class Interaction
     public boolean isOwnerCommand()
     {
         return ownerCommand;
+    }
+
+    /**
+     * Returns the installation scope for this interaction.
+     *
+     * @return
+     */
+    public Set<InteractionContextType> getContexts() {
+        return new HashSet<>(Arrays.asList(contexts));
     }
 }
