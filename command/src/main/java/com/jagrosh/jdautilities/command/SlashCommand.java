@@ -478,20 +478,22 @@ public abstract class SlashCommand extends Command
 
         Set<InteractionContextType> contexts = getContexts();
 
-        // manually set to true
+        // Check for guildOnly state.
         if (this.guildOnly == null) {
-            // do nothing!!! nothing!!!!
+            // don't do anything
         } else if (this.guildOnly) {
-            // remove bot dm from contexts
             contexts.remove(InteractionContextType.BOT_DM);
         } else if (!this.guildOnly) {
             contexts.add(InteractionContextType.BOT_DM);
         }
 
         Set<IntegrationType> types = new HashSet<>();
+        // Mark as a user install if it's a private channel. Only users can access private channels.
         if (contexts.contains(InteractionContextType.PRIVATE_CHANNEL)) {
             types.add(IntegrationType.USER_INSTALL);
-        } else if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
+        }
+        // Mark as a guild install if it's a guild or bot dm. Default behavior.
+        if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
             types.add(IntegrationType.GUILD_INSTALL);
         }
 
