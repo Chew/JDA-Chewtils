@@ -1,0 +1,66 @@
+# This is a basic workflow that is manually triggered
+
+name: Build and Publish
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      version:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Version'
+        # Default value if no value is explicitly provided
+        default: 'RORY-SNAPSHOT'
+        # Input has to be provided for the workflow to run
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  publish:
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: 'zulu'
+          cache: 'gradle'
+    
+      - name: Publish to MavenChewtral
+        run: "./gradlew build publish"
+        env:
+          ORG_GRADLE_PROJECT_mchew_username: "${{ secrets.M2_USERNAME }}"
+          ORG_GRADLE_PROJECT_mchew_password: "${{ secrets.M2_PASSWORD }}"
+          BUILD_NUMBER: "${{ github.event.inputs.version }}"
+  javadocs:
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: 'zulu'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew javadoc
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/javadoc
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          destination_dir: ${{ github.event.inputs.version }}"
