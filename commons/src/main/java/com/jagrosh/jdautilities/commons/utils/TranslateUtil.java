@@ -66,7 +66,7 @@ public class TranslateUtil {
 
     /**
      * Converts the following key to the provided locale. Will default to {@code DEFAULT} if no locale.<br>
-     * Recommended use: {@code t("MY_KEY", event.getUserLocale())} on interactions.
+     * Recommended use: {@code t(event.getUserLocale(), "MY_KEY")} on interactions.
      *
      * @param locale The locale to convert to
      * @param key The key to convert
@@ -96,5 +96,15 @@ public class TranslateUtil {
         }
 
         return locales;
+    }
+    
+    /**
+     * Returns the Default locale set to use by this TranslateUtil. By default is the default locale {@link DiscordLocale#ENGLISH_US}
+     * but may be changed using {@link #setDefaultLocale(DiscordLocale)}
+     * 
+     * @return The Default DiscordLocale used by this TranslateUtil.
+     */
+    public static DiscordLocale getDefaultLocale() {
+        return DEFAULT;
     }
 }
