@@ -58,29 +58,30 @@ public abstract class MessageContextMenu extends ContextMenu
         if(event.isFromGuild())
         {
             //user perms
-            for(Permission p: userPermissions)
-            {
-                // Member will never be null because this is only ran in a server (text channel)
-                if(event.getMember() == null)
-                    continue;
+            if (alwaysRespectUserPermissions)
+                for(Permission p: userPermissions)
+                {
+                    // Member will never be null because this is only ran in a server (text channel)
+                    if(event.getMember() == null)
+                        continue;
 
-                if(p.isChannel())
-                {
-                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                    if(p.isChannel())
                     {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
-                        return;
+                        if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                        {
+                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(!event.getMember().hasPermission(p))
+                        {
+                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
+                            return;
+                        }
                     }
                 }
-                else
-                {
-                    if(!event.getMember().hasPermission(p))
-                    {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
-                        return;
-                    }
-                }
-            }
 
             // bot perms
             for(Permission p: botPermissions)
