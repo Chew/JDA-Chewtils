@@ -302,11 +302,6 @@ public abstract class SlashCommand extends Command
                 return;
             }
         }
-        else if(guildOnly)
-        {
-            terminate(event, client.getError()+" This command cannot be used in direct messages", client);
-            return;
-        }
 
         // cooldown check, ignoring owner
         if(cooldown>0 && !(isOwner(event, client)))
