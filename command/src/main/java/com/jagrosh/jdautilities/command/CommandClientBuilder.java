@@ -17,7 +17,7 @@ package com.jagrosh.jdautilities.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -58,9 +58,9 @@ public class CommandClientBuilder
     private String error;
     private String carbonKey;
     private String botsKey;
-    private final LinkedList<Command> commands = new LinkedList<>();
-    private final LinkedList<SlashCommand> slashCommands = new LinkedList<>();
-    private final LinkedList<ContextMenu> contextMenus = new LinkedList<>();
+    private final List<Command> commands = new ArrayList<>();
+    private final List<SlashCommand> slashCommands = new ArrayList<>();
+    private final List<ContextMenu> contextMenus = new ArrayList<>();
     private String forcedGuildId = null;
     private boolean manualUpsert = false;
     private CommandListener listener;
@@ -71,7 +71,7 @@ public class CommandClientBuilder
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 0;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
-    private GuildSettingsManager manager = null;
+    private GuildSettingsManager<?> manager = null;
 
     /**
      * Builds a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
@@ -707,7 +707,7 @@ public class CommandClientBuilder
      *
      * @return This builder
      */
-    public CommandClientBuilder setGuildSettingsManager(GuildSettingsManager manager)
+    public CommandClientBuilder setGuildSettingsManager(GuildSettingsManager<?> manager)
     {
         this.manager = manager;
         return this;
