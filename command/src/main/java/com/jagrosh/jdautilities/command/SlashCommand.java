@@ -101,6 +101,16 @@ public abstract class SlashCommand extends Command
     protected String requiredRole = null;
 
     /**
+     * {@code true} if the command should always respect {@link #userPermissions}, even if the server overrides them,
+     * {@code false} if the command should ignore {@link #userPermissions} if the server overrides them.
+     * <br>
+     * This defaults to false because it interferes with the server's options for interactions.
+     * <br>
+     * This has no effect for text based commands or DMs.
+     */
+    protected boolean forceUserPermissions = false;
+
+    /**
      * The child commands of the command. These are used in the format {@code /<parent name>
      * <child name>}.
      * This is synonymous with sub commands. Additionally, sub-commands cannot have children.<br>
@@ -240,26 +250,29 @@ public abstract class SlashCommand extends Command
         if(event.getChannelType() != ChannelType.PRIVATE)
         {
             //user perms
-            for(Permission p: userPermissions)
+            if (forceUserPermissions)
             {
-                // Member will never be null because this is only ran in a server (text channel)
-                if(event.getMember() == null)
-                    continue;
+                for(Permission p: userPermissions)
+                {
+                    // Member will never be null because this is only ran in a server (text channel)
+                    if(event.getMember() == null)
+                        continue;
 
-                if(p.isChannel())
-                {
-                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                    if(p.isChannel())
                     {
-                        terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
-                        return;
+                        if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                        {
+                            terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    if(!event.getMember().hasPermission(p))
+                    else
                     {
-                        terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "server"), client);
-                        return;
+                        if(!event.getMember().hasPermission(p))
+                        {
+                            terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "server"), client);
+                            return;
+                        }
                     }
                 }
             }
@@ -276,7 +289,7 @@ public abstract class SlashCommand extends Command
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
-                    if(p.isVoice())
+                    if((p.name().startsWith("VOICE")))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();

@@ -95,26 +95,29 @@ public abstract class UserContextMenu extends ContextMenu
         if(event.isFromGuild())
         {
             //user perms
-            for(Permission p: userPermissions)
+            if (forceUserPermissions)
             {
-                // Member will never be null because this is only ran in a server
-                if(event.getMember() == null)
-                    continue;
+                for(Permission p: userPermissions)
+                {
+                    // Member will never be null because this is only ran in a server
+                    if(event.getMember() == null)
+                        continue;
 
-                if(p.isChannel())
-                {
-                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                    if(p.isChannel())
                     {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
-                        return;
+                        if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                        {
+                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    if(!event.getMember().hasPermission(p))
+                    else
                     {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
-                        return;
+                        if(!event.getMember().hasPermission(p))
+                        {
+                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
+                            return;
+                        }
                     }
                 }
             }
