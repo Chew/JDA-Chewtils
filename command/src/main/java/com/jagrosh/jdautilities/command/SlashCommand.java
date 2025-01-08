@@ -270,7 +270,7 @@ public abstract class SlashCommand extends Command
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
-                    if(p.isVoice())
+                    if((p.name().startsWith("VOICE")))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();
