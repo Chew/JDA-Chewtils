@@ -95,7 +95,8 @@ public abstract class UserContextMenu extends ContextMenu
         if(event.isFromGuild())
         {
             //user perms
-            if (alwaysRespectUserPermissions)
+            if (forceUserPermissions)
+            {
                 for(Permission p: userPermissions)
                 {
                     // Member will never be null because this is only ran in a server
@@ -119,6 +120,7 @@ public abstract class UserContextMenu extends ContextMenu
                         }
                     }
                 }
+            }
 
             // bot perms
             for(Permission p: botPermissions)

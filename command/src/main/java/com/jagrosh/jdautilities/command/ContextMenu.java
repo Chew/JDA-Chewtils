@@ -64,14 +64,14 @@ public abstract class ContextMenu extends Interaction
     }
 
     /**
-     * {@code true} if the command should always respect user permissions, even if the server overrides them,
-     * {@code false} if the command should ignore user permissions if the server overrides them.
+     * {@code true} if the command should always respect {@link #userPermissions}, even if the server overrides them,
+     * {@code false} if the command should ignore {@link #userPermissions} if the server overrides them.
      * <br>
      * This defaults to false because it interferes with the server's options for interactions.
      * <br>
      * This has no effect for text based commands or DMs.
      */
-    protected boolean alwaysRespectUserPermissions = false;
+    protected boolean forceUserPermissions = false;
 
     /**
      * Gets the type of context menu.

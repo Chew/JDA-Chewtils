@@ -58,7 +58,8 @@ public abstract class MessageContextMenu extends ContextMenu
         if(event.isFromGuild())
         {
             //user perms
-            if (alwaysRespectUserPermissions)
+            if (forceUserPermissions)
+            {
                 for(Permission p: userPermissions)
                 {
                     // Member will never be null because this is only ran in a server (text channel)
@@ -82,6 +83,7 @@ public abstract class MessageContextMenu extends ContextMenu
                         }
                     }
                 }
+            }
 
             // bot perms
             for(Permission p: botPermissions)
