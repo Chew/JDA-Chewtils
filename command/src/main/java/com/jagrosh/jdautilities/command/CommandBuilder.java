@@ -19,8 +19,9 @@ import com.jagrosh.jdautilities.command.Command.*;
 
 import net.dv8tion.jda.api.Permission;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -50,8 +51,8 @@ public class CommandBuilder
     private int cooldown = 0;
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
-    private final LinkedList<String> aliases = new LinkedList<>();
-    private final LinkedList<Command> children = new LinkedList<>();
+    private final List<String> aliases = new ArrayList<>();
+    private final List<Command> children = new ArrayList<>();
     private BiConsumer<CommandEvent, Command> helpBiConsumer = null;
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
@@ -215,7 +216,7 @@ public class CommandBuilder
         if(userPermissions == null)
             this.userPermissions = new Permission[0];
         else
-            this.userPermissions = (Permission[]) userPermissions.toArray();
+            this.userPermissions = userPermissions.toArray(new Permission[0]);
         return this;
     }
 
@@ -251,7 +252,7 @@ public class CommandBuilder
         if(botPermissions == null)
             this.botPermissions = new Permission[0];
         else
-            this.botPermissions = (Permission[]) botPermissions.toArray();
+            this.botPermissions = botPermissions.toArray(new Permission[0]);
         return this;
     }
 
@@ -490,8 +491,8 @@ public class CommandBuilder
     {
         return new BlankCommand(name, help, category, arguments,
                 guildOnly, requiredRole, ownerCommand, cooldown,
-                userPermissions, botPermissions, aliases.toArray(new String[aliases.size()]),
-                children.toArray(new Command[children.size()]), helpBiConsumer, usesTopicTags,
+                userPermissions, botPermissions, aliases.toArray(new String[0]),
+                children.toArray(new Command[0]), helpBiConsumer, usesTopicTags,
                 cooldownScope, hidden)
         {
             @Override
@@ -502,7 +503,7 @@ public class CommandBuilder
         };
     }
 
-    private abstract class BlankCommand extends Command
+    private abstract static class BlankCommand extends Command
     {
         BlankCommand(String name, String help, Category category,
                      String arguments, boolean guildOnly, String requiredRole,

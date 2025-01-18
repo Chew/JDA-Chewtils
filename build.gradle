@@ -155,6 +155,9 @@ subprojects {
     }
 
     compileJava {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+
         source = sourcesForRelease.destinationDir
         classpath = sourceSets.main.compileClasspath
 

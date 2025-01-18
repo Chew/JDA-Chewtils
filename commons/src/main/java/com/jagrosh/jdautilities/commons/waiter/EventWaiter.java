@@ -234,7 +234,7 @@ public class EventWaiter implements EventListener
     @SuppressWarnings("unchecked")
     public final void onEvent(GenericEvent event)
     {
-        Class c = event.getClass();
+        Class<?> c = event.getClass();
 
         // Runs at least once for the fired Event, at most
         // once for each superclass (excluding Object) because
@@ -275,7 +275,7 @@ public class EventWaiter implements EventListener
         threadpool.shutdown();
     }
     
-    private class WaitingEvent<T extends GenericEvent>
+    private static class WaitingEvent<T extends GenericEvent>
     {
         final Predicate<T> condition;
         final Consumer<T> action;
