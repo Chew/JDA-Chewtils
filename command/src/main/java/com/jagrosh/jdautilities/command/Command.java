@@ -243,7 +243,7 @@ public abstract class Command extends Interaction
             {
                 if(p.isChannel())
                 {
-                    if(p.isVoice())
+                    if((p.name().startsWith("VOICE")))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();

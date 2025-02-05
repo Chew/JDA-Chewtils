@@ -1,5 +1,5 @@
 ## JDA-Chewtils
-JDA-Chewtils is a fork of [JDA-Utilities](https://github.com/JDA-Applications/JDA-Utilities) which is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) to assist in bot creation.
+JDA-Chewtils is a modern and updated fork of [JDA-Utilities](https://github.com/JDA-Applications/JDA-Utilities) which is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) to assist in bot creation.
 
 ## Support
 
@@ -23,7 +23,7 @@ Visit individual modules to read more about their contents!
 ## Getting Started
 You will need to add this project as a dependency (via Maven or Gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). 
 
-**Keep in mind the 1.x version of JDA-Chewtils is only compatible with JDA 4, for compatibility with JDA 5, see [the wiki](https://github.com/Chew/JDA-Chewtils/wiki/Compatibility-with-JDA-4-%26-5)**
+**Keep in mind the 1.x version of JDA-Chewtils is only compatible with JDA 4, for compatibility with JDA 5, you need 2.x. See [the wiki](https://github.com/Chew/JDA-Chewtils/wiki/Compatibility-with-JDA-4-%26-5) for more information.**
 
 With Maven:
 ```xml
