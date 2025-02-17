@@ -284,7 +284,7 @@ public abstract class Command extends Interaction
                 return;
             }
         }
-        else if(guildOnly)
+        else if(guildOnly == null || guildOnly)
         {
             terminate(event, event.getClient().getError()+" This command cannot be used in direct messages");
             return;
