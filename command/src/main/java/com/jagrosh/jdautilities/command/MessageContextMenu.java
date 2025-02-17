@@ -19,9 +19,14 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class MessageContextMenu extends ContextMenu
 {
@@ -177,7 +182,31 @@ public abstract class MessageContextMenu extends ContextMenu
         else
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.userPermissions));
 
-        data.setGuildOnly(this.guildOnly);
+        Set<InteractionContextType> contexts = getContexts();
+
+        // Check for guildOnly state.
+        if (this.guildOnly == null) {
+            // don't do anything
+        } else if (this.guildOnly) {
+            contexts.remove(InteractionContextType.BOT_DM);
+        } else {
+            contexts.add(InteractionContextType.BOT_DM);
+        }
+
+        Set<IntegrationType> types = new HashSet<>();
+        // Mark as a user install if it's a private channel. Only users can access private channels.
+        if (contexts.contains(InteractionContextType.PRIVATE_CHANNEL)) {
+            types.add(IntegrationType.USER_INSTALL);
+        }
+        // Mark as a guild install if it's a guild or bot dm. Default behavior.
+        if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
+            types.add(IntegrationType.GUILD_INSTALL);
+        }
+
+        data.setIntegrationTypes(types);
+        data.setContexts(contexts);
+
+        data.setNSFW(this.nsfwOnly);
 
         return data;
     }

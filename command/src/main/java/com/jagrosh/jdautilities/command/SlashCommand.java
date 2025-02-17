@@ -24,13 +24,17 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <h2><b>Slash Commands In JDA-Chewtils</b></h2>
@@ -330,11 +334,6 @@ public abstract class SlashCommand extends Command
                 return;
             }
         }
-        else if(guildOnly)
-        {
-            terminate(event, client.getError()+" This command cannot be used in direct messages", client);
-            return;
-        }
 
         // cooldown check, ignoring owner
         if(cooldown>0 && !(isOwner(event, client)))
@@ -502,7 +501,31 @@ public abstract class SlashCommand extends Command
         else
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.getUserPermissions()));
 
-        data.setGuildOnly(this.guildOnly);
+        data.setNSFW(this.nsfwOnly);
+
+        Set<InteractionContextType> contexts = getContexts();
+
+        // Check for guildOnly state.
+        if (this.guildOnly == null) {
+            // don't do anything
+        } else if (this.guildOnly) {
+            contexts.remove(InteractionContextType.BOT_DM);
+        } else {
+            contexts.add(InteractionContextType.BOT_DM);
+        }
+
+        Set<IntegrationType> types = new HashSet<>();
+        // Mark as a user install if it's a private channel. Only users can access private channels.
+        if (contexts.contains(InteractionContextType.PRIVATE_CHANNEL)) {
+            types.add(IntegrationType.USER_INSTALL);
+        }
+        // Mark as a guild install if it's a guild or bot dm. Default behavior.
+        if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
+            types.add(IntegrationType.GUILD_INSTALL);
+        }
+
+        data.setIntegrationTypes(types);
+        data.setContexts(contexts);
 
         return data;
     }
