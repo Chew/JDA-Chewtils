@@ -198,7 +198,7 @@ public abstract class SlashCommand extends Command
      * @return Translated Help text for default locale, or help text set in constructor.
      */
     @Override
-    public String getHelp(){
+    public String getHelp() {
         String helpMessage = null;
         if (!getDescriptionLocalization().isEmpty()) {
             helpMessage = getDescriptionLocalization().get(TranslateUtil.getDefaultLocale());
