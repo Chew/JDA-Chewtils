@@ -36,8 +36,8 @@ public abstract class Interaction
     /**
      * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
      * {@code false} if it may be used in both a Guild and a DM.
-     * <br>Default {@code true}.
-     * @deprecated In favor of
+     * <br>Default {@code null}, meaning no automatic action will be taken.
+     * @deprecated In favor of {@link #contexts}
      */
     protected Boolean guildOnly = null;
 
