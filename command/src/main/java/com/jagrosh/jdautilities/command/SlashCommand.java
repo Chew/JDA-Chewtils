@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import com.jagrosh.jdautilities.commons.utils.TranslateUtil;
 import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -187,6 +188,24 @@ public abstract class SlashCommand extends Command
      */
     @Override
     protected void execute(CommandEvent event) {}
+    
+    /**
+     * Returns the description of this SlashCommand instance.<br>
+     * Should there be {@link #getDescriptionLocalization() translations for this text} will the client try to
+     * obtain a translation for the Description using {@link TranslateUtil#getDefaultLocale() the default locale} and
+     * in case of a null or empty String return the default help text set.
+     * 
+     * @return Translated Help text for default locale, or help text set in constructor.
+     */
+    @Override
+    public String getHelp() {
+        String helpMessage = null;
+        if (!getDescriptionLocalization().isEmpty()) {
+            helpMessage = getDescriptionLocalization().get(TranslateUtil.getDefaultLocale());
+        }
+        
+        return (helpMessage == null || helpMessage.isEmpty()) ? this.help : helpMessage;
+    }
 
     /**
      * Runs checks for the {@link SlashCommand SlashCommand} with the
