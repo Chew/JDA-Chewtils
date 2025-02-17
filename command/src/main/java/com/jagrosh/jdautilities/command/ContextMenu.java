@@ -171,7 +171,7 @@ public abstract class ContextMenu extends Interaction
             // don't do anything
         } else if (this.guildOnly) {
             contexts.remove(InteractionContextType.BOT_DM);
-        } else if (!this.guildOnly) {
+        } else {
             contexts.add(InteractionContextType.BOT_DM);
         }
 

@@ -228,7 +228,7 @@ public abstract class UserContextMenu extends ContextMenu
         } else if (this.guildOnly) {
             // remove bot dm from contexts
             contexts.remove(InteractionContextType.BOT_DM);
-        } else if (!this.guildOnly) {
+        } else {
             contexts.add(InteractionContextType.BOT_DM);
         }
         data.setNSFW(this.nsfwOnly);
@@ -238,7 +238,7 @@ public abstract class UserContextMenu extends ContextMenu
             // don't do anything
         } else if (this.guildOnly) {
             contexts.remove(InteractionContextType.BOT_DM);
-        } else if (!this.guildOnly) {
+        } else {
             contexts.add(InteractionContextType.BOT_DM);
         }
 
