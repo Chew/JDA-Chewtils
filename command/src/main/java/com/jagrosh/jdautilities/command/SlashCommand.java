@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import com.jagrosh.jdautilities.commons.utils.TranslateUtil;
 import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -23,13 +24,17 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <h2><b>Slash Commands In JDA-Chewtils</b></h2>
@@ -98,6 +103,16 @@ public abstract class SlashCommand extends Command
      */
     @Deprecated
     protected String requiredRole = null;
+
+    /**
+     * {@code true} if the command should always respect {@link #userPermissions}, even if the server overrides them,
+     * {@code false} if the command should ignore {@link #userPermissions} if the server overrides them.
+     * <br>
+     * This defaults to false because it interferes with the server's options for interactions.
+     * <br>
+     * This has no effect for text based commands or DMs.
+     */
+    protected boolean forceUserPermissions = false;
 
     /**
      * The child commands of the command. These are used in the format {@code /<parent name>
@@ -177,6 +192,24 @@ public abstract class SlashCommand extends Command
      */
     @Override
     protected void execute(CommandEvent event) {}
+    
+    /**
+     * Returns the description of this SlashCommand instance.<br>
+     * Should there be {@link #getDescriptionLocalization() translations for this text} will the client try to
+     * obtain a translation for the Description using {@link TranslateUtil#getDefaultLocale() the default locale} and
+     * in case of a null or empty String return the default help text set.
+     * 
+     * @return Translated Help text for default locale, or help text set in constructor.
+     */
+    @Override
+    public String getHelp() {
+        String helpMessage = null;
+        if (!getDescriptionLocalization().isEmpty()) {
+            helpMessage = getDescriptionLocalization().get(TranslateUtil.getDefaultLocale());
+        }
+        
+        return (helpMessage == null || helpMessage.isEmpty()) ? this.help : helpMessage;
+    }
 
     /**
      * Runs checks for the {@link SlashCommand SlashCommand} with the
@@ -221,26 +254,29 @@ public abstract class SlashCommand extends Command
         if(event.getChannelType() != ChannelType.PRIVATE)
         {
             //user perms
-            for(Permission p: userPermissions)
+            if (forceUserPermissions)
             {
-                // Member will never be null because this is only ran in a server (text channel)
-                if(event.getMember() == null)
-                    continue;
+                for(Permission p: userPermissions)
+                {
+                    // Member will never be null because this is only ran in a server (text channel)
+                    if(event.getMember() == null)
+                        continue;
 
-                if(p.isChannel())
-                {
-                    if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                    if(p.isChannel())
                     {
-                        terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
-                        return;
+                        if(!event.getMember().hasPermission(event.getGuildChannel(), p))
+                        {
+                            terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "channel"), client);
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    if(!event.getMember().hasPermission(p))
+                    else
                     {
-                        terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "server"), client);
-                        return;
+                        if(!event.getMember().hasPermission(p))
+                        {
+                            terminate(event, String.format(userMissingPermMessage, client.getError(), p.getName(), "server"), client);
+                            return;
+                        }
                     }
                 }
             }
@@ -257,7 +293,7 @@ public abstract class SlashCommand extends Command
                 Member selfMember = event.getGuild() == null ? null : event.getGuild().getSelfMember();
                 if(p.isChannel())
                 {
-                    if(p.isVoice())
+                    if((p.name().startsWith("VOICE")))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
                         AudioChannel vc = gvc == null ? null : gvc.getChannel();
@@ -297,11 +333,6 @@ public abstract class SlashCommand extends Command
                 terminate(event, "This command may only be used in NSFW text channels!", client);
                 return;
             }
-        }
-        else if(guildOnly)
-        {
-            terminate(event, client.getError()+" This command cannot be used in direct messages", client);
-            return;
         }
 
         // cooldown check, ignoring owner
@@ -470,7 +501,31 @@ public abstract class SlashCommand extends Command
         else
             data.setDefaultPermissions(DefaultMemberPermissions.enabledFor(this.getUserPermissions()));
 
-        data.setGuildOnly(this.guildOnly);
+        data.setNSFW(this.nsfwOnly);
+
+        Set<InteractionContextType> contexts = getContexts();
+
+        // Check for guildOnly state.
+        if (this.guildOnly == null) {
+            // don't do anything
+        } else if (this.guildOnly) {
+            contexts.remove(InteractionContextType.BOT_DM);
+        } else {
+            contexts.add(InteractionContextType.BOT_DM);
+        }
+
+        Set<IntegrationType> types = new HashSet<>();
+        // Mark as a user install if it's a private channel. Only users can access private channels.
+        if (contexts.contains(InteractionContextType.PRIVATE_CHANNEL)) {
+            types.add(IntegrationType.USER_INSTALL);
+        }
+        // Mark as a guild install if it's a guild or bot dm. Default behavior.
+        if (contexts.contains(InteractionContextType.BOT_DM) || contexts.contains(InteractionContextType.GUILD)) {
+            types.add(IntegrationType.GUILD_INSTALL);
+        }
+
+        data.setIntegrationTypes(types);
+        data.setContexts(contexts);
 
         return data;
     }

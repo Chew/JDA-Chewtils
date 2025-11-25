@@ -16,6 +16,13 @@
 package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A class that represents an interaction with a user.
@@ -29,9 +36,10 @@ public abstract class Interaction
     /**
      * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
      * {@code false} if it may be used in both a Guild and a DM.
-     * <br>Default {@code true}.
+     * <br>Default {@code null}, meaning no automatic action will be taken.
+     * @deprecated In favor of {@link #contexts}
      */
-    protected boolean guildOnly = true;
+    protected Boolean guildOnly = null;
 
     /**
      * Any {@link Permission Permissions} a Member must have to use this interaction.
@@ -71,6 +79,11 @@ public abstract class Interaction
     protected CooldownScope cooldownScope = CooldownScope.USER;
 
     /**
+     * The interaction context of this command.
+     */
+    protected InteractionContextType[] contexts = new InteractionContextType[]{InteractionContextType.GUILD};
+
+    /**
      * The permission message used when the bot does not have the required permission.
      * Requires 3 "%s", first is user mention, second is the permission needed, third is type, e.g. server.
      */
@@ -81,6 +94,13 @@ public abstract class Interaction
      * Requires 3 "%s", first is user mention, second is the permission needed, third is type, e.g. server.
      */
     protected String userMissingPermMessage = "%s You must have the %s permission in this %s to use that!";
+
+    /**
+     * {@code true} if the command may only be used in an NSFW {@link TextChannel} or DMs.
+     * {@code false} if it may be used anywhere
+     * <br>Default: {@code false}
+     */
+    protected boolean nsfwOnly = false;
 
     /**
      * Gets the {@link Interaction#cooldown cooldown} for the Interaction.
@@ -130,5 +150,14 @@ public abstract class Interaction
     public boolean isOwnerCommand()
     {
         return ownerCommand;
+    }
+
+    /**
+     * Returns the installation scope for this interaction.
+     *
+     * @return the installation scope for this interaction
+     */
+    public Set<InteractionContextType> getContexts() {
+        return new HashSet<>(Arrays.asList(contexts));
     }
 }

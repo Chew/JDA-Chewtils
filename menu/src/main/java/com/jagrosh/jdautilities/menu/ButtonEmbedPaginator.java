@@ -17,6 +17,9 @@ package com.jagrosh.jdautilities.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -25,8 +28,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -168,19 +169,20 @@ public class ButtonEmbedPaginator extends Menu {
     private void initialize(RestAction<Message> action, int pageNum) {
         action.queue(m -> {
             if (embeds.size() > 1) {
-                List<Button> actions = buildButtons();
+                ActionRow actions = buildButtons();
 
-                m.editMessage(renderPage(pageNum)).setActionRow(actions).queue(v -> pagination(m, pageNum));
+                m.editMessage(renderPage(pageNum)).setComponents(actions).queue(v -> pagination(m, pageNum));
             } else if (waitOnSinglePage) {
                 String id = System.currentTimeMillis() + ":STOP";
-                m.editMessage(renderPage(pageNum)).setActionRow(Button.of(style, id, STOP)).queue(v -> pagination(m, pageNum));
+                ActionRow button = ActionRow.of(Button.of(style, id, STOP));
+                m.editMessage(renderPage(pageNum)).setComponents(button).queue(v -> pagination(m, pageNum));
             } else {
                 finalAction.accept(m);
             }
         });
     }
 
-    private List<Button> buildButtons() {
+    private ActionRow buildButtons() {
         // bep = button embed paginator
         String id = "bep:" + System.currentTimeMillis();
         List<Button> actions = new ArrayList<>();
@@ -193,7 +195,7 @@ public class ButtonEmbedPaginator extends Menu {
             actions.add(Button.of(style, id + ":BIG_RIGHT", BIG_RIGHT));
         }
 
-        return actions;
+        return ActionRow.of(actions);
     }
 
     private void pagination(Message message, int pageNum) {
@@ -270,7 +272,7 @@ public class ButtonEmbedPaginator extends Menu {
 
         int n = newPageNum;
         event.deferEdit().queue(
-            interactionHook -> message.editMessage(renderPage(n)).setActionRow(buildButtons()).queue(m -> pagination(m, n))
+            interactionHook -> message.editMessage(renderPage(n)).setComponents(buildButtons()).queue(m -> pagination(m, n))
         );
     }
 
