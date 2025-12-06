@@ -75,7 +75,7 @@ public abstract class MessageContextMenu extends ContextMenu
                     {
                         if(!event.getMember().hasPermission(event.getGuildChannel(), p))
                         {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
+                            terminate(event, String.format(userMissingPermMessage, event.getClient().getError(), p.getName(), "channel"));
                             return;
                         }
                     }
@@ -83,7 +83,7 @@ public abstract class MessageContextMenu extends ContextMenu
                     {
                         if(!event.getMember().hasPermission(p))
                         {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
+                            terminate(event, String.format(userMissingPermMessage, event.getClient().getError(), p.getName(), "server"));
                             return;
                         }
                     }
@@ -113,7 +113,7 @@ public abstract class MessageContextMenu extends ContextMenu
                         }
                         else if(!selfMember.hasPermission(vc, p))
                         {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "voice channel"));
+                            terminate(event, String.format(botMissingPermMessage, event.getClient().getError(), p.getName(), "voice channel"));
                             return;
                         }
                     }
@@ -121,7 +121,7 @@ public abstract class MessageContextMenu extends ContextMenu
                     {
                         if(!selfMember.hasPermission(event.getGuildChannel(), p))
                         {
-                            terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "channel"));
+                            terminate(event, String.format(botMissingPermMessage, event.getClient().getError(), p.getName(), "channel"));
                             return;
                         }
                     }
@@ -130,7 +130,7 @@ public abstract class MessageContextMenu extends ContextMenu
                 {
                     if(!selfMember.hasPermission(p))
                     {
-                        terminate(event, String.format("%s%s%s", event.getClient().getError(), p.getName(), "server"));
+                        terminate(event, String.format(botMissingPermMessage, event.getClient().getError(), p.getName(), "server"));
                         return;
                     }
                 }
