@@ -15,6 +15,15 @@
  */
 package com.jagrosh.jdautilities.menu;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -34,15 +43,6 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
-
-import java.awt.Color;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} of ordered buttons signified
@@ -251,9 +251,7 @@ public class OrderedMenu extends Menu
     private void waitReactionOnly(Message m)
     {
         // This one is only for reactions
-        waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
-            return isValidReaction(m, e);
-        }, e -> {
+        waiter.waitForEvent(MessageReactionAddEvent.class, e -> isValidReaction(m, e), e -> {
             m.delete().queue();
             if(e.getReaction().getEmoji().getName().equals(CANCEL))
                 cancel.accept(m);
@@ -275,7 +273,7 @@ public class OrderedMenu extends Menu
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
         mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
-                .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
+                .setDescription(description==null ? sb.toString() : description+ sb).build());
         return mbuilder.build();
     }
 
@@ -351,7 +349,7 @@ public class OrderedMenu extends Menu
         private Color color;
         private String text;
         private String description;
-        private final List<String> choices = new LinkedList<>();
+        private final List<String> choices = new ArrayList<>();
         private BiConsumer<Message, Integer> selection;
         private Consumer<Message> cancel = (m) -> {};
         private boolean useLetters = false;

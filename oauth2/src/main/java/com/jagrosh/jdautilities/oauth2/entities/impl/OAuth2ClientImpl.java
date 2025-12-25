@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,12 +58,12 @@ public class OAuth2ClientImpl implements OAuth2Client
 
     private final long clientId;
     private final String clientSecret;
-    private final SessionController sessionController;
+    private final SessionController<?> sessionController;
     private final StateController stateController;
     private final OkHttpClient httpClient;
     private final OAuth2Requester requester;
 
-    public OAuth2ClientImpl(long clientId, String clientSecret, SessionController sessionController,
+    public OAuth2ClientImpl(long clientId, String clientSecret, SessionController<?> sessionController,
                             StateController stateController, OkHttpClient httpClient)
     {
         Checks.check(clientId >= 0, "Invalid Client ID");
@@ -181,7 +181,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                     throw failure(response);
 
                 JSONArray body = new JSONArray(new JSONTokener(IOUtil.getBody(response)));
-                List<OAuth2Guild> list = new LinkedList<>();
+                List<OAuth2Guild> list = new ArrayList<>();
                 JSONObject obj;
                 for(int i = 0; i < body.length(); i++)
                 {
@@ -214,7 +214,7 @@ public class OAuth2ClientImpl implements OAuth2Client
     }
 
     @Override
-    public SessionController getSessionController()
+    public SessionController<?> getSessionController()
     {
         return sessionController;
     }
