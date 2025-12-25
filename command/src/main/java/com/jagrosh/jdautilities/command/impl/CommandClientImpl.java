@@ -808,13 +808,16 @@ public class CommandClientImpl implements CommandClient, EventListener
 
         // Check for prefix or alternate prefix (@mention cases)
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX))) {
-            if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+">") ||
-                    rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+">")) {
+            if(rawContent.startsWith("<@"+ event.getJDA().getSelfUser().getId()+"> ") || //Ensure that there is a space between the command and the mention
+                    rawContent.startsWith("<@!"+ event.getJDA().getSelfUser().getId()+"> ")) {
                 // Since we now use substring into makeMessageParts function and a indexOf here, we need to do a +1 to get the good substring
-                // On top of that we need to do another +1 because the default @mention prefix will always be followed by a space
-                // So we need to add 2 characters to get the correct substring
-                final int prefixLength = rawContent.indexOf('>') + 2;
-                return makeMessageParts(rawContent, prefixLength);
+                final int mentionEndIndex = rawContent.indexOf('>') + 1;
+                // Make sure that the content isn't just the mention
+                if (rawContent.length() >= mentionEndIndex + 1) {
+                    // On top of that we need to do another +1 because the default @mention prefix will always be followed by a space
+                    final int prefixLength = rawContent.indexOf('>') + 2;
+                    return makeMessageParts(rawContent, prefixLength);
+                }
             }
         }
 
