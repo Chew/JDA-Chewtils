@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.oauth2.requests;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class OAuth2Requester
         httpClient.newCall(request.buildRequest()).enqueue(new Callback()
         {
             @Override
-            public void onResponse(Call call, Response response)
+            public void onResponse(@NotNull Call call, @NotNull Response response)
             {
                 try
                 {
@@ -81,7 +82,7 @@ public class OAuth2Requester
             }
 
             @Override
-            public void onFailure(Call call, IOException e)
+            public void onFailure(@NotNull Call call, @NotNull IOException e)
             {
                 LOGGER.error("Requester encountered an error when submitting a request!", e);
             }
@@ -98,7 +99,7 @@ public class OAuth2Requester
         }
     }
 
-    private static void logSuccessfulRequest(OAuth2Action request)
+    private static void logSuccessfulRequest(OAuth2Action<?> request)
     {
         LOGGER.debug("Got a response for {} - {}\nHeaders: {}", request.getMethod(),
             request.getUrl(), request.getHeaders());

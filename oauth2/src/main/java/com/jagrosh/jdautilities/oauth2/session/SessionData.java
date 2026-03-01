@@ -105,12 +105,18 @@ public class SessionData
     @Override
     public boolean equals(Object obj)
     {
-        if(!(obj instanceof SessionData))
+        if (obj instanceof SessionData) {
+            SessionData data = ((SessionData) obj);
+
+            return getIdentifier().equals(data.getIdentifier()) && getTokenType().equals(data.getTokenType());
+        } else {
             return false;
+        }
+    }
 
-        SessionData data = ((SessionData) obj);
-
-        return getIdentifier().equals(data.getIdentifier()) && getTokenType().equals(data.getTokenType());
+    @Override
+    public int hashCode() {
+        return getIdentifier().hashCode() + getTokenType().hashCode();
     }
 
     @Override

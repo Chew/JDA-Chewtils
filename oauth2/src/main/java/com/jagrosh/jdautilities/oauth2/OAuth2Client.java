@@ -153,7 +153,7 @@ public interface OAuth2Client
      *
      * @return The client's SessionController.
      */
-    SessionController getSessionController();
+    SessionController<?> getSessionController();
 
     /**
      * Builder for creating OAuth2Client instances.
@@ -165,7 +165,7 @@ public interface OAuth2Client
     {
         private long clientId = -1;
         private String clientSecret;
-        private SessionController sessionController;
+        private SessionController<?> sessionController;
         private StateController stateController;
         private OkHttpClient client;
 
@@ -225,7 +225,7 @@ public interface OAuth2Client
          *
          * @return This builder.
          */
-        public Builder setSessionController(SessionController sessionController)
+        public Builder setSessionController(SessionController<?> sessionController)
         {
             this.sessionController = sessionController;
             return this;
