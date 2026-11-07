@@ -14,5 +14,11 @@
  * limitations under the License.
  */
 dependencies {
-    compileOnly jda()
+    compileOnly(libs.jda)
+    implementation(libs.slf4j)
+
+    implementation(project(":commons"))
+    implementation(project(":command"))
+    implementation(project(":menu"))
+    implementation(project(":doc"))
 }

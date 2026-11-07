@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Chewtils'
+dependencies {
+    compileOnly(libs.jda)
 
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':oauth2'
+    implementation(project(":commons"))
+}
