@@ -727,8 +727,14 @@ public class CommandClientImpl implements CommandClient, EventListener
                 );
         }
         else
+        {
+            // Do not trigger updateCommands() multiple times on a sharded bot.
+            if(jda.getShardInfo().getShardTotal() > 1 && jda.getShardInfo().getShardId() != 0)
+                return;
+            
             jda.updateCommands().addCommands(data)
                 .queue(commands -> LOG.debug("Successfully added " + commands.size() + " slash commands!"));
+        }
     }
 
     private void onMessageReceived(MessageReceivedEvent event)
