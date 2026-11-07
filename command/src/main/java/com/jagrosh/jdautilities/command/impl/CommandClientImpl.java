@@ -619,7 +619,8 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public void onEvent(GenericEvent event)
     {
-        if(event instanceof MessageReceivedEvent)
+        // Only handle messages if at least one command is set (Fixes rare exception)
+        if((event instanceof MessageReceivedEvent) && !commands.isEmpty())
             onMessageReceived((MessageReceivedEvent)event);
 
         else if(event instanceof SlashCommandInteractionEvent)
