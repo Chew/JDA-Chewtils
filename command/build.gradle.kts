@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 dependencies {
-    compileOnly jda()
-    implementation findbugs()
-    implementation json()
+    compileOnly(libs.jda)
+    implementation(libs.slf4j)
+    implementation(libs.okhttp)
+    implementation(libs.findbugs)
+    implementation(libs.json)
 
-    implementation commons()
+    implementation(project(":commons"))
+}
+
+tasks.named<Javadoc>("javadoc") {
+    exclude("com/jagrosh/jdautilities/commandclient/impl")
 }

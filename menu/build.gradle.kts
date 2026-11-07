@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 dependencies {
-    compileOnly jda()
-    implementation slf4j()
-    implementation okhttp()
-    implementation findbugs()
-    implementation json()
-
-    implementation commons()
-}
-
-javadoc {
-    exclude 'com/jagrosh/jdautilities/commandclient/impl'
+    compileOnly(libs.jda)
+    implementation(libs.findbugs)
+    implementation(project(":commons"))
 }
